@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>أذكار وأدعية</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap');
+
+:root{
+  --bg:#F2E8D5;
+  --bg-card:#FBF5E8;
+  --ink:#2B2118;
+  --ink-soft:#6B5A45;
+  --teal:#1F5C4E;
+  --teal-dark:#123B31;
+  --gold:#AD8A3E;
+  --gold-soft:#DCC08A;
+  --gold-line: rgba(173,138,62,0.35);
+  --danger:#8C3B2E;
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(173,138,62,0.07) 1px, transparent 0);
+  background-size: 18px 18px;
+  color:var(--ink);
+  font-family:'Tajawal', sans-serif;
+  min-height:100vh;
+  padding:28px 20px 80px;
+}
+
+.app{max-width:1120px; margin:0 auto;}
+
+.app-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+
+.brand{display:flex; align-items:center; gap:12px;}
+.brand svg{flex-shrink:0;}
+.brand h1{
+  font-family:'Reem Kufi', sans-serif;
+  font-weight:700;
+  font-size:30px;
+  margin:0;
+  color:var(--teal-dark);
+  letter-spacing:0.5px;
+}
+
+.admin-toggle button{
+  font-family:'Tajawal', sans-serif;
+  font-size:13px;
+  background:var(--bg-card);
+  border:1px solid var(--gold-line);
+  color:var(--ink-soft);
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  transition:background .15s;
+}
+.admin-toggle button:hover{background:#F5EDD9;}
+.admin-toggle button.active{
+  background:var(--teal);
+  color:#F5EDD9;
+  border-color:var(--teal);
+}
+
+.ornament{
+  height:14px;
+  margin:6px 0 22px;
+  background-image: repeating-linear-gradient(
+    45deg, var(--gold-soft) 0 3px, transparent 3px 9px
+  );
+  opacity:0.55;
+  mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:26px;
+}
+.tab{
+  font-family:'Tajawal', sans-serif;
+  font-size:14px;
+  font-weight:500;
+  background:transparent;
+  border:1px solid var(--gold-line);
+  color:var(--ink-soft);
+  padding:9px 16px;
+  border-radius:20px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  white-space:nowrap;
+  transition:all .15s;
+}
+.tab:hover{background:rgba(173,138,62,0.1);}
+.tab.active{
+  background:var(--teal);
+  border-color:var(--teal);
+  color:#F5EDD9;
+}
+.tab.active.all-tab{
+  background:var(--gold);
+  border-color:var(--gold);
+  color:#2B2118;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
+  gap:16px;
+}
+
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--gold-line);
+  border-radius:10px;
+  padding:20px 18px 16px;
+  position:relative;
+  box-shadow:0 1px 0 rgba(43,33,24,0.04), 0 2px 6px rgba(43,33,24,0.05);
+  display:flex;
+  flex-direction:column;
+  min-height:150px;
+}
+
+.card-text{
+  font-family:'Amiri', serif;
+  font-size:19px;
+  line-height:1.9;
+  color:var(--ink);
+  flex:1;
+  margin:0 0 14px;
+}
+
+.card-footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-top:1px solid var(--gold-line);
+  padding-top:10px;
+  margin-top:auto;
+}
+
+.count-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-family:'Tajawal', sans-serif;
+  font-size:13px;
+  font-weight:500;
+  color:var(--gold);
+  background:rgba(173,138,62,0.12);
+  border:1px solid var(--gold-line);
+  padding:3px 10px;
+  border-radius:20px;
+}
+
+.card-actions{display:flex; gap:6px;}
+.icon-btn{
+  background:none;
+  border:none;
+  cursor:pointer;
+  color:var(--ink-soft);
+  font-size:15px;
+  padding:4px 6px;
+  border-radius:6px;
+  line-height:1;
+}
+.icon-btn:hover{background:rgba(43,33,24,0.06);}
+.icon-btn.danger:hover{color:var(--danger); background:rgba(140,59,46,0.08);}
+
+.order-tag{
+  position:absolute;
+  top:10px;
+  left:10px;
+  font-size:11px;
+  font-family:'Tajawal', sans-serif;
+  color:var(--gold);
+  background:var(--bg);
+  border:1px solid var(--gold-line);
+  border-radius:6px;
+  padding:2px 6px;
+}
+
+.add-card{
+  border:1.5px dashed var(--gold-line);
+  background:transparent;
+  color:var(--ink-soft);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:150px;
+  cursor:pointer;
+  font-family:'Tajawal', sans-serif;
+  font-size:15px;
+  border-radius:10px;
+}
+.add-card:hover{background:rgba(173,138,62,0.06);}
+
+.empty{
+  grid-column:1/-1;
+  text-align:center;
+  padding:50px 20px;
+  color:var(--ink-soft);
+  font-size:15px;
+}
+
+.modal-overlay{
+  position:fixed; inset:0;
+  background:rgba(43,33,24,0.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:50;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--bg-card);
+  border-radius:12px;
+  padding:24px;
+  width:100%;
+  max-width:440px;
+  border:1px solid var(--gold-line);
+}
+.modal h3{
+  font-family:'Reem Kufi', sans-serif;
+  margin:0 0 16px;
+  color:var(--teal-dark);
+  font-size:18px;
+}
+.modal label{
+  display:block;
+  font-size:13px;
+  color:var(--ink-soft);
+  margin:14px 0 6px;
+}
+.modal input, .modal select, .modal textarea{
+  width:100%;
+  font-family:'Tajawal', sans-serif;
+  font-size:14px;
+  padding:9px 12px;
+  border-radius:8px;
+  border:1px solid var(--gold-line);
+  background:#fff;
+  color:var(--ink);
+}
+.modal textarea{
+  font-family:'Amiri', serif;
+  font-size:17px;
+  min-height:100px;
+  resize:vertical;
+}
+.modal-actions{
+  display:flex;
+  gap:8px;
+  margin-top:20px;
+  justify-content:flex-end;
+}
+.btn{
+  font-family:'Tajawal', sans-serif;
+  font-size:14px;
+  padding:9px 18px;
+  border-radius:8px;
+  border:1px solid var(--gold-line);
+  background:transparent;
+  color:var(--ink-soft);
+  cursor:pointer;
+}
+.btn-primary{
+  background:var(--teal);
+  border-color:var(--teal);
+  color:#F5EDD9;
+}
+.error-text{color:var(--danger); font-size:13px; margin-top:8px; display:none;}
+.error-text.show{display:block;}
+
+.app-footer{
+  margin-top:50px;
+  padding-top:18px;
+  border-top:1px solid var(--gold-line);
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  font-size:12.5px;
+  color:var(--ink-soft);
+}
+.footer-name{justify-self:start; font-family:'Tajawal', sans-serif;}
+.footer-link{
+  justify-self:end;
+  font-family:'Tajawal', sans-serif;
+  color:var(--ink-soft);
+  text-decoration:none;
+  border-bottom:1px solid var(--gold-line);
+  padding-bottom:1px;
+  direction:ltr;
+}
+.footer-link:hover{color:var(--teal-dark); border-color:var(--teal);}
+.footer-trigger{
+  justify-self:center;
+  color:var(--gold-line);
+  font-size:13px;
+  cursor:default;
+  user-select:none;
+}
+.footer-trigger.active{color:var(--teal);}
+
+.cat-badge{
+  font-size:12px;
+  color:var(--teal-dark);
+  background:rgba(31,92,78,0.08);
+  border:1px solid rgba(31,92,78,0.2);
+  padding:3px 10px;
+  border-radius:20px;
+  margin-inline-start:6px;
+}
+.title-badge{
+  font-size:12px;
+  font-weight:500;
+  color:var(--ink);
+  background:rgba(43,33,24,0.06);
+  border:1px solid rgba(43,33,24,0.15);
+  padding:3px 10px;
+  border-radius:20px;
+  margin-inline-end:6px;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="app-header">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 34 34">
+        <circle cx="17" cy="17" r="15.5" fill="none" stroke="#AD8A3E" stroke-width="1.3"/>
+        <circle cx="17" cy="6" r="2.4" fill="#1F5C4E"/>
+        <circle cx="26.7" cy="12" r="1.9" fill="#AD8A3E"/>
+        <circle cx="26.7" cy="22" r="1.9" fill="#AD8A3E"/>
+        <circle cx="17" cy="28" r="1.9" fill="#AD8A3E"/>
+        <circle cx="7.3" cy="22" r="1.9" fill="#AD8A3E"/>
+        <circle cx="7.3" cy="12" r="1.9" fill="#AD8A3E"/>
+      </svg>
+      <h1>أذكار وأدعية</h1>
+    </div>
+  </header>
+
+  <div class="ornament"></div>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <main class="grid" id="grid"></main>
+
+  <footer class="app-footer">
+    <span class="footer-name">Ahmad Saleh Tuffaha</span>
+    <span class="footer-trigger" id="footerTrigger">❖</span>
+    <a class="footer-link" href="https://github.com/AST47/ahmadsalehtuffaha" target="_blank" rel="noopener">Portfolio</a>
+  </footer>
+</div>
+
+<div class="modal-overlay" id="passwordModal">
+  <div class="modal">
+    <h3>الدخول لوضع التعديل</h3>
+    <label>كلمة المرور</label>
+    <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور">
+    <div class="error-text" id="passwordError">كلمة المرور غير صحيحة</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('passwordModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="checkPassword()">دخول</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3 id="editModalTitle">إضافة ذكر</h3>
+    <label>العنوان (اختياري)</label>
+    <input type="text" id="editTitle" placeholder="مثال: عند الخروج من المسجد">
+    <label>التصنيف</label>
+    <select id="editCategory"></select>
+    <label>نص الذكر</label>
+    <textarea id="editText" placeholder="اكتب نص الذكر هنا"></textarea>
+    <label>عدد التكرار</label>
+    <input type="number" id="editCount" min="1" value="1">
+    <div class="error-text" id="editError">الرجاء إدخال نص الذكر</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('editModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveEdit()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+const ADMIN_PASSWORD = "azkar2026";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAH4UUe1XRXyTzAZcuuyg-kmBaX03NkK3Q",
+  authDomain: "azkar-10093.firebaseapp.com",
+  projectId: "azkar-10093",
+  storageBucket: "azkar-10093.firebasestorage.app",
+  messagingSenderId: "757288049988",
+  appId: "1:757288049988:web:12d68dac32567bad114b11"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const itemsRef = db.collection('azkar').doc('items');
+
+const CATEGORIES = [
+  {id:'all', label:'كل الأذكار'},
+  {id:'during_day', label:'أثناء اليوم'},
+  {id:'waking', label:'الاستيقاظ'},
+  {id:'morning', label:'الصباح'},
+  {id:'noon', label:'الظهيرة'},
+  {id:'evening', label:'المساء'},
+  {id:'before_sleep', label:'قبل النوم'},
+  {id:'means', label:'الأخذ بالأسباب'}
+];
+
+const DEFAULT_ITEMS = [
+  {text:"لا إله إلا الله وحده لا شريك له، له الملك، وله الحمد، يُحيي ويُميت، وهو على كل شيء قدير", count:10, categoryId:'during_day', order:1},
+  {text:"لا إله إلا أنت سبحانك، إني كنت من الظالمين، وأنت أرحم الراحمين", count:10, categoryId:'during_day', order:2},
+  {text:"أستغفر الله العظيم، من كل ذنب قد فعلت، يا ليتني ما فعلت، لم أعد أفعل", count:10, categoryId:'during_day', order:3},
+  {text:"اللّهمّ اكفنيهم بما شئت، وكيف شئت، وأنت على ما تشاء قدير", count:10, categoryId:'during_day', order:4},
+  {text:"اللهم إني تبرأت من حولي وقوتي، والتجأت إلى حولك وقوتك، يا ذا القوة المتين", count:10, categoryId:'during_day', order:5},
+  {text:"اللهم إني وكّلتك أمري، واستودعتك همّي، فبشّرني بما يفتح مداخل السعادة إلى قلبي", count:10, categoryId:'during_day', order:6},
+  {text:"اللهم لا سهل إلا ما جعلته سهلًا، وأنت تجعل الحزن إذا شئت سهلًا", count:10, categoryId:'during_day', order:7},
+  {text:"اللّهم احرمني لذّة معصيتك، وارزقني لذّة طاعتك", count:10, categoryId:'during_day', order:8},
+  {text:"اللّهمّ اكفني بحلالك عن حرامك، واشغلني بطاعتك عن معصيتك، وأغنني بفضلك عمّن سواك", count:10, categoryId:'during_day', order:9},
+  {text:"اللّهمّ افتح لي أبواب رحمتك، وارزقني بفضلك، من حيث لا أحتسب، رزقًا حلالًا طيّبًا مباركًا فيه", count:10, categoryId:'during_day', order:10},
+  {text:"اللّهمّ أنت ربّي، لا إله إلّا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شرّ ما صنعت", count:10, categoryId:'during_day', order:11}
+];
+
+const SEED_ITEMS = [
+  ...DEFAULT_ITEMS,
+  {text:"الحمد لله الذي أحيانا بعد إذ أماتنا وإليه النشور", count:1, categoryId:'waking', order:1},
+  {text:"أصبحنا وأصبح الملك لله ربّ العالمين، اللّهم إني أسألك خير هذا اليوم وخير ما بعده، وأعوذ بك من شرّ هذا اليوم وشرّ ما بعده، اللّهم إني أعوذ بك من الكسل وسوء الكبر، اللّهم إني أعوذ بك من عذاب في النار وعذاب في القبر", count:1, categoryId:'waking', order:2},
+  {text:"اللّهمّ بك أصبحنا، وبك أمسينا، وبك نحيا، وبك نموت، وإليك النشور", count:1, categoryId:'waking', order:3},
+  {text:"اللّهمّ إني أصبحت أشهد، وأشهد حملة عرشك، وملائكتك وجميع خلقك، أنّك أنت الله، لا إله إلّا أنت، وأنّ محمّداً عبدك ورسولك", count:4, categoryId:'waking', order:4},
+  {text:"اللّهمّ، ما أصبح بي من نعمة، أو بأحد من خلقك، فمنك وحدك، لا شريك لك، فلك الحمد، ولك الشكر", count:1, categoryId:'waking', order:5},
+  {text:"اللّهم صلّي وسلّم وبارك، على سيّدنا محمد، وعلى آله وصحبه", count:100, categoryId:'waking', order:6},
+  {text:"اللّهم صلّي وسلّم وبارك، على سيّدنا محمد، وعلى آله وصحبه", count:10, categoryId:'morning', order:1},
+  {text:"أعوذ بكلمات الله التامّات من شر ما خلق", count:3, categoryId:'morning', order:2},
+  {text:"اللّهمّ إني أسألك العفو والعافية في الدين والدنيا والآخرة، اللّهمّ إني أسألك العفو والعافية في ديني ودنياي، وأهلي ومالي، اللّهم استر عوراتي، وآمن روعاتي، اللهم احفظني من بين يدي، ومن خلفي، وعن يميني، وعن شمالي، ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي", count:1, categoryId:'morning', order:3},
+  {text:"اللّهمّ عالم الغيب والشهادة، فاطر السموات والأرض، ربّ كلّ شيء وملكيه، أشهد أن لا إله إلّا أنت، أعوذ بك من شرّ نفسي، ومن شرّ الشيطان وشركه، وأن أقترف على نفسي سوءاً، أو أجرّه إلى مسلم", count:3, categoryId:'morning', order:4},
+  {text:"بسم الله، الذي لا يضرّ مع اسمه شيء، في الأرض ولا في السماء وهو السميع العليم", count:3, categoryId:'morning', order:5},
+  {text:"رضيت بالله ربّاً، وبالإسلام ديناً، وبسيّدنا محمد صلّى الله عليه وسلّم، نبيّاً", count:1, categoryId:'morning', order:6},
+  {text:"سبحان الله وبحمده، عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته", count:3, categoryId:'morning', order:7},
+  {text:"يا حيّ يا قيّوم، برحمتك أستغيث، أصلح لي شأني كلّه، ولا تكلني إلى نفسي طرفة عين", count:1, categoryId:'morning', order:8},
+  {text:"اللّهمّ ارحمنا إذا اندرس قبرنا، ونُسي رسمنا، ولم يعد يذكرنا ذاكر", count:3, categoryId:'morning', order:9},
+  {text:"اللّهمّ عافني في بدني، اللّهمّ عافني في سمعي، اللّهمّ عافني في بصري، لا إله إلّا أنت", count:3, categoryId:'morning', order:10},
+  {text:"اللّهمّ إني أعوذ بك من الكفر، والفقر، وأعوذ بك من عذاب القبر", count:7, categoryId:'morning', order:11},
+  {text:"حسبي الله، الذي لا إله إلّا هو، عليه توكّلت، وهو ربّ العرش العظيم", count:1, categoryId:'morning', order:12},
+  {text:"اللّهمّ إني أعوذ بك من علم لا ينفع، ومن قلب لا يخشع، ومن نفس لا تشبع، ومن دعوة لا يستجاب لها", count:1, categoryId:'morning', order:13},
+  {text:"اللهم إني أعوذ بك من زوال نعمتك، وتحوّل عافيتك، وفجاءة نقمتك، وجميع سخطك", count:1, categoryId:'morning', order:14},
+  {text:"اللّهم إني أعوذ بك من جهد البلاء، ودرك الشقاء، وسوء القضاء، وشماتة الأعداء", count:1, categoryId:'morning', order:15},
+  {text:"اللهم إني أعوذ بك من شر الأشرار، وكيد الفجّار، وفواجع الأقدار، وطوارق الليل والنهار", count:1, categoryId:'morning', order:16},
+  {text:"اللهم إني أعوذ بك من عذاب النار والقبر، وفتنة الغنى والفقر، وشر فتنة المسيح الدجال", count:1, categoryId:'morning', order:17},
+  {text:"اللهم إني أعوذ بك من الكسل والهرم، والمأثم والمغرم", count:1, categoryId:'morning', order:18},
+  {text:"اللهم إني أعوذ برضاك من سخطك، وبمعافاتك من عقوبتك، وأعوذ بك منك، لا أحصي ثناء عليك، أنت كما أثنيت على نفسك", count:1, categoryId:'morning', order:19},
+  {text:"اللهم إني أعوذ بك أن أضل أو أُضل، أو أزل أو أُزل، أو أظلم أو أُظلَم، أو أجهل أو يُجهل عليّ", count:1, categoryId:'morning', order:20},
+  {text:"اللّهمّ إني أعوذ بك من الهمّ والحزن، وأعوذ بك من العجز والكسل، وأعوذ بك من الجبن والبخل، وأعوذ بك من غلبة الدين وقهر الرجال", count:1, categoryId:'morning', order:21},
+  {text:"اللّهمّ ألهمني في أمري الصواب، ويسّر لي في كل مسألة جواب، وهيّئ لي الأسباب، ولا تغلق أمامي الأبواب، وبيّض وجهي يوم يشتد الحساب، ونجّني من كل ألوان العذاب، وأكثر من حولي الأحباب، وزيّن مجلسي بخير الأصحاب، واجعل دعائي دعاء مستجاب", count:1, categoryId:'morning', order:22},
+  {text:"لا إله إلّا الله الحليم الرحيم، لا إله إلّا الله العليّ العظيم، لا إله إلّا الله ربّ السموات السبع، وربّ العرش الكريم", count:1, categoryId:'morning', order:23},
+  {text:"اللهم اجعلني ممن نظرت إليه، فرحمته، وممن سمعت دعاءه فأجبته", count:1, categoryId:'morning', order:24},
+  {text:"اللّهمّ إني عبدك، ابن عبدك، ابن أمتك، ناصيتي بيدك، ماضٍ فيّ حكمك، عدلٌ فيّ قضاؤك، أسألك بكلّ اسم هو لك، سمّيت به نفسك، أو أنزلته في كتابك، أو علّمته أحداً من خلقك، أو استأثرت به في علم الغيب عندك، أن تجعل القرآن ربيع قلبي، ونور صدري، وجلاء حزني، وذهاب همّي", count:1, categoryId:'noon', order:1},
+  {text:"اللّهمّ، إني أتوسّل بك إليك، وأقسم بك عليك، فكما كنت دليلي إليك، فكن اللّهمّ شفيعي لديك، وعاملني بالإحسان لا بالميزان، والفضل لا بالعدل، فإنّ حسناتي منك، وسيئاتي مني، فجد اللّهمّ بما هو من عندك وأنت أهله", count:1, categoryId:'noon', order:2},
+  {text:"اللّهمّ اغفر لي خطيئتي وجهلي وإسرافي في أمري، وما أنت أعلم به مني، اللّهمّ اغفر لي جدي وهزلي، وخطئي وعمدي، وكل ذلك عندي، اللّهمّ اغفر لي ما قدمت وما أخّرت، وما أسررت وما أعلنت، أنت المقدم وأنت المؤخر، وأنت على كل شيء قدير", count:1, categoryId:'noon', order:3},
+  {text:"اللّهمّ، مالك الملك، تؤتي الملك من تشاء، وتنزع الملك ممّن تشاء، وتعزّ من تشاء، وتذلّ من تشاء، بيدك الخير، إنّك على كلّ شيء قدير، رحمن الدنيا ورحيمهما، تعطيهما من تشاء، وتمنعهما ممن تشاء، ارحمني رحمة تغنيني بها عن رحمة من سواك", count:1, categoryId:'noon', order:4},
+  {text:"اللهم أصلح لي ديني الذي هو عصمة أمري، وأصلح لي دنياي التي فيها معاشي، وأصلح لي آخرتي التي إليها معادي، واجعل الحياة زيادة لي في كل خير، واجعل الموت راحة لي من كل شر", count:1, categoryId:'noon', order:5},
+  {text:"اللهم إن كان رزقي في السماء فأنزله، وإن كان في الأرض فأخرجه، وإن كان بعيداً فقرّبه، وإن كان قريباً فيسّره، وإن كان قليلاً فكثّره، وإن كان كثيراً فبارك لي فيه", count:1, categoryId:'noon', order:6},
+  {text:"يا مصرّف القلوب صرّف قلبي على طاعتك، ويا مقلّب القلوب ثبّت قلبي على دينك", count:1, categoryId:'noon', order:7},
+  {text:"ربّي، أدخلني مدخل صدق، وأخرجني مخرج صدق، واجعل لي من لدنك سلطاناً نصيراً", count:1, categoryId:'noon', order:8},
+  {text:"ربّنا لا تجعلنا فتنة للذين كفروا، واغفر لنا، ربّنا إنّك أنت العزيز الحكيم", count:1, categoryId:'noon', order:9},
+  {text:"ربنا آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار", count:1, categoryId:'noon', order:10},
+  {text:"اللهم إني أسألك إيماناً كاملاً، ويقيناً صادقاً، ورزقاً واسعاً، حتى أعلم أنه لا يصيبني إلا ما كتبت لي", count:1, categoryId:'noon', order:11},
+  {text:"اللهم آت نفسي تقواها، وزكّها أنت خير من زكّاها، أنت وليّها ومولاها", count:1, categoryId:'noon', order:12},
+  {text:"اللهم إني أسألك الهدى والتقى والعفاف والغنى", count:1, categoryId:'noon', order:13},
+  {text:"اللهم اجعلنا عبيد إحسان ولا تجعلنا عبيد امتحان", count:1, categoryId:'noon', order:14},
+  {text:"اللهم إنك عفو تحب العفو فاعف عنا", count:1, categoryId:'noon', order:15},
+  {text:"اللّهمّ حصّن لي بيتي، من أوّله لآخره، ومن أعلاه لأسفله، اللّهمّ أبعد عنه الحرام بأنواعه، اللّهمّ اجعل لي فيه سعادة، في ديني ودنياي", count:1, categoryId:'noon', order:16},
+  {text:"اللّهمّ يا من لا تضيع ودائعه، استودعك نفسي، وديني، وبيتي، وأهلي، ومالي، وخواتيم أعمالي، فاحفظنا بما تحفظ به عبادك الصالحين", count:1, categoryId:'noon', order:17},
+  {text:"اللهم اجبر خاطري جبراً، أنت وليّه فإنه لا يعجزك شيء في الأرض ولا في السماء، ربي اشرح لي صدري، ويسّر لي أمري، وأزح كل خوف يسكنني وكل ضعف يكسرني، ولا تجعلني في مستقبلي وأهلي إلا خيراً", count:1, categoryId:'noon', order:18},
+  {text:"اللهم إني أسألك الجنة وما قرّب إليها من قول أو عمل، وأعوذ بك من النار وما قرّب إليها من قول أو عمل، وأسألك أن تجعل كل قضاء قضيته لي خيراً", count:1, categoryId:'noon', order:19},
+  {text:"اللهم إني أسألك من الخير كله عاجله وآجله ما علمت منه وما لم أعلم، وأعوذ بك من الشر كله عاجله وآجله ما علمت منه وما لم أعلم", count:1, categoryId:'noon', order:20},
+  {text:"اللهم إني أسألك صدق التوكل عليك، وحسن الظن بك، اللهم ارزقنا قلباً سليماً ونفوساً مطمئنة", count:1, categoryId:'noon', order:21},
+  {text:"اللهم أسكنا الفردوس بجوار نبيّك الكريم، يا رب استودعك دعواتي، فبشّرني بها من غير حول مني ولا قوة", count:1, categoryId:'noon', order:22},
+  {text:"اللهم استرنا فوق الأرض، واسترنا تحت الأرض، واسترنا يوم العرض، اللهم اشف مرضانا ومرضى المسلمين، وارحم موتانا وموتى المسلمين، واقض حوائج السائلين، واكفنا الفواحش والفتن ما ظهر منها وما بطن، وبارك لنا فيما أبقيتنا", count:1, categoryId:'noon', order:23},
+  {text:"اللهم إنا نسألك حبك، وحب من يحبك، وحب عمل يقربنا إلى حبك، وارزقنا القناعة والرضا، وبارك لنا في أسماعنا وأبصارنا وقوتنا وأزواجنا وذريتنا", count:1, categoryId:'noon', order:24},
+  {text:"اللهم اجعلنا لكتابك من التالين، ولك من العاملين، وبالأعمال مخلصين، وبالقسط قائمين، وعن النار مزحزحين، وإلى الجنات منعمين، وإلى وجهك ناظرين", count:1, categoryId:'noon', order:25},
+  {text:"اللّهم صلّي وسلّم وبارك، على سيّدنا محمد، وعلى آله وصحبه", count:10, categoryId:'evening', order:1},
+  {text:"أعوذ بكلمات الله التامّات من شر ما خلق", count:3, categoryId:'evening', order:2},
+  {text:"اللّهمّ إني أسألك العفو والعافية في الدين والدنيا والآخرة، اللّهمّ إني أسألك العفو والعافية في ديني ودنياي، وأهلي ومالي، اللّهم استر عوراتي، وآمن روعاتي، اللهم احفظني من بين يدي، ومن خلفي، وعن يميني، وعن شمالي، ومن فوقي، وأعوذ بعظمتك أن أغتال من تحتي", count:1, categoryId:'evening', order:3},
+  {text:"اللّهمّ عالم الغيب والشهادة، فاطر السموات والأرض، ربّ كلّ شيء وملكيه، أشهد أن لا إله إلّا أنت، أعوذ بك من شرّ نفسي، ومن شرّ الشيطان وشركه، وأن أقترف على نفسي سوءاً، أو أجرّه إلى مسلم", count:3, categoryId:'evening', order:4},
+  {text:"بسم الله، الذي لا يضرّ مع اسمه شيء، في الأرض ولا في السماء وهو السميع العليم", count:3, categoryId:'evening', order:5},
+  {text:"رضيت بالله ربّاً، وبالإسلام ديناً، وبسيّدنا محمد صلّى الله عليه وسلّم، نبيّاً", count:1, categoryId:'evening', order:6},
+  {text:"سبحان الله وبحمده، عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته", count:3, categoryId:'evening', order:7},
+  {text:"يا حيّ يا قيّوم، برحمتك أستغيث، أصلح لي شأني كلّه، ولا تكلني إلى نفسي طرفة عين", count:1, categoryId:'evening', order:8},
+  {text:"اللّهمّ ارحمنا إذا اندرس قبرنا، ونُسي رسمنا، ولم يعد يذكرنا ذاكر", count:3, categoryId:'evening', order:9},
+  {text:"اللّهمّ عافني في بدني، اللّهمّ عافني في سمعي، اللّهمّ عافني في بصري، لا إله إلّا أنت", count:3, categoryId:'evening', order:10},
+  {text:"اللّهمّ إني أعوذ بك من الكفر، والفقر، وأعوذ بك من عذاب القبر", count:7, categoryId:'evening', order:11},
+  {text:"حسبي الله، الذي لا إله إلّا هو، عليه توكّلت، وهو ربّ العرش العظيم", count:1, categoryId:'evening', order:12},
+  {text:"اللّهمّ إني أعوذ بك من علم لا ينفع، ومن قلب لا يخشع، ومن نفس لا تشبع، ومن دعوة لا يستجاب لها", count:1, categoryId:'evening', order:13},
+  {text:"اللهم إني أعوذ بك من زوال نعمتك، وتحوّل عافيتك، وفجاءة نقمتك، وجميع سخطك", count:1, categoryId:'evening', order:14},
+  {text:"اللّهم إني أعوذ بك من جهد البلاء، ودرك الشقاء، وسوء القضاء، وشماتة الأعداء", count:1, categoryId:'evening', order:15},
+  {text:"اللهم إني أعوذ بك من شر الأشرار، وكيد الفجّار، وفواجع الأقدار، وطوارق الليل والنهار", count:1, categoryId:'evening', order:16},
+  {text:"اللهم إني أعوذ بك من عذاب النار والقبر، وفتنة الغنى والفقر، وشر فتنة المسيح الدجال", count:1, categoryId:'evening', order:17},
+  {text:"اللهم إني أعوذ بك من الكسل والهرم، والمأثم والمغرم", count:1, categoryId:'evening', order:18},
+  {text:"اللهم إني أعوذ برضاك من سخطك، وبمعافاتك من عقوبتك، وأعوذ بك منك، لا أحصي ثناء عليك، أنت كما أثنيت على نفسك", count:1, categoryId:'evening', order:19},
+  {text:"اللهم إني أعوذ بك أن أضل أو أُضل، أو أزل أو أُزل، أو أظلم أو أُظلَم، أو أجهل أو يُجهل عليّ", count:1, categoryId:'evening', order:20},
+  {text:"اللّهمّ إني أعوذ بك من الهمّ والحزن، وأعوذ بك من العجز والكسل، وأعوذ بك من الجبن والبخل، وأعوذ بك من غلبة الدين وقهر الرجال", count:1, categoryId:'evening', order:21},
+  {text:"اللّهمّ ألهمني في أمري الصواب، ويسّر لي في كل مسألة جواب، وهيّئ لي الأسباب، ولا تغلق أمامي الأبواب، وبيّض وجهي يوم يشتد الحساب، ونجّني من كل ألوان العذاب، وأكثر من حولي الأحباب، وزيّن مجلسي بخير الأصحاب، واجعل دعائي دعاء مستجاب", count:1, categoryId:'evening', order:22},
+  {text:"لا إله إلّا الله الحليم الرحيم، لا إله إلّا الله العليّ العظيم، لا إله إلّا الله ربّ السموات السبع، وربّ العرش الكريم", count:1, categoryId:'evening', order:23},
+  {text:"اللهم اجعلني ممن نظرت إليه، فرحمته، وممن سمعت دعاءه فأجبته", count:1, categoryId:'evening', order:24},
+  {text:"أمسينا وأمسى الملك لله ربّ العالمين، اللّهم إني أسألك خير هذه الليلة وخير ما بعدها، وأعوذ بك من شرّ هذه الليلة وشرّ ما بعدها، اللّهم إني أعوذ بك من الكسل وسوء الكبر، اللّهم إني أعوذ بك من عذاب في النار وعذاب في القبر", count:1, categoryId:'before_sleep', order:1},
+  {text:"اللّهمّ، بك أمسينا، وبك أصبحنا، وبك نحيا، وبك نموت، وإليك المصير", count:1, categoryId:'before_sleep', order:2},
+  {text:"اللّهمّ إني أمسيت أشهد، وأشهد حملة عرشك، وملائكتك وجميع خلقك، أنّك أنت الله، لا إله إلّا أنت، وأنّ محمّداً عبدك ورسولك", count:4, categoryId:'before_sleep', order:3},
+  {text:"اللّهمّ، ما أمسى بي من نعمة، أو بأحد من خلقك، فمنك وحدك، لا شريك لك، فلك الحمد، ولك الشكر", count:1, categoryId:'before_sleep', order:4},
+  {text:"باسمك ربي وضعت جنبي وبك أرفعه، إن أمسكت نفسي فارحمها، وإن أرسلتها فاحفظها بما تحفظ به عبادك الصالحين", count:1, categoryId:'before_sleep', order:5},
+  {text:"اللهم إني أسلمت وجهي إليك، وفوّضت أمري إليك، وألجأت ظهري إليك، رغبة ورهبة إليك، لا ملجأ ولا منجى إلّا إليك، اللهم إني آمنت بكتابك الذي أنزلت، ونبيك الذي أرسلت", count:1, categoryId:'before_sleep', order:6},
+  {text:"سجد وجهي للذي خلقه وشقّ سمعه وبصره بحوله وقوّته، فتبارك الله أحسن الخالقين", title:"سجود التلاوة", count:1, categoryId:'means', order:1},
+  {text:"سبحان الله العظيم وبحمده", title:"تكفير الخطايا", count:100, categoryId:'means', order:2},
+  {text:"لا حول ولا قوّة إلّا بالله", title:"دفع المصائب", count:100, categoryId:'means', order:3},
+  {text:"تُقرأ سورة يس والفاتحة. المرة الأولى: بنية طول العمر بالعفو والعافية مع التوفيق لطاعة الله. المرة الثانية:", title:"النصف من شعبان", count:3, categoryId:'means', order:4},
+  {text:"إحسان الوضوء، ثم ركعتين، وبعدهما شكر واستغفار: لا إله إلّا أنت الحليم الرحيم، لا إله إلّا أنت ربّ العرش العظيم، اللّهمّ إني أسألك موجبات رحمتك وعزائم مغفرتك", title:"قضاء الحوائج", count:1, categoryId:'means', order:5},
+  {text:"اللّهمّ صلِّ صلاةً كاملة، وسلِّم سلاماً تاماً، على سيّدنا محمّد الذي تنحلّ به العُقَد، وتنفرج به الكرَب، وتُقضى به الحوائج، وتُنال به الرغائب وحُسن الخواتيم، ويُستسقى الغمام بوجهه الكريم، وعلى آله وصحبه في كل لمحة ونفس بعدد كل معلوم لك", title:"الصلاة النارية", count:1, categoryId:'means', order:6},
+  {text:"يا ربّ، إني مسّني الشيطان بنصب وعذاب، ربّ يبدك الخير كله، والفضل كله، إليك يرجع الأمر كله، فلا أشقى وأنا أعبدك الضعيف بين يديك، يا ربّ مسّني الضرّ وأنت أرحم الراحمين", title:"سيّدنا أيّوب عليه السلام", count:1, categoryId:'means', order:7},
+  {text:"اللّهمّ ربّ هذه الدعوة التامّة، والصلاة القائمة، آتِ سيّدنا محمداً صلّى الله عليه وسلّم الوسيلة والفضيلة، والدرجة العالية الرفيعة، وابعثه المقام المحمود الذي وعدته، إنّك لا تخلف الميعاد", title:"بعد الأذان", count:1, categoryId:'means', order:8},
+  {text:"توكّلت على الحيّ الذي لا يموت، والحمد لله الذي لم يتّخذ ولداً، ولم يكن له شريك في الملك، ولم يكن له وليّ من الذلّ، وكبّره تكبيراً", title:"فك الكرب", count:1, categoryId:'means', order:9},
+  {text:"اللّهمّ حصّنّي بحصنك الحصين، وأعزّني بعزّك، وصلّني بحبلك، وكِد الأشرار، والمردة والسحّار، والمدّعين والمنافقين، والحاقدين والفاسقين، والمغرورين والحاسدين", title:"الوقاية من شرّ الناس", count:1, categoryId:'means', order:10},
+  {text:"اللّهمّ، إني أسألك خير هذه السوق، وخير ما فيها، وأعوذ بك من شرّها، وشرّ ما فيها، اللهم إني أعوذ بك أن أصيب فيها يميناً فاجرة، أو صفقة خاسرة", title:"الدخول إلى السوق", count:1, categoryId:'means', order:11},
+  {text:"الحمد لله الذي كساني هذا من غير حول متي ولا قوّة", title:"الكساء", count:1, categoryId:'means', order:12},
+  {text:"الحمد لله الذي أطعمني هذا وسقاني من غير حول متي ولا قوّة", title:"الطعام", count:1, categoryId:'means', order:13},
+  {text:"اللهم إني أسألك من فضلك", title:"الخروج من المسجد", count:1, categoryId:'means', order:14},
+  {text:"اللهم افتح لي أبواب رحمتك", title:"الدخول إلى المسجد", count:1, categoryId:'means', order:15},
+  {text:"اللّهمّ اهدني فيمن هديت، وعافني فيمن عافيت، وتولّني فيمن توليت، وبارك لي فيما أعطيت، وقني شرّ ما قضيت، إنّك تقضي ولا يُقضى عليك، إنّه لا يذلّ من واليت، تباركت ربّنا وتعاليت", title:"دعاء القنوت", count:1, categoryId:'means', order:16},
+  {text:"اللهم اختم لنا شهر رمضان برضوانك، واعتق رقابنا من النيران، وأدخلنا فيه من المقبولين عندك، وبدّل بالأفراح أحزاننا", title:"آخر رمضان", count:1, categoryId:'means', order:17},
+  {text:"اللهم ارزقني فضل قيام ليلة القدر، وسهّل أموري فيها من العسر إلى اليسر، وأقلّ معاذيري وحطّ عني الذنب والوزر، يا رؤوفاً بعباده الصالحين، اللهم ما قسمت في هذه الليلة من علم ورزق وعافية فاجعل لنا أوفر الحظ والنصيب", title:"ليلة القدر", count:1, categoryId:'means', order:18},
+  {text:"يا رب ارزق أمي وأبي فرحاً لا ينتهي، وسعادة تنسيهم هموم الدنيا ومشاكلها، وارزقهم صحة في القلب وصفاء في الذهن، اللهم اغفر لي ولوالديّ ولمن أحسن إليّ", title:"دعاء الوالدين", count:1, categoryId:'means', order:19},
+  {text:"اللهم اجعلنا بتلاوة كتابك منتفعين، وعند ختمه من الفائزين", title:"ختم القرآن", count:1, categoryId:'means', order:20}
+];
+
+let items = [];
+let activeCategory = 'during_day';
+let isAdmin = false;
+let editingId = null;
+
+async function loadData(){
+  itemsRef.onSnapshot(snap => {
+    items = (snap.exists && snap.data().items) ? snap.data().items : [];
+    render();
+  }, err => {
+    console.error('فشل الاتصال بقاعدة البيانات', err);
+  });
+
+  const snap = await itemsRef.get();
+  let current = (snap.exists && snap.data().items) ? snap.data().items : [];
+  let changed = false;
+
+  SEED_ITEMS.forEach(seed => {
+    const exists = current.some(i => i.text === seed.text && i.categoryId === seed.categoryId);
+    if(!exists){
+      current.push({...seed, id: 'item_' + Date.now() + '_' + Math.random().toString(36).slice(2,8)});
+      changed = true;
+    }
+  });
+
+  if(changed){
+    items = current;
+    await saveData();
+  }
+}
+
+async function saveData(){
+  try{
+    await itemsRef.set({items: items});
+  }catch(e){
+    console.error('فشل الحفظ', e);
+    alert('في مشكلة بالحفظ، تأكد من اتصال الإنترنت وحاول مرة تانية.');
+  }
+}
+
+function toggleAdmin(){
+  if(isAdmin){
+    isAdmin = false;
+    document.getElementById('footerTrigger').classList.remove('active');
+    render();
+  }else{
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('passwordError').classList.remove('show');
+    document.getElementById('passwordModal').classList.add('open');
+  }
+}
+
+function checkPassword(){
+  const val = document.getElementById('passwordInput').value;
+  if(val === ADMIN_PASSWORD){
+    isAdmin = true;
+    document.getElementById('footerTrigger').classList.add('active');
+    closeModal('passwordModal');
+    render();
+  }else{
+    document.getElementById('passwordError').classList.add('show');
+  }
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+}
+
+function renderTabs(){
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (cat.id === activeCategory ? ' active' : '') + (cat.id === 'all' ? ' all-tab' : '');
+    btn.textContent = cat.label;
+    btn.onclick = () => { activeCategory = cat.id; render(); };
+    tabs.appendChild(btn);
+  });
+}
+
+function getFilteredItems(){
+  let list = activeCategory === 'all' ? [...items] : items.filter(i => i.categoryId === activeCategory);
+  list.sort((a,b) => a.order - b.order);
+  return list;
+}
+
+function render(){
+  renderTabs();
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  const list = getFilteredItems();
+
+  if(list.length === 0 && !isAdmin){
+    grid.innerHTML = '<div class="empty">لا يوجد أذكار في هذا القسم بعد</div>';
+    return;
+  }
+
+  list.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    if(isAdmin){
+      const tag = document.createElement('div');
+      tag.className = 'order-tag';
+      tag.textContent = 'ترتيب ' + item.order;
+      card.appendChild(tag);
+    }
+
+    const text = document.createElement('p');
+    text.className = 'card-text';
+    text.textContent = item.text;
+    card.appendChild(text);
+
+    const footer = document.createElement('div');
+    footer.className = 'card-footer';
+
+    const badgeGroup = document.createElement('div');
+    badgeGroup.style.display = 'flex';
+    badgeGroup.style.alignItems = 'center';
+
+    if(item.title){
+      const titleBadge = document.createElement('span');
+      titleBadge.className = 'title-badge';
+      titleBadge.textContent = item.title;
+      badgeGroup.appendChild(titleBadge);
+    }
+
+    const badge = document.createElement('span');
+    badge.className = 'count-badge';
+    badge.textContent = '× ' + item.count;
+    if(item.count > 1){
+      badgeGroup.appendChild(badge);
+    }
+
+    if(activeCategory === 'all'){
+      const catLabel = CATEGORIES.find(c => c.id === item.categoryId);
+      if(catLabel){
+        const catBadge = document.createElement('span');
+        catBadge.className = 'cat-badge';
+        catBadge.textContent = catLabel.label;
+        badgeGroup.appendChild(catBadge);
+      }
+    }
+
+    footer.appendChild(badgeGroup);
+
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+
+    if(isAdmin){
+      const upBtn = document.createElement('button');
+      upBtn.className = 'icon-btn';
+      upBtn.title = 'تحريك لأعلى';
+      upBtn.textContent = '↑';
+      upBtn.onclick = () => moveItem(item.id, -1);
+      actions.appendChild(upBtn);
+
+      const downBtn = document.createElement('button');
+      downBtn.className = 'icon-btn';
+      downBtn.title = 'تحريك لأسفل';
+      downBtn.textContent = '↓';
+      downBtn.onclick = () => moveItem(item.id, 1);
+      actions.appendChild(downBtn);
+
+      const editBtn = document.createElement('button');
+      editBtn.className = 'icon-btn';
+      editBtn.title = 'تعديل';
+      editBtn.textContent = '✎';
+      editBtn.onclick = () => openEdit(item.id);
+      actions.appendChild(editBtn);
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'icon-btn danger';
+      delBtn.title = 'حذف';
+      delBtn.textContent = '✕';
+      delBtn.onclick = () => deleteItem(item.id);
+      actions.appendChild(delBtn);
+    }
+
+    footer.appendChild(actions);
+    card.appendChild(footer);
+    grid.appendChild(card);
+  });
+
+  if(isAdmin){
+    const addCard = document.createElement('div');
+    addCard.className = 'add-card';
+    addCard.textContent = '+ إضافة ذكر';
+    addCard.onclick = () => openEdit(null);
+    grid.appendChild(addCard);
+  }
+}
+
+function moveItem(id, direction){
+  const list = getFilteredItems();
+  const idx = list.findIndex(i => i.id === id);
+  const swapIdx = idx + direction;
+  if(swapIdx < 0 || swapIdx >= list.length) return;
+  const a = list[idx], b = list[swapIdx];
+  const tmp = a.order;
+  a.order = b.order;
+  b.order = tmp;
+  saveData();
+  render();
+}
+
+function openEdit(id){
+  editingId = id;
+  const select = document.getElementById('editCategory');
+  select.innerHTML = '';
+  CATEGORIES.filter(c => c.id !== 'all').forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat.id;
+    opt.textContent = cat.label;
+    select.appendChild(opt);
+  });
+
+  document.getElementById('editError').classList.remove('show');
+
+  if(id){
+    const item = items.find(i => i.id === id);
+    document.getElementById('editModalTitle').textContent = 'تعديل الذكر';
+    document.getElementById('editTitle').value = item.title || '';
+    select.value = item.categoryId;
+    document.getElementById('editText').value = item.text;
+    document.getElementById('editCount').value = item.count;
+  }else{
+    document.getElementById('editModalTitle').textContent = 'إضافة ذكر';
+    document.getElementById('editTitle').value = '';
+    select.value = activeCategory === 'all' ? CATEGORIES[1].id : activeCategory;
+    document.getElementById('editText').value = '';
+    document.getElementById('editCount').value = 1;
+  }
+
+  document.getElementById('editModal').classList.add('open');
+}
+
+function saveEdit(){
+  const text = document.getElementById('editText').value.trim();
+  const title = document.getElementById('editTitle').value.trim();
+  const categoryId = document.getElementById('editCategory').value;
+  const count = parseInt(document.getElementById('editCount').value) || 1;
+
+  if(!text){
+    document.getElementById('editError').classList.add('show');
+    return;
+  }
+
+  if(editingId){
+    const item = items.find(i => i.id === editingId);
+    item.text = text;
+    item.title = title;
+    item.categoryId = categoryId;
+    item.count = count;
+  }else{
+    const catItems = items.filter(i => i.categoryId === categoryId);
+    const maxOrder = catItems.length ? Math.max(...catItems.map(i => i.order)) : 0;
+    items.push({
+      id: 'item_' + Date.now(),
+      text, title, categoryId, count,
+      order: maxOrder + 1
+    });
+  }
+
+  saveData();
+  closeModal('editModal');
+  render();
+}
+
+function deleteItem(id){
+  if(!confirm('هل تريد حذف هذا الذكر؟')) return;
+  items = items.filter(i => i.id !== id);
+  saveData();
+  render();
+}
+
+document.getElementById('footerTrigger').onclick = toggleAdmin;
+
+loadData();
+</script>
+</body>
+</html>
