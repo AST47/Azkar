@@ -87,6 +87,96 @@ body{
   -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
 }
 
+.all-btn-wrap{
+  display:flex;
+  justify-content:center;
+  margin-bottom:26px;
+}
+.all-btn{
+  font-family:'Reem Kufi', sans-serif;
+  font-size:16px;
+  font-weight:500;
+  background:var(--teal);
+  color:#F5EDD9;
+  border:none;
+  padding:12px 40px;
+  border-radius:30px;
+  cursor:pointer;
+  box-shadow:0 3px 10px rgba(31,92,78,0.25);
+  transition:transform .15s, box-shadow .15s;
+}
+.all-btn:hover{transform:translateY(-1px); box-shadow:0 5px 14px rgba(31,92,78,0.3);}
+.all-btn.active{
+  background:var(--gold);
+  color:#2B2118;
+  box-shadow:0 3px 10px rgba(173,138,62,0.3);
+}
+
+.timeline{
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  gap:0;
+  margin-bottom:18px;
+  position:relative;
+}
+.timeline-node{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  padding:0 18px;
+  position:relative;
+  flex:1;
+  max-width:140px;
+}
+.timeline-node:not(:last-child)::after{
+  content:'';
+  position:absolute;
+  top:22px;
+  right:calc(-50% + 22px);
+  width:calc(100% - 44px);
+  height:1px;
+  background:var(--gold-line);
+}
+.timeline-icon{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--bg-card);
+  border:1.5px solid var(--gold-line);
+  color:var(--ink-soft);
+  z-index:1;
+  transition:all .15s;
+}
+.timeline-node.active .timeline-icon{
+  background:var(--teal);
+  border-color:var(--teal);
+  color:#F5EDD9;
+  transform:scale(1.08);
+}
+.timeline-label{
+  font-size:12.5px;
+  font-family:'Tajawal', sans-serif;
+  color:var(--ink-soft);
+  white-space:nowrap;
+}
+.timeline-node.active .timeline-label{
+  color:var(--teal-dark);
+  font-weight:600;
+}
+
+.bottom-tabs{
+  justify-content:center;
+  margin-bottom:26px;
+}
+
 .tabs{
   display:flex;
   gap:8px;
@@ -301,7 +391,14 @@ body{
   font-size:12.5px;
   color:var(--ink-soft);
 }
-.footer-name{justify-self:start; font-family:'Tajawal', sans-serif;}
+.footer-name{
+  justify-self:start;
+  font-family:'Tajawal', sans-serif;
+  color:var(--ink-soft);
+  text-decoration:none;
+  border-bottom:1px solid transparent;
+}
+.footer-name:hover{color:var(--teal-dark); border-color:var(--teal);}
 .footer-link{
   justify-self:end;
   font-family:'Tajawal', sans-serif;
@@ -361,14 +458,20 @@ body{
 
   <div class="ornament"></div>
 
-  <nav class="tabs" id="tabs"></nav>
+  <div class="all-btn-wrap">
+    <button class="all-btn" id="allBtn">كل الأدعية</button>
+  </div>
+
+  <nav class="timeline" id="timeline"></nav>
+
+  <nav class="tabs bottom-tabs" id="bottomTabs"></nav>
 
   <main class="grid" id="grid"></main>
 
   <footer class="app-footer">
-    <span class="footer-name">Ahmad Saleh Tuffaha</span>
+    <a class="footer-name" href="https://ast47.github.io/ahmadsalehtuffaha/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
     <span class="footer-trigger" id="footerTrigger">❖</span>
-    <a class="footer-link" href="https://github.com/AST47/ahmadsalehtuffaha" target="_blank" rel="noopener">Portfolio</a>
+    <a class="footer-link" href="https://ast47.github.io/ahmadsalehtuffaha/" target="_blank" rel="noopener">Portfolio</a>
   </footer>
 </div>
 
@@ -555,6 +658,16 @@ const SEED_ITEMS = [
   {text:"اللهم اجعلنا بتلاوة كتابك منتفعين، وعند ختمه من الفائزين", title:"ختم القرآن", count:1, categoryId:'means', order:20}
 ];
 
+const TIMELINE_ICONS = {
+  waking: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M12 3v3"/><path d="M4.2 11H2.5"/><path d="M21.5 11h-1.7"/><path d="M5.6 5.6l1.2 1.2"/><path d="M17.2 6.8l1.2-1.2"/><path d="M6.5 11a5.5 5.5 0 0 1 11 0"/><path d="M3 15h18"/><path d="M12 15l-2-2M12 15l2-2"/></svg>',
+  morning: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/></svg>',
+  noon: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5a3.5 3.5 0 1 1 .6-6.95A4.5 4.5 0 0 1 16.2 11 3.3 3.3 0 0 1 16 17.5H7.5"/></svg>',
+  evening: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 12a5.5 5.5 0 0 1 11 0"/><path d="M3 15h18"/><path d="M5 19h14"/><path d="M12 3v2.5"/><path d="M17.2 6.8l-1.2 1.2M6.8 6.8L8 8"/></svg>',
+  before_sleep: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.7 6.7 0 0 0 10.5 10.5Z"/></svg>'
+};
+const TIMELINE_CATEGORIES = ['waking','morning','noon','evening','before_sleep'];
+const BOTTOM_TAB_CATEGORIES = ['during_day','means'];
+
 let items = [];
 let activeCategory = 'during_day';
 let isAdmin = false;
@@ -623,15 +736,35 @@ function closeModal(id){
   document.getElementById(id).classList.remove('open');
 }
 
-function renderTabs(){
-  const tabs = document.getElementById('tabs');
-  tabs.innerHTML = '';
-  CATEGORIES.forEach(cat => {
+function renderAllButton(){
+  const btn = document.getElementById('allBtn');
+  btn.classList.toggle('active', activeCategory === 'all');
+  btn.onclick = () => { activeCategory = 'all'; render(); };
+}
+
+function renderTimeline(){
+  const wrap = document.getElementById('timeline');
+  wrap.innerHTML = '';
+  TIMELINE_CATEGORIES.forEach(catId => {
+    const cat = CATEGORIES.find(c => c.id === catId);
+    const node = document.createElement('button');
+    node.className = 'timeline-node' + (activeCategory === catId ? ' active' : '');
+    node.innerHTML = `<span class="timeline-icon">${TIMELINE_ICONS[catId]}</span><span class="timeline-label">${cat.label}</span>`;
+    node.onclick = () => { activeCategory = catId; render(); };
+    wrap.appendChild(node);
+  });
+}
+
+function renderBottomTabs(){
+  const wrap = document.getElementById('bottomTabs');
+  wrap.innerHTML = '';
+  BOTTOM_TAB_CATEGORIES.forEach(catId => {
+    const cat = CATEGORIES.find(c => c.id === catId);
     const btn = document.createElement('button');
-    btn.className = 'tab' + (cat.id === activeCategory ? ' active' : '') + (cat.id === 'all' ? ' all-tab' : '');
+    btn.className = 'tab' + (activeCategory === catId ? ' active' : '');
     btn.textContent = cat.label;
-    btn.onclick = () => { activeCategory = cat.id; render(); };
-    tabs.appendChild(btn);
+    btn.onclick = () => { activeCategory = catId; render(); };
+    wrap.appendChild(btn);
   });
 }
 
@@ -642,7 +775,9 @@ function getFilteredItems(){
 }
 
 function render(){
-  renderTabs();
+  renderAllButton();
+  renderTimeline();
+  renderBottomTabs();
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
   const list = getFilteredItems();
