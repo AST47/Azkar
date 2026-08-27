@@ -708,29 +708,16 @@ let isAdmin = false;
 let editingId = null;
 
 async function loadData(){
+  // المحتوى الأساسي (SEED_ITEMS) صار موجود بالكامل على Firestore.
+  // ما عاد نقارنه تلقائياً مع البيانات الحية لتفادي تكرار الكروت
+  // كل ما نعدل نص بالكود ونرفع نسخة جديدة. أي إضافة/تعديل من هلق
+  // ولّح لازم يصير من وضع التعديل بالموقع مباشرة.
   itemsRef.onSnapshot(snap => {
     items = (snap.exists && snap.data().items) ? snap.data().items : [];
     render();
   }, err => {
     console.error('فشل الاتصال بقاعدة البيانات', err);
   });
-
-  const snap = await itemsRef.get();
-  let current = (snap.exists && snap.data().items) ? snap.data().items : [];
-  let changed = false;
-
-  SEED_ITEMS.forEach(seed => {
-    const exists = current.some(i => i.text === seed.text && i.categoryId === seed.categoryId);
-    if(!exists){
-      current.push({...seed, id: 'item_' + Date.now() + '_' + Math.random().toString(36).slice(2,8)});
-      changed = true;
-    }
-  });
-
-  if(changed){
-    items = current;
-    await saveData();
-  }
 }
 
 async function saveData(){

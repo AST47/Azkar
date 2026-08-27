@@ -1,4 +1,4 @@
-const CACHE_NAME = 'azkar-cache-v1';
+const CACHE_NAME = 'azkar-cache-v2';
 
 const ASSETS = [
   './',
@@ -26,12 +26,29 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// نخزّن بس ملفات الصفحة الأساسية (الخطوط ومكتبة Firebase وملف الصفحة نفسه)
-// وما بنلمس طلبات Firestore الحقيقية حتى ما نأثر على المزامنة اللحظية
+// index.html: نتحقق من النت أولاً (network-first) عشان أي تحديث يظهر فوراً،
+// ونستخدم النسخة المخزنة فقط لو ما في نت. باقي الملفات (خطوط ومكتبة Firebase)
+// نادراً ما تتغير فبنخليها cache-first زي ما كانت.
+const NETWORK_FIRST = ['./', './index.html'];
+
 self.addEventListener('fetch', event => {
   if(event.request.method !== 'GET') return;
 
   const url = event.request.url;
+  const isNetworkFirst = NETWORK_FIRST.some(a => url.endsWith(a.replace('./', '')) || url.endsWith('/'));
+
+  if(isNetworkFirst){
+    event.respondWith(
+      fetch(event.request)
+        .then(networkResponse => {
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse.clone()));
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
   const isKnownAsset = ASSETS.some(asset => url.includes(asset.replace('./', '')));
   if(!isKnownAsset) return;
 
