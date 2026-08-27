@@ -96,20 +96,20 @@ body{
   font-family:'Reem Kufi', sans-serif;
   font-size:16px;
   font-weight:500;
-  background:var(--teal);
-  color:#F5EDD9;
+  background:var(--gold);
+  color:#2B2118;
   border:none;
   padding:12px 40px;
   border-radius:30px;
   cursor:pointer;
-  box-shadow:0 3px 10px rgba(31,92,78,0.25);
+  box-shadow:0 3px 10px rgba(173,138,62,0.25);
   transition:transform .15s, box-shadow .15s;
 }
-.all-btn:hover{transform:translateY(-1px); box-shadow:0 5px 14px rgba(31,92,78,0.3);}
+.all-btn:hover{transform:translateY(-1px); box-shadow:0 5px 14px rgba(173,138,62,0.32);}
 .all-btn.active{
-  background:var(--gold);
-  color:#2B2118;
-  box-shadow:0 3px 10px rgba(173,138,62,0.3);
+  background:var(--teal);
+  color:#F5EDD9;
+  box-shadow:0 3px 10px rgba(31,92,78,0.3);
 }
 
 .timeline{
@@ -440,6 +440,18 @@ body{
 }
 .footer-trigger.active{color:var(--teal);}
 
+.import-export-btn{
+  font-family:'Tajawal', sans-serif;
+  font-size:12px;
+  background:none;
+  border:1px solid var(--gold-line);
+  color:var(--ink-soft);
+  padding:6px 14px;
+  border-radius:8px;
+  cursor:pointer;
+}
+.import-export-btn:hover{background:rgba(173,138,62,0.08);}
+
 .cat-badge{
   font-size:12px;
   color:var(--teal-dark);
@@ -495,6 +507,9 @@ body{
     <span class="footer-trigger" id="footerTrigger">❖</span>
     <a class="footer-link" href="https://ast47.github.io/ahmadsalehtuffaha/" target="_blank" rel="noopener">Portfolio</a>
   </footer>
+  <div style="text-align:center; margin-top:10px;">
+    <button id="importExportBtn" class="import-export-btn" style="display:none;" onclick="openImportExport()">استيراد / تصدير المحتوى</button>
+  </div>
 </div>
 
 <div class="modal-overlay" id="passwordModal">
@@ -529,6 +544,23 @@ body{
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('editModal')">إلغاء</button>
       <button class="btn btn-primary" onclick="saveEdit()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="importExportModal">
+  <div class="modal" style="max-width:600px;">
+    <h3>استيراد / تصدير المحتوى</h3>
+    <p style="font-size:13px; color:var(--ink-soft); margin:0 0 10px;">
+      "تصدير" بيطلعلك كل المحتوى الحالي كـ JSON تقدر تنسخه وتعدل عليه.
+      "استيراد" بيستبدل <strong>كل</strong> المحتوى الحالي بالنص يلي بتلصقه هون — تأكد إنه صحيح قبل ما تأكد.
+    </p>
+    <textarea id="importExportArea" style="min-height:260px; font-family:monospace; font-size:12px; direction:ltr; text-align:left;"></textarea>
+    <div class="error-text" id="importExportError">صيغة JSON غير صحيحة، تأكد من النص وحاول مرة تانية</div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('importExportModal')">إغلاق</button>
+      <button class="btn" onclick="exportItems()">تصدير الحالي</button>
+      <button class="btn btn-primary" onclick="importItems()">استيراد واستبدال الكل</button>
     </div>
   </div>
 </div>
@@ -703,7 +735,7 @@ const TIMELINE_CATEGORIES = ['waking','morning','noon','evening','before_sleep']
 const BOTTOM_TAB_CATEGORIES = ['during_day','means'];
 
 let items = [];
-let activeCategory = 'during_day';
+let activeCategory = 'noon';
 let isAdmin = false;
 let editingId = null;
 
@@ -733,6 +765,7 @@ function toggleAdmin(){
   if(isAdmin){
     isAdmin = false;
     document.getElementById('footerTrigger').classList.remove('active');
+    document.getElementById('importExportBtn').style.display = 'none';
     render();
   }else{
     document.getElementById('passwordInput').value = '';
@@ -746,6 +779,7 @@ function checkPassword(){
   if(val === ADMIN_PASSWORD){
     isAdmin = true;
     document.getElementById('footerTrigger').classList.add('active');
+    document.getElementById('importExportBtn').style.display = 'inline-block';
     closeModal('passwordModal');
     render();
   }else{
@@ -755,6 +789,33 @@ function checkPassword(){
 
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
+}
+
+function openImportExport(){
+  document.getElementById('importExportError').classList.remove('show');
+  document.getElementById('importExportArea').value = '';
+  document.getElementById('importExportModal').classList.add('open');
+}
+
+function exportItems(){
+  document.getElementById('importExportArea').value = JSON.stringify(items, null, 2);
+}
+
+async function importItems(){
+  const raw = document.getElementById('importExportArea').value;
+  let parsed;
+  try{
+    parsed = JSON.parse(raw);
+    if(!Array.isArray(parsed)) throw new Error('not an array');
+  }catch(e){
+    document.getElementById('importExportError').classList.add('show');
+    return;
+  }
+  if(!confirm('رح يتم استبدال كل المحتوى الحالي بـ ' + parsed.length + ' عنصر. متأكد؟')) return;
+  items = parsed;
+  await saveData();
+  closeModal('importExportModal');
+  render();
 }
 
 function renderAllButton(){
