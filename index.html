@@ -744,12 +744,27 @@ async function loadData(){
   // ما عاد نقارنه تلقائياً مع البيانات الحية لتفادي تكرار الكروت
   // كل ما نعدل نص بالكود ونرفع نسخة جديدة. أي إضافة/تعديل من هلق
   // ولّح لازم يصير من وضع التعديل بالموقع مباشرة.
+  let doneOnce = false;
+
   itemsRef.onSnapshot(snap => {
+    doneOnce = true;
     items = (snap.exists && snap.data().items) ? snap.data().items : [];
     render();
   }, err => {
     console.error('فشل الاتصال بقاعدة البيانات', err);
+    doneOnce = true;
+    items = [];
+    render();
   });
+
+  // ما بنخلي المستخدم ينتظر أكتر من 4 ثواني — إذا Firestore تأخر أو
+  // فشل، منظهر الواجهة فاضية بدل ما تضل شاشة معلّقة بدون رد.
+  setTimeout(() => {
+    if(!doneOnce){
+      items = [];
+      render();
+    }
+  }, 4000);
 }
 
 async function saveData(){
