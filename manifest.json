@@ -1,0 +1,19 @@
+{
+  "name": "أذكار وأدعية",
+  "short_name": "أذكار",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F2E8D5",
+  "theme_color": "#1F5C4E",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
