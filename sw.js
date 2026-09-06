@@ -1,4 +1,13 @@
-const CACHE_NAME = 'azkar-cache-v3';
+const CACHE_NAME = 'azkar-cache-v4';
+
+// نخزن الصفحة نفسها فوراً وقت التثبيت، عشان التطبيقات المثبّتة على
+// الشاشة الرئيسية (خصوصاً آيفون) يكون عندها نسخة محفوظة من أول لحظة،
+// لأنه تخزين هيك تطبيقات بيكون منفصل عن تخزين المتصفح العادي
+const PAGE_ASSETS = [
+  './',
+  './index.html',
+  './manifest.json'
+];
 
 // ملفات ثابتة نادراً ما تتغير: نخزّنها ونحدّثها بالخلفية (stale-while-revalidate)
 const STATIC_ASSETS = [
@@ -11,7 +20,7 @@ const STATIC_ASSETS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(cache => cache.addAll([...PAGE_ASSETS, ...STATIC_ASSETS]))
       .catch(() => {})
   );
   self.skipWaiting();
