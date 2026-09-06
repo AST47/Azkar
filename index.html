@@ -261,6 +261,71 @@ body{
   font-size:11.5px;
   color:var(--gold);
   margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.quran-image-btn{
+  font-family:'Tajawal', sans-serif;
+  font-size:11.5px;
+  background:rgba(173,138,62,0.1);
+  border:1px solid var(--gold-line);
+  color:var(--gold);
+  padding:3px 10px;
+  border-radius:14px;
+  cursor:pointer;
+  margin-inline-start:6px;
+}
+.quran-image-btn:hover{background:rgba(173,138,62,0.18);}
+
+.lightbox-nav{
+  position:fixed;
+  top:50%;
+  transform:translateY(-50%);
+  background:rgba(245,237,233,0.15);
+  border:none;
+  color:#F5EDD9;
+  font-size:34px;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:60;
+}
+.lightbox-nav:hover{background:rgba(245,237,233,0.28);}
+#lightboxPrev{right:16px;}
+#lightboxNext{left:16px;}
+.lightbox-frame{
+  width:min(90vw, 560px);
+  height:min(85vh, 780px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.lightbox-frame img{
+  max-width:100%;
+  max-height:100%;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  border-radius:6px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.35);
+}
+.lightbox-frame img.align-bottom{align-self:flex-end;}
+.lightbox-frame img.align-top{align-self:flex-start;}
+.lightbox-counter{
+  position:fixed;
+  bottom:24px;
+  left:50%;
+  transform:translateX(-50%);
+  color:#F5EDD9;
+  font-family:'Tajawal', sans-serif;
+  font-size:13px;
+  background:rgba(0,0,0,0.35);
+  padding:4px 14px;
+  border-radius:14px;
+  z-index:60;
 }
 .card.quran-card .card-text{
   font-family:'Amiri Quran', serif;
@@ -570,12 +635,24 @@ body{
       <input type="checkbox" id="editIsQuran" style="width:auto;">
       <span style="margin:0;">هاد مقطع قرآني (يظهر بتنسيق مميز)</span>
     </label>
+    <label>روابط صور الرسم العثماني (اختياري، رابط بكل سطر بالترتيب)</label>
+    <textarea id="editImageUrls" placeholder="https://.../mulk-1.png
+https://.../mulk-2.png" style="min-height:80px; font-family:monospace; font-size:12px; direction:ltr; text-align:left;"></textarea>
     <div class="error-text" id="editError">الرجاء إدخال نص الذكر</div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('editModal')">إلغاء</button>
       <button class="btn btn-primary" onclick="saveEdit()">حفظ</button>
     </div>
   </div>
+</div>
+
+<div class="modal-overlay" id="lightboxModal" onclick="closeModal('lightboxModal')">
+  <button class="lightbox-nav" id="lightboxPrev" onclick="event.stopPropagation(); lightboxNav(-1)">‹</button>
+  <div class="lightbox-frame" onclick="event.stopPropagation()">
+    <img id="lightboxImg" src="" alt="الرسم العثماني">
+  </div>
+  <button class="lightbox-nav" id="lightboxNext" onclick="event.stopPropagation(); lightboxNav(1)">›</button>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
 </div>
 
 <div class="modal-overlay" id="importExportModal">
@@ -856,6 +933,41 @@ function closeModal(id){
   document.getElementById(id).classList.remove('open');
 }
 
+let lightboxImages = [];
+let lightboxIndex = 0;
+
+function renderLightbox(){
+  const img = document.getElementById('lightboxImg');
+  img.src = lightboxImages[lightboxIndex];
+
+  img.classList.remove('align-top', 'align-bottom');
+  if(lightboxImages.length > 1){
+    if(lightboxIndex === 0){
+      img.classList.add('align-bottom');
+    }else if(lightboxIndex === lightboxImages.length - 1){
+      img.classList.add('align-top');
+    }
+  }
+
+  document.getElementById('lightboxCounter').textContent = (lightboxIndex + 1) + ' / ' + lightboxImages.length;
+  const multi = lightboxImages.length > 1;
+  document.getElementById('lightboxPrev').style.display = multi ? 'flex' : 'none';
+  document.getElementById('lightboxNext').style.display = multi ? 'flex' : 'none';
+  document.getElementById('lightboxCounter').style.display = multi ? 'block' : 'none';
+}
+
+function openLightbox(urls){
+  lightboxImages = Array.isArray(urls) ? urls : [urls];
+  lightboxIndex = 0;
+  renderLightbox();
+  document.getElementById('lightboxModal').classList.add('open');
+}
+
+function lightboxNav(direction){
+  lightboxIndex = (lightboxIndex + direction + lightboxImages.length) % lightboxImages.length;
+  renderLightbox();
+}
+
 function openImportExport(){
   document.getElementById('importExportError').classList.remove('show');
   document.getElementById('importExportArea').value = '';
@@ -955,6 +1067,15 @@ function render(){
       const mark = document.createElement('div');
       mark.className = 'quran-mark';
       mark.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H12v20H6.5A2.5 2.5 0 0 1 4 19.5v-15Z"/><path d="M20 4.5A2.5 2.5 0 0 0 17.5 2H12v20h5.5a2.5 2.5 0 0 0 2.5-2.5v-15Z"/></svg><span>آية قرآنية</span>';
+
+      if(item.imageUrls && item.imageUrls.length){
+        const imgBtn = document.createElement('button');
+        imgBtn.className = 'quran-image-btn';
+        imgBtn.innerHTML = '🖼 عرض بالرسم العثماني' + (item.imageUrls.length > 1 ? ' (' + item.imageUrls.length + ' صفحات)' : '');
+        imgBtn.onclick = () => openLightbox(item.imageUrls);
+        mark.appendChild(imgBtn);
+      }
+
       card.appendChild(mark);
     }
 
@@ -1077,6 +1198,7 @@ function openEdit(id){
     document.getElementById('editText').value = item.text;
     document.getElementById('editCount').value = item.count;
     document.getElementById('editIsQuran').checked = !!item.isQuran;
+    document.getElementById('editImageUrls').value = (item.imageUrls || []).join('\n');
   }else{
     document.getElementById('editModalTitle').textContent = 'إضافة ذكر';
     document.getElementById('editTitle').value = '';
@@ -1084,6 +1206,7 @@ function openEdit(id){
     document.getElementById('editText').value = '';
     document.getElementById('editCount').value = 1;
     document.getElementById('editIsQuran').checked = false;
+    document.getElementById('editImageUrls').value = '';
   }
 
   document.getElementById('editModal').classList.add('open');
@@ -1095,6 +1218,10 @@ function saveEdit(){
   const categoryId = document.getElementById('editCategory').value;
   const count = parseInt(document.getElementById('editCount').value) || 1;
   const isQuran = document.getElementById('editIsQuran').checked;
+  const imageUrls = document.getElementById('editImageUrls').value
+    .split('\n')
+    .map(s => s.trim())
+    .filter(Boolean);
 
   if(!text){
     document.getElementById('editError').classList.add('show');
@@ -1108,12 +1235,13 @@ function saveEdit(){
     item.categoryId = categoryId;
     item.count = count;
     item.isQuran = isQuran;
+    item.imageUrls = imageUrls;
   }else{
     const catItems = items.filter(i => i.categoryId === categoryId);
     const maxOrder = catItems.length ? Math.max(...catItems.map(i => i.order)) : 0;
     items.push({
       id: 'item_' + Date.now(),
-      text, title, categoryId, count, isQuran,
+      text, title, categoryId, count, isQuran, imageUrls,
       order: maxOrder + 1
     });
   }
