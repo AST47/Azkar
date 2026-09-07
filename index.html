@@ -951,8 +951,8 @@ function renderLightbox(){
 
   document.getElementById('lightboxCounter').textContent = (lightboxIndex + 1) + ' / ' + lightboxImages.length;
   const multi = lightboxImages.length > 1;
-  document.getElementById('lightboxPrev').style.display = multi ? 'flex' : 'none';
-  document.getElementById('lightboxNext').style.display = multi ? 'flex' : 'none';
+  document.getElementById('lightboxPrev').style.display = (multi && lightboxIndex > 0) ? 'flex' : 'none';
+  document.getElementById('lightboxNext').style.display = (multi && lightboxIndex < lightboxImages.length - 1) ? 'flex' : 'none';
   document.getElementById('lightboxCounter').style.display = multi ? 'block' : 'none';
 }
 
@@ -964,7 +964,9 @@ function openLightbox(urls){
 }
 
 function lightboxNav(direction){
-  lightboxIndex = (lightboxIndex + direction + lightboxImages.length) % lightboxImages.length;
+  const next = lightboxIndex + direction;
+  if(next < 0 || next >= lightboxImages.length) return;
+  lightboxIndex = next;
   renderLightbox();
 }
 
