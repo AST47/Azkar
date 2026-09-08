@@ -303,11 +303,13 @@ body{
   background:rgba(18,14,10,0.65);
   border:1.5px solid rgba(245,237,233,0.35);
   color:#F5EDD9;
-  font-size:18px;
   width:38px;
   height:38px;
   border-radius:50%;
   cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   z-index:60;
 }
 .lightbox-close:hover{background:rgba(18,14,10,0.85);}
@@ -666,12 +668,12 @@ https://.../mulk-2.png" style="min-height:80px; font-family:monospace; font-size
 </div>
 
 <div class="modal-overlay" id="lightboxModal" onclick="closeModal('lightboxModal')">
-  <button class="lightbox-close" onclick="event.stopPropagation(); closeModal('lightboxModal')">✕</button>
-  <button class="lightbox-nav" id="lightboxPrev" onclick="event.stopPropagation(); lightboxNav(-1)">‹</button>
+  <button class="lightbox-close" onclick="event.stopPropagation(); closeModal('lightboxModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <button class="lightbox-nav" id="lightboxPrev" onclick="event.stopPropagation(); lightboxNav(-1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
   <div class="lightbox-frame">
     <img id="lightboxImg" src="" alt="الرسم العثماني" onclick="event.stopPropagation()">
   </div>
-  <button class="lightbox-nav" id="lightboxNext" onclick="event.stopPropagation(); lightboxNav(1)">›</button>
+  <button class="lightbox-nav" id="lightboxNext" onclick="event.stopPropagation(); lightboxNav(1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
   <div class="lightbox-counter" id="lightboxCounter"></div>
 </div>
 
