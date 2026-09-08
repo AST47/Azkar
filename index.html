@@ -331,15 +331,19 @@ body{
 .lightbox-frame img.align-top{align-self:flex-start;}
 .lightbox-counter{
   position:fixed;
-  bottom:80px;
+  bottom:24px;
   left:50%;
   transform:translateX(-50%);
   color:#F5EDD9;
   font-family:'Tajawal', sans-serif;
-  font-size:13px;
-  background:rgba(0,0,0,0.35);
-  padding:4px 14px;
-  border-radius:14px;
+  font-size:14px;
+  background:rgba(18,14,10,0.65);
+  border:1.5px solid rgba(245,237,233,0.35);
+  height:38px;
+  display:flex;
+  align-items:center;
+  padding:0 16px;
+  border-radius:19px;
   z-index:60;
 }
 .card.quran-card .card-text{
@@ -1082,7 +1086,7 @@ function render(){
     if(isAdmin){
       const tag = document.createElement('div');
       tag.className = 'order-tag';
-      tag.textContent = 'ترتيب ' + item.order;
+      tag.textContent = 'ترتيب ' + toArabicDigits(item.order);
       card.appendChild(tag);
     }
 
@@ -1094,7 +1098,7 @@ function render(){
       if(item.imageUrls && item.imageUrls.length){
         const imgBtn = document.createElement('button');
         imgBtn.className = 'quran-image-btn';
-        imgBtn.innerHTML = '🖼 عرض بالرسم العثماني' + (item.imageUrls.length > 1 ? ' (' + item.imageUrls.length + ' صفحات)' : '');
+        imgBtn.innerHTML = '🖼 عرض بالرسم العثماني' + (item.imageUrls.length > 1 ? ' (' + toArabicDigits(item.imageUrls.length) + ' صفحات)' : '');
         imgBtn.onclick = () => openLightbox(item.imageUrls);
         mark.appendChild(imgBtn);
       }
@@ -1123,7 +1127,7 @@ function render(){
 
     const badge = document.createElement('span');
     badge.className = 'count-badge';
-    badge.textContent = '× ' + item.count;
+    badge.textContent = '× ' + toArabicDigits(item.count);
     if(item.count > 1){
       badgeGroup.appendChild(badge);
     }
