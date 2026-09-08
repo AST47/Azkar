@@ -278,8 +278,7 @@ body{
 
 .lightbox-nav{
   position:fixed;
-  top:50%;
-  transform:translateY(-50%);
+  bottom:20px;
   background:rgba(18,14,10,0.65);
   border:1.5px solid rgba(245,237,233,0.35);
   color:#F5EDD9;
@@ -299,7 +298,8 @@ body{
 .lightbox-close{
   position:fixed;
   top:16px;
-  left:16px;
+  left:50%;
+  transform:translateX(-50%);
   background:rgba(18,14,10,0.65);
   border:1.5px solid rgba(245,237,233,0.35);
   color:#F5EDD9;
@@ -331,7 +331,7 @@ body{
 .lightbox-frame img.align-top{align-self:flex-start;}
 .lightbox-counter{
   position:fixed;
-  bottom:24px;
+  bottom:80px;
   left:50%;
   transform:translateX(-50%);
   color:#F5EDD9;
@@ -952,6 +952,11 @@ function closeModal(id){
 let lightboxImages = [];
 let lightboxIndex = 0;
 
+function toArabicDigits(n){
+  const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+  return String(n).replace(/[0-9]/g, d => arabicDigits[d]);
+}
+
 function renderLightbox(){
   const img = document.getElementById('lightboxImg');
   img.src = lightboxImages[lightboxIndex];
@@ -965,7 +970,7 @@ function renderLightbox(){
     }
   }
 
-  document.getElementById('lightboxCounter').textContent = (lightboxIndex + 1) + ' / ' + lightboxImages.length;
+  document.getElementById('lightboxCounter').textContent = toArabicDigits(lightboxIndex + 1) + ' / ' + toArabicDigits(lightboxImages.length);
   const multi = lightboxImages.length > 1;
   document.getElementById('lightboxPrev').style.display = (multi && lightboxIndex > 0) ? 'flex' : 'none';
   document.getElementById('lightboxNext').style.display = (multi && lightboxIndex < lightboxImages.length - 1) ? 'flex' : 'none';
