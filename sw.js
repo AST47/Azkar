@@ -1,4 +1,4 @@
-const CACHE_NAME = 'azkar-cache-v4';
+const CACHE_NAME = 'azkar-cache-v5';
 
 // نخزن الصفحة نفسها فوراً وقت التثبيت، عشان التطبيقات المثبّتة على
 // الشاشة الرئيسية (خصوصاً آيفون) يكون عندها نسخة محفوظة من أول لحظة،
@@ -14,6 +14,7 @@ const STATIC_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap',
   'https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js',
   'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js',
+  'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js',
   'icon.png'
 ];
 
