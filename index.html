@@ -37,19 +37,20 @@ body{
   padding:28px 20px 80px;
 }
 
-.app{max-width:640px; margin:0 auto;}
+.app{max-width:1120px; margin:0 auto;}
 
 .app-header{
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:16px;
-  flex-wrap:wrap;
-  margin-bottom:14px;
+  flex-wrap:nowrap;
+  max-width:480px;
+  margin:0 auto 14px;
 }
 
-.brand{display:flex; align-items:center; gap:12px;}
-.header-actions{display:flex; align-items:center; gap:8px;}
+.brand{display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto; overflow:hidden;}
+.header-actions{display:flex; align-items:center; gap:8px; flex:0 0 auto;}
 
 .info-modal{max-width:520px; max-height:85vh; overflow-y:auto;}
 .info-section{margin-bottom:4px;}
@@ -130,10 +131,13 @@ body{
 .brand h1{
   font-family:'Reem Kufi', sans-serif;
   font-weight:700;
-  font-size:30px;
+  font-size:clamp(11px, 5.5vw, 30px);
   margin:0;
   color:var(--teal-dark);
   letter-spacing:0.5px;
+  white-space:nowrap;
+  overflow:hidden;
+  min-width:0;
 }
 
 .admin-toggle button{
@@ -159,7 +163,8 @@ body{
 
 .ornament{
   height:14px;
-  margin:6px 0 22px;
+  max-width:480px;
+  margin:6px auto 22px;
   background-image: repeating-linear-gradient(
     45deg, var(--gold-soft) 0 3px, transparent 3px 9px
   );
@@ -573,7 +578,8 @@ body{
 .error-text.show{display:block;}
 
 .app-footer{
-  margin-top:50px;
+  max-width:480px;
+  margin:50px auto 0;
   padding-top:18px;
   border-top:1px solid var(--gold-line);
   display:grid;

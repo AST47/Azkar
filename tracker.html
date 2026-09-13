@@ -38,11 +38,12 @@ body{
   align-items:center;
   justify-content:space-between;
   gap:16px;
-  flex-wrap:wrap;
-  margin-bottom:6px;
+  flex-wrap:nowrap;
+  max-width:480px;
+  margin:0 auto 6px;
 }
-.brand{display:flex; align-items:center; gap:12px;}
-.header-actions{display:flex; align-items:center; gap:8px;}
+.brand{display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto; overflow:hidden;}
+.header-actions{display:flex; align-items:center; gap:8px; flex:0 0 auto;}
 .header-btn{
   width:34px;
   height:34px;
@@ -117,15 +118,19 @@ body{
 .brand h1{
   font-family:'Reem Kufi', sans-serif;
   font-weight:700;
-  font-size:26px;
+  font-size:clamp(11px, 5.5vw, 26px);
   margin:0;
   color:var(--teal-dark);
   letter-spacing:0.5px;
+  white-space:nowrap;
+  overflow:hidden;
+  min-width:0;
 }
 
 .ornament{
   height:14px;
-  margin:2px 0 14px;
+  max-width:480px;
+  margin:2px auto 14px;
   background-image: repeating-linear-gradient(45deg, var(--gold-soft) 0 3px, transparent 3px 9px);
   opacity:0.55;
   mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
@@ -215,7 +220,8 @@ section{margin-bottom:26px;}
 }
 
 .app-footer{
-  margin-top:50px;
+  max-width:480px;
+  margin:50px auto 0;
   padding-top:18px;
   border-top:1px solid var(--gold-line);
   display:grid;
