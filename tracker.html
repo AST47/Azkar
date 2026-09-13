@@ -33,42 +33,111 @@ body{
 
 .app{max-width:640px; margin:0 auto;}
 
-header{text-align:center; margin-bottom:6px;}
-h1{
-  font-family:'Reem Kufi', sans-serif;
-  font-weight:700;
-  font-size:26px;
-  margin:0 0 4px;
-  color:var(--teal-dark);
-}
-.today-date{
-  font-size:14px;
-  color:var(--ink-soft);
-}
-
-.top-actions{
+.app-header{
   display:flex;
-  justify-content:center;
-  gap:10px;
-  margin-bottom:18px;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:6px;
 }
-.top-actions a, .top-actions button{
-  font-family:'Tajawal', sans-serif;
-  font-size:13px;
+.brand{display:flex; align-items:center; gap:12px;}
+.header-actions{display:flex; align-items:center; gap:8px;}
+.header-btn{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   background:var(--bg-card);
   border:1px solid var(--gold-line);
   color:var(--ink-soft);
-  padding:8px 16px;
-  border-radius:20px;
   cursor:pointer;
   text-decoration:none;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
+  transition:background .15s;
 }
-.top-actions a:hover, .top-actions button:hover{background:rgba(173,138,62,0.1);}
-.top-actions .reset-btn{color:#7A2E2E; border-color:rgba(122,46,46,0.3);}
-.top-actions .reset-btn:hover{background:rgba(122,46,46,0.08);}
+.header-btn:hover{background:rgba(173,138,62,0.1);}
+.header-btn.spinning svg{animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.header-btn.armed{background:rgba(122,46,46,0.1); border-color:rgba(122,46,46,0.4); color:#7A2E2E;}
+
+.modal-overlay{
+  position:fixed; inset:0;
+  background:rgba(43,33,24,0.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:50;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--bg-card);
+  border-radius:12px;
+  padding:24px;
+  width:100%;
+  max-width:440px;
+  border:1px solid var(--gold-line);
+}
+.modal h3{
+  font-family:'Reem Kufi', sans-serif;
+  margin:0 0 16px;
+  color:var(--teal-dark);
+  font-size:18px;
+}
+.info-about{
+  font-size:14px;
+  line-height:1.8;
+  color:var(--ink-soft);
+  margin:0;
+}
+.info-link{
+  color:var(--teal-dark);
+  text-decoration:none;
+  border-bottom:1px solid var(--gold-line);
+}
+.info-link:hover{border-color:var(--teal);}
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:20px;
+}
+.btn{
+  font-family:'Tajawal', sans-serif;
+  font-size:14px;
+  padding:9px 18px;
+  border-radius:8px;
+  border:1px solid var(--gold-line);
+  background:transparent;
+  color:var(--ink-soft);
+  cursor:pointer;
+}
+.brand svg{flex-shrink:0;}
+.brand h1{
+  font-family:'Reem Kufi', sans-serif;
+  font-weight:700;
+  font-size:26px;
+  margin:0;
+  color:var(--teal-dark);
+  letter-spacing:0.5px;
+}
+
+.ornament{
+  height:14px;
+  margin:2px 0 14px;
+  background-image: repeating-linear-gradient(45deg, var(--gold-soft) 0 3px, transparent 3px 9px);
+  opacity:0.55;
+  mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+}
+
+.today-date{
+  font-size:14px;
+  color:var(--ink-soft);
+  text-align:center;
+  margin-bottom:18px;
+}
 
 .progress{
   text-align:center;
@@ -145,6 +214,43 @@ section{margin-bottom:26px;}
   opacity:0.75;
 }
 
+.app-footer{
+  margin-top:50px;
+  padding-top:18px;
+  border-top:1px solid var(--gold-line);
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  font-size:12.5px;
+  color:var(--ink-soft);
+}
+.footer-name{
+  justify-self:start;
+  font-family:'Tajawal', sans-serif;
+  color:var(--ink-soft);
+  text-decoration:none;
+  border-bottom:1px solid var(--gold-line);
+  padding-bottom:1px;
+}
+.footer-name:hover{color:var(--teal-dark); border-color:var(--teal);}
+.footer-link{
+  justify-self:end;
+  font-family:'Tajawal', sans-serif;
+  color:var(--ink-soft);
+  text-decoration:none;
+  border-bottom:1px solid var(--gold-line);
+  padding-bottom:1px;
+  direction:ltr;
+}
+.footer-link:hover{color:var(--teal-dark); border-color:var(--teal);}
+.footer-trigger{
+  justify-self:center;
+  color:var(--gold-line);
+  font-size:13px;
+  cursor:default;
+  user-select:none;
+}
+
 @media (max-width:420px){
   .grid5{gap:6px;}
   .box{padding:10px 2px 8px;}
@@ -154,22 +260,40 @@ section{margin-bottom:26px;}
 </head>
 <body>
 <div class="app">
-  <header>
-    <h1>المتابعة اليومية</h1>
-    <div class="today-date" id="todayDate"></div>
+  <header class="app-header">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 34 34">
+        <circle cx="17" cy="17" r="15.5" fill="none" stroke="#AD8A3E" stroke-width="1.3"/>
+        <circle cx="17" cy="6" r="2.4" fill="#1F5C4E"/>
+        <circle cx="26.7" cy="12" r="1.9" fill="#AD8A3E"/>
+        <circle cx="26.7" cy="22" r="1.9" fill="#AD8A3E"/>
+        <circle cx="17" cy="28" r="1.9" fill="#AD8A3E"/>
+        <circle cx="7.3" cy="22" r="1.9" fill="#AD8A3E"/>
+        <circle cx="7.3" cy="12" r="1.9" fill="#AD8A3E"/>
+      </svg>
+      <h1>المتابعة اليومية</h1>
+    </div>
+    <div class="header-actions">
+      <a href="index.html" class="header-btn" title="رجوع للأذكار">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      </a>
+      <a href="prayer-times.html" class="header-btn" title="أوقات الصلاة">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M3 12h2.2M18.8 12H21M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke-linecap="round"/></svg>
+      </a>
+      <button id="resetBtn" class="header-btn" title="إعادة تصفير اليوم">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+      </button>
+      <button id="infoBtn" class="header-btn" title="عن الصفحة">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="currentColor" stroke="none"/></svg>
+      </button>
+    </div>
   </header>
 
-  <div class="top-actions">
-    <a href="https://ast47.github.io/Azkar/">→ رجوع للأذكار</a>
-    <button class="reset-btn" id="resetBtn">إعادة تصفير اليوم</button>
-  </div>
+  <div class="ornament"></div>
+
+  <div class="today-date" id="todayDate"></div>
 
   <div class="progress" id="progressText"></div>
-
-  <section>
-    <div class="section-label">ورد اليوم من القرآن</div>
-    <div class="grid5" id="quranGrid"></div>
-  </section>
 
   <section>
     <div class="section-label">الصلوات</div>
@@ -177,16 +301,35 @@ section{margin-bottom:26px;}
   </section>
 
   <section>
-    <div class="section-label">الأذكار</div>
-    <div class="grid5" id="azkarCatGrid"></div>
+    <div class="section-label">ورد اليوم من القرآن</div>
+    <div class="grid5" id="quranGrid"></div>
   </section>
 
   <section>
-    <div class="section-label">أذكار اليوم</div>
-    <div class="grid3" id="azkarTimesGrid"></div>
+    <div class="section-label">ورد الأذكار اليومي</div>
+    <div class="grid5" id="azkarCatGrid"></div>
+    <div class="grid5" id="azkarTimesGrid" style="margin-top:10px;"></div>
   </section>
 
   <div class="reset-note">البوكسات بترجع فاضية تلقائياً كل يوم جديد</div>
+
+  <footer class="app-footer">
+    <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
+    <span class="footer-trigger">❖</span>
+    <a class="footer-link" href="https://ast47.github.io/ahmadsalehtuffaha/" target="_blank" rel="noopener">Portfolio</a>
+  </footer>
+</div>
+
+<div class="modal-overlay" id="infoModal">
+  <div class="modal">
+    <h3>عن هالصفحة</h3>
+    <p class="info-about">
+      صفحة المتابعة اليومية، جزء من مشروع <a class="info-link" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">أحمد صالح تفاحة</a> للأذكار والأدعية. بتساعدك تتابع وردك اليومي من القرآن والصلوات والأذكار، وبترجع فاضية تلقائياً كل يوم جديد.
+    </p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('infoModal')">إغلاق</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -215,9 +358,11 @@ const AZKAR_CATEGORIES = [
 ];
 
 const AZKAR_TIMES = [
+  {id:'subhanallah', label:'سبحان الله ×١٠٠'},
   {id:'t1', label:'المجموعة الأولى'},
   {id:'t2', label:'المجموعة الثانية'},
-  {id:'t3', label:'المجموعة الثالثة'}
+  {id:'t3', label:'المجموعة الثالثة'},
+  {id:'lahawla', label:'لا حول ولا قوة إلا بالله ×١٠٠'}
 ];
 
 function todayKey(){
@@ -251,8 +396,6 @@ function loadState(){
   if(raw){
     try{
       const parsed = JSON.parse(raw);
-      // لو البنية المخزنة قديمة (من نسخة سابقة) بنرجع لحالة فاضية
-      // بدل ما نخلي الكبسات ما تشتغل بصمت
       if(isValidState(parsed)) return parsed;
     }catch(e){}
   }
@@ -315,26 +458,37 @@ render();
 let resetArmed = false;
 let resetTimer = null;
 const resetBtn = document.getElementById('resetBtn');
-const resetBtnOriginalText = resetBtn.textContent;
+const resetBtnOriginalTitle = resetBtn.title;
 
 resetBtn.onclick = () => {
   if(!resetArmed){
     resetArmed = true;
-    resetBtn.textContent = 'متأكد؟ دوس تاني للتأكيد';
+    resetBtn.classList.add('armed');
+    resetBtn.title = 'متأكد؟ دوس تاني للتأكيد';
     clearTimeout(resetTimer);
     resetTimer = setTimeout(() => {
       resetArmed = false;
-      resetBtn.textContent = resetBtnOriginalText;
+      resetBtn.classList.remove('armed');
+      resetBtn.title = resetBtnOriginalTitle;
     }, 3000);
     return;
   }
   clearTimeout(resetTimer);
   resetArmed = false;
-  resetBtn.textContent = resetBtnOriginalText;
+  resetBtn.classList.remove('armed');
+  resetBtn.title = resetBtnOriginalTitle;
   localStorage.removeItem(todayKey());
   state = freshState();
   render();
 };
+
+document.getElementById('infoBtn').addEventListener('click', () => {
+  document.getElementById('infoModal').classList.add('open');
+});
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+}
 </script>
 </body>
 </html>

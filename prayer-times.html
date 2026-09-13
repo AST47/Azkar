@@ -6,21 +6,20 @@
 <title>أوقات الصلاة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400..700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --parchment: #f2ead9;
-    --parchment-deep: #e8dcc0;
-    --panel: #faf6ea;
-    --ink: #2c2416;
-    --ink-soft: #6b6050;
-    --teal: #285e57;
-    --teal-deep: #163f3a;
+    --parchment: #F2E8D5;
+    --parchment-deep: #E8DEC8;
+    --panel: #FBF5E8;
+    --ink: #2B2118;
+    --ink-soft: #6B5A45;
+    --teal: #1F5C4E;
+    --teal-deep: #123B31;
     --teal-soft: #4d8b83;
-    --gold: #ad7e35;
-    --gold-soft: #d8ae6b;
-    --line: rgba(44,36,22,0.12);
-    --shadow-night: #1c2a3a;
+    --gold: #AD8A3E;
+    --gold-soft: #DCC08A;
+    --line: rgba(173,138,62,0.35);
   }
 
   *{ box-sizing: border-box; }
@@ -40,13 +39,98 @@
   }
 
   .page{
-    max-width: 480px;
+    max-width: 640px;
     margin: 0 auto;
     min-height: 100vh;
     padding: 28px 20px 40px;
     display: flex;
     flex-direction: column;
     gap: 26px;
+  }
+
+  .app-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .header-actions{ display:flex; align-items:center; gap:8px; }
+
+  .header-btn{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    cursor:pointer;
+    text-decoration:none;
+    transition:background .15s;
+  }
+  .header-btn:hover{ background:rgba(173,138,62,0.1); }
+  .header-btn.spinning svg{ animation: spin .8s linear infinite; }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  .brand svg{ flex-shrink:0; }
+  .brand h1{
+    font-family:'Reem Kufi', sans-serif;
+    font-weight:700;
+    font-size:26px;
+    margin:0;
+    color:var(--teal-deep);
+    letter-spacing:0.5px;
+  }
+
+  .ornament{
+    height:14px;
+    margin:2px 0 0;
+    background-image: repeating-linear-gradient(45deg, var(--gold-soft) 0 3px, transparent 3px 9px);
+    opacity:0.55;
+    mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+  }
+
+  .app-footer{
+    margin-top:50px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    align-items:center;
+    font-size:12.5px;
+    color: var(--ink-soft);
+  }
+  .footer-name{
+    justify-self:start;
+    font-family:'Tajawal', sans-serif;
+    color: var(--ink-soft);
+    text-decoration:none;
+    border-bottom:1px solid var(--line);
+    padding-bottom:1px;
+  }
+  .footer-name:hover{ color: var(--teal-deep); border-color: var(--teal); }
+  .footer-link{
+    justify-self:end;
+    font-family:'Tajawal', sans-serif;
+    color: var(--ink-soft);
+    text-decoration:none;
+    border-bottom:1px solid var(--line);
+    padding-bottom:1px;
+    direction:ltr;
+  }
+  .footer-link:hover{ color: var(--teal-deep); border-color: var(--teal); }
+  .footer-trigger{
+    justify-self:center;
+    color: var(--line);
+    font-size:13px;
+    cursor:default;
+    user-select:none;
   }
 
   /* ---------- Top bar ---------- */
@@ -73,18 +157,6 @@
     font-size: 12.5px;
     color: var(--ink-soft);
     line-height: 1.7;
-  }
-
-  .topbar button.locate{
-    background: none;
-    border: none;
-    color: var(--teal);
-    font-family: 'Tajawal', sans-serif;
-    font-size: 12.5px;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    cursor: pointer;
-    padding: 0;
   }
 
   /* ---------- Hero: sun arc ---------- */
@@ -269,26 +341,161 @@
     cursor: pointer;
   }
 
+  .tune-section{
+    padding: 12px 14px 14px;
+    border-top: 1px solid var(--line);
+    margin-top: 6px;
+  }
+
+  .tune-section .tune-title{
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+
+  .tune-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 12px;
+  }
+
+  .tune-row{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  .tune-row input{
+    width: 54px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 13px;
+    text-align: center;
+    padding: 5px 4px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--parchment);
+    color: var(--ink);
+  }
+
+  .tune-hint{
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
   .status{
     text-align:center;
     font-size: 13px;
     color: var(--ink-soft);
     padding: 30px 0;
   }
+
+  .modal-overlay{
+    position: fixed; inset: 0;
+    background: rgba(43,33,24,0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 50;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal{
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    max-width: 440px;
+    border: 1px solid var(--line);
+  }
+  .modal h3{
+    font-family: 'Reem Kufi', sans-serif;
+    margin: 0 0 16px;
+    color: var(--teal-deep);
+    font-size: 18px;
+  }
+  .info-about{
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+  .info-link{
+    color: var(--teal-deep);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .info-link:hover{ border-color: var(--teal); }
+  .modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    margin-top: 20px;
+  }
+  .btn{
+    font-family: 'Tajawal', sans-serif;
+    font-size: 14px;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+
+  .toggle-row{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    padding: 12px 14px 6px;
+    font-size: 13.5px;
+    color: var(--ink);
+  }
+  .toggle-row input{ accent-color: var(--gold); }
 </style>
 </head>
 <body>
 
 <div class="page">
 
+  <header class="app-header">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 34 34">
+        <circle cx="17" cy="17" r="15.5" fill="none" stroke="#AD8A3E" stroke-width="1.3"/>
+        <circle cx="17" cy="6" r="2.4" fill="#1F5C4E"/>
+        <circle cx="26.7" cy="12" r="1.9" fill="#AD8A3E"/>
+        <circle cx="26.7" cy="22" r="1.9" fill="#AD8A3E"/>
+        <circle cx="17" cy="28" r="1.9" fill="#AD8A3E"/>
+        <circle cx="7.3" cy="22" r="1.9" fill="#AD8A3E"/>
+        <circle cx="7.3" cy="12" r="1.9" fill="#AD8A3E"/>
+      </svg>
+      <h1>أوقات الصلاة</h1>
+    </div>
+    <div class="header-actions">
+      <a href="index.html" class="header-btn" title="رجوع للأذكار">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      </a>
+      <a href="tracker.html" class="header-btn" title="المتابعة اليومية">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/><path d="M8.5 14.5l2 2 4-4"/></svg>
+      </a>
+      <button id="locateBtn" class="header-btn" title="تغيير الموقع">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+      </button>
+      <button id="infoBtn" class="header-btn" title="عن الصفحة">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="currentColor" stroke="none"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="ornament"></div>
+
   <div class="topbar">
     <div class="place">
       <span id="placeName">جارٍ تحديد الموقع…</span>
     </div>
-    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-      <div class="dates" id="dateBox"></div>
-      <button class="locate" id="locateBtn">تغيير الموقع</button>
-    </div>
+    <div class="dates" id="dateBox"></div>
   </div>
 
   <div id="content">
@@ -300,6 +507,34 @@
     <div class="panel" id="methodPanel"></div>
   </details>
 
+  <details class="settings">
+    <summary><span class="caret">◂</span> العرض</summary>
+    <div class="panel">
+      <label class="toggle-row">
+        <input type="checkbox" id="showInAzkarCheckbox">
+        إظهار وقت الصلاة ضمن صفحة الأذكار
+      </label>
+    </div>
+  </details>
+
+  <footer class="app-footer">
+    <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
+    <span class="footer-trigger">❖</span>
+    <a class="footer-link" href="https://ast47.github.io/ahmadsalehtuffaha/" target="_blank" rel="noopener">Portfolio</a>
+  </footer>
+
+</div>
+
+<div class="modal-overlay" id="infoModal">
+  <div class="modal">
+    <h3>عن هالصفحة</h3>
+    <p class="info-about">
+      صفحة أوقات الصلاة، جزء من مشروع <a class="info-link" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">أحمد صالح تفاحة</a> للأذكار والأدعية. المواقيت محسوبة حسب موقعك، مع إمكانية اختيار طريقة الحساب وتصحيح يدوي لمطابقة مسجدك بالضبط.
+    </p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('infoModal')">إغلاق</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -320,23 +555,45 @@
   ];
 
   const METHODS = [
+    { id: 13, name: 'ديانت — رئاسة الشؤون الدينية التركية' },
     { id: 5,  name: 'الهيئة المصرية العامة للمساحة' },
     { id: 4,  name: 'جامعة أم القرى — مكة المكرمة' },
     { id: 3,  name: 'رابطة العالم الإسلامي' },
     { id: 2,  name: 'الجمعية الإسلامية لأمريكا الشمالية (ISNA)' },
     { id: 1,  name: 'جامعة العلوم الإسلامية — كراتشي' },
     { id: 8,  name: 'مجلس شؤون الحرم — منطقة الخليج' },
+    { id: 23, name: 'الأردن' },
   ];
+
+  const TUNE_KEYS = ['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
+
+  function loadTune(){
+    try{
+      const saved = JSON.parse(localStorage.getItem('pt_tune') || '{}');
+      const out = {};
+      TUNE_KEYS.forEach(k => out[k] = Number(saved[k]) || 0);
+      return out;
+    } catch(e){
+      const out = {}; TUNE_KEYS.forEach(k => out[k]=0); return out;
+    }
+  }
 
   const state = {
     lat: null, lon: null,
     cityLabel: null,
-    method: Number(localStorage.getItem('pt_method')) || 5,
+    method: Number(localStorage.getItem('pt_method')) || 13,
+    tune: loadTune(),
     timings: null,
     hijri: null,
     gregorian: null,
     timer: null,
   };
+
+  function tuneParam(){
+    // order required by Aladhan: Imsak,Fajr,Sunrise,Dhuhr,Asr,Maghrib,Sunset,Isha,Midnight
+    const t = state.tune;
+    return [0, t.Fajr, t.Sunrise, t.Dhuhr, t.Asr, t.Maghrib, 0, t.Isha, 0].join(',');
+  }
 
   const contentEl = document.getElementById('content');
   const placeNameEl = document.getElementById('placeName');
@@ -369,6 +626,29 @@
       const city = document.getElementById('cityInput').value.trim();
       if(city) useCity(city);
     });
+
+    const tuneSection = document.createElement('div');
+    tuneSection.className = 'tune-section';
+    tuneSection.innerHTML = `
+      <div class="tune-title">تصحيح يدوي (بالدقائق) — لمطابقة مواقيت مسجدك</div>
+      <div class="tune-grid" id="tuneGrid"></div>
+      <div class="tune-hint">لو الفرق نفسه على أكثر من صلاة، جرّب أولاً تغيير طريقة الحساب بالأعلى. هاد التصحيح لضبط دقيق إضافي فوق الطريقة المختارة.</div>
+    `;
+    methodPanelEl.appendChild(tuneSection);
+
+    const tuneGrid = tuneSection.querySelector('#tuneGrid');
+    PRAYER_LABELS.filter(p => p.key !== 'Sunrise' || true).forEach(p => {
+      if(!TUNE_KEYS.includes(p.key)) return;
+      const row = document.createElement('div');
+      row.className = 'tune-row';
+      row.innerHTML = `<span>${p.ar}</span><input type="number" step="1" value="${state.tune[p.key]}">`;
+      row.querySelector('input').addEventListener('change', (e) => {
+        state.tune[p.key] = Number(e.target.value) || 0;
+        localStorage.setItem('pt_tune', JSON.stringify(state.tune));
+        loadTimings();
+      });
+      tuneGrid.appendChild(row);
+    });
   }
 
   function setStatus(msg){
@@ -376,9 +656,13 @@
   }
 
   function locate(){
+    const btn = document.getElementById('locateBtn');
+    if(btn) btn.classList.add('spinning');
+
     if(!navigator.geolocation){
       setStatus('تعذّر الوصول للموقع تلقائياً. الرجاء إدخال اسم المدينة بالأسفل.');
       document.getElementById('settingsDetails').open = true;
+      if(btn) btn.classList.remove('spinning');
       return;
     }
     setStatus('جارٍ تحديد الموقع…');
@@ -387,12 +671,17 @@
         state.lat = pos.coords.latitude;
         state.lon = pos.coords.longitude;
         state.cityLabel = null;
+        localStorage.setItem('pt_lat', state.lat);
+        localStorage.setItem('pt_lon', state.lon);
+        localStorage.removeItem('pt_city');
         reverseGeocode(state.lat, state.lon);
         loadTimings();
+        if(btn) btn.classList.remove('spinning');
       },
       () => {
         setStatus('تعذّر الوصول للموقع. الرجاء إدخال اسم المدينة بالأسفل.');
         document.getElementById('settingsDetails').open = true;
+        if(btn) btn.classList.remove('spinning');
       },
       { timeout: 8000 }
     );
@@ -401,6 +690,9 @@
   function useCity(city){
     state.cityLabel = city;
     state.lat = null; state.lon = null;
+    localStorage.setItem('pt_city', city);
+    localStorage.removeItem('pt_lat');
+    localStorage.removeItem('pt_lon');
     placeNameEl.textContent = city;
     loadTimings();
   }
@@ -418,10 +710,11 @@
 
   function loadTimings(){
     let url;
+    const tune = encodeURIComponent(tuneParam());
     if(state.cityLabel){
-      url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(state.cityLabel)}&country=&method=${state.method}`;
+      url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(state.cityLabel)}&country=&method=${state.method}&tune=${tune}`;
     } else if(state.lat != null){
-      url = `https://api.aladhan.com/v1/timings/${Math.floor(Date.now()/1000)}?latitude=${state.lat}&longitude=${state.lon}&method=${state.method}`;
+      url = `https://api.aladhan.com/v1/timings/${Math.floor(Date.now()/1000)}?latitude=${state.lat}&longitude=${state.lon}&method=${state.method}&tune=${tune}`;
     } else {
       return;
     }
@@ -608,10 +901,38 @@
 
   document.getElementById('locateBtn').addEventListener('click', locate);
 
+  document.getElementById('infoBtn').addEventListener('click', () => {
+    document.getElementById('infoModal').classList.add('open');
+  });
+
+  const showInAzkarCheckbox = document.getElementById('showInAzkarCheckbox');
+  showInAzkarCheckbox.checked = localStorage.getItem('show_prayer_times') === '1';
+  showInAzkarCheckbox.addEventListener('change', () => {
+    localStorage.setItem('show_prayer_times', showInAzkarCheckbox.checked ? '1' : '0');
+  });
+
   buildMethodPanel();
-  locate();
+
+  const cachedCity = localStorage.getItem('pt_city');
+  const cachedLat = localStorage.getItem('pt_lat');
+  const cachedLon = localStorage.getItem('pt_lon');
+
+  if(cachedCity){
+    useCity(cachedCity);
+  } else if(cachedLat && cachedLon){
+    state.lat = Number(cachedLat);
+    state.lon = Number(cachedLon);
+    reverseGeocode(state.lat, state.lon);
+    loadTimings();
+  } else {
+    locate();
+  }
 
 })();
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+}
 </script>
 
 </body>
