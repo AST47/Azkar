@@ -2,1375 +2,1012 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1F5C4E">
-<title>أذكار وأدعية</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Ahmad Saleh Tuffaha</title>
+<link rel="icon" type="image/png" href="images/logo-icon.png">
+<meta name="description" content="Ahmad Saleh Tuffaha — Business Developer. Portfolio, side projects, and articles.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Aref+Ruqaa:wght@400;700&family=Lora:wght@400;600;700&family=Kalam:wght@700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap');
 
+/* ============================================================
+   TOKENS — edit here to change the whole palette in one place
+   ============================================================ */
 :root{
-  --bg:#F2E8D5;
-  --bg-card:#FBF5E8;
-  --ink:#2B2118;
-  --ink-soft:#6B5A45;
-  --teal:#1F5C4E;
-  --teal-dark:#123B31;
-  --gold:#AD8A3E;
-  --gold-soft:#DCC08A;
-  --gold-line: rgba(173,138,62,0.35);
-  --danger:#8C3B2E;
+  --cream:#f5f2eb;
+  --white:#ffffff;
+  --ink:#1a1a18;
+  --ink-soft:#5a5a55;
+  --ink-ghost:#a0a09a;
+  --line:#d8d4cc;
+  --accent:#7d0102;
+  --accent-wash:rgba(125,1,2,.07);
+  --radius:14px;
+  --maxw:880px;
 }
 
-*{box-sizing:border-box;}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html{scroll-behavior:smooth;}
+
 body{
-  margin:0;
-  background:var(--bg);
-  background-image:
-    radial-gradient(circle at 1px 1px, rgba(173,138,62,0.07) 1px, transparent 0);
-  background-size: 18px 18px;
+  background:var(--cream);
   color:var(--ink);
-  font-family:'Tajawal', sans-serif;
-  min-height:100vh;
-  padding:28px 20px 80px;
-}
-
-.app{max-width:1120px; margin:0 auto;}
-
-.app-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-  flex-wrap:nowrap;
-  max-width:480px;
-  margin:0 auto 14px;
-}
-
-.brand{display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto; overflow:hidden;}
-.header-actions{display:flex; align-items:center; gap:8px; flex:0 0 auto;}
-
-.info-modal{max-width:520px; max-height:85vh; overflow-y:auto;}
-.info-section{margin-bottom:4px;}
-.info-about{
-  font-size:14px;
-  line-height:1.8;
-  color:var(--ink-soft);
-  margin:0 0 10px;
-}
-.info-link{
-  color:var(--teal-dark);
-  text-decoration:none;
-  border-bottom:1px solid var(--gold-line);
-}
-.info-link:hover{border-color:var(--teal);}
-.changelog{display:flex; flex-direction:column; gap:8px;}
-.changelog-row{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-  font-size:13px;
-  color:var(--ink-soft);
   line-height:1.6;
-}
-.changelog-version{
-  flex-shrink:0;
-  background:rgba(31,92,78,0.1);
-  color:var(--teal-dark);
-  font-family:'Tajawal', sans-serif;
-  font-weight:600;
-  font-size:12px;
-  padding:2px 8px;
-  border-radius:10px;
-  direction:ltr;
-}
-.header-btn{
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:var(--bg-card);
-  border:1px solid var(--gold-line);
-  color:var(--ink-soft);
-  cursor:pointer;
-  text-decoration:none;
-  transition:background .15s, transform .3s;
-}
-.header-btn:hover{background:rgba(173,138,62,0.1);}
-.header-btn.spinning svg{animation:spin .8s linear infinite;}
-.header-btn.active{background:var(--teal); border-color:var(--teal); color:#F5EDD9;}
-@keyframes spin{to{transform:rotate(360deg);}}
-
-.prayer-strip{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  max-width:280px;
-  margin:0 auto 18px;
-  background:var(--bg-card);
-  border:1px solid var(--gold-line);
-  border-radius:20px;
-  padding:8px 18px;
-  font-family:'Tajawal', sans-serif;
-  font-size:13.5px;
-  color:var(--ink-soft);
-}
-.prayer-strip .ps-name{color:var(--teal-dark); font-weight:600;}
-.prayer-strip .ps-time{
-  font-family:'Reem Kufi', sans-serif;
-  color:var(--gold);
-  font-size:15px;
-  direction:ltr;
-}
-.brand svg{flex-shrink:0;}
-.brand h1{
-  font-family:'Reem Kufi', sans-serif;
-  font-weight:700;
-  font-size:clamp(11px, 5.5vw, 26px);
-  margin:0;
-  color:var(--teal-dark);
-  letter-spacing:0.5px;
-  white-space:nowrap;
-  overflow:hidden;
-  min-width:0;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
 }
 
-.admin-toggle button{
-  font-family:'Tajawal', sans-serif;
-  font-size:13px;
-  background:var(--bg-card);
-  border:1px solid var(--gold-line);
-  color:var(--ink-soft);
-  padding:8px 14px;
-  border-radius:8px;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  transition:background .15s;
-}
-.admin-toggle button:hover{background:#F5EDD9;}
-.admin-toggle button.active{
-  background:var(--teal);
-  color:#F5EDD9;
-  border-color:var(--teal);
+/* Arabic uses Cairo (bold sans). English / Turkish use Lora (warm serif). */
+html[lang="ar"] body{font-family:'Cairo',sans-serif;}
+html[lang="en"] body,
+html[lang="tr"] body{font-family:'Lora',serif;}
+
+/* Handwritten accent: Aref Ruqaa for Arabic, Kalam for Latin scripts */
+html[lang="ar"] .hand{font-family:'Aref Ruqaa',serif;font-weight:700;}
+html[lang="en"] .hand,
+html[lang="tr"] .hand{font-family:'Kalam',cursive;}
+
+a{color:inherit;text-decoration:none;}
+ul{list-style:none;}
+img{max-width:100%;display:block;}
+
+/* subtle dot-grid backdrop */
+.dot-grid{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-image:radial-gradient(rgba(26,26,24,.09) 1px, transparent 1px);
+  background-size:28px 28px;
 }
 
-.ornament{
-  height:14px;
-  max-width:480px;
-  margin:6px auto 22px;
-  background-image: repeating-linear-gradient(
-    45deg, var(--gold-soft) 0 3px, transparent 3px 9px
-  );
-  opacity:0.55;
-  mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+/* ============================================================
+   HEADER
+   ============================================================ */
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(245,242,235,.86);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
 }
+.nav-wrap{
+  max-width:var(--maxw);margin:0 auto;
+  padding:16px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:10px;
+}
+@media(max-width:480px){
+  .nav-wrap{flex-direction:column;justify-content:center;gap:12px;}
+}
+.logo{
+  display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;
+  flex-wrap:wrap;justify-content:center;
+}
+html[lang="en"] .logo, html[lang="tr"] .logo{font-weight:700;}
+.logo .mark-img{height:32px;width:auto;display:block;}
+.logo .role{
+  display:flex;align-items:center;gap:8px;
+  font-weight:700;font-size:12.5px;color:var(--accent);letter-spacing:.03em;
+}
+.logo .role .dash{width:16px;height:1.5px;background:var(--accent);display:inline-block;flex-shrink:0;}
+.lang-switch{display:flex;gap:4px;background:var(--white);border:1px solid var(--line);border-radius:999px;padding:3px;}
+.lang-switch button{
+  border:none;background:transparent;cursor:pointer;
+  font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;
+  color:var(--ink-soft);padding:6px 13px;border-radius:999px;
+  transition:background .2s, color .2s;
+}
+.lang-switch button.active{background:var(--ink);color:var(--cream);}
+.lang-switch button:hover:not(.active){color:var(--ink);}
 
-.all-btn-wrap{
-  display:flex;
-  justify-content:center;
-  margin-bottom:26px;
-}
-.all-btn{
-  font-family:'Reem Kufi', sans-serif;
-  font-size:16px;
-  font-weight:500;
-  background:var(--gold);
-  color:#2B2118;
-  border:none;
-  padding:12px 40px;
-  border-radius:30px;
-  cursor:pointer;
-  box-shadow:0 3px 10px rgba(173,138,62,0.25);
-  transition:transform .15s, box-shadow .15s;
-}
-.all-btn:hover{transform:translateY(-1px); box-shadow:0 5px 14px rgba(173,138,62,0.32);}
-.all-btn.active{
-  background:var(--teal);
-  color:#F5EDD9;
-  box-shadow:0 3px 10px rgba(31,92,78,0.3);
-}
-
-.timeline{
-  display:flex;
-  align-items:flex-start;
-  justify-content:center;
-  gap:0;
-  margin-bottom:18px;
-  position:relative;
-}
-.timeline-node{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:8px;
-  background:none;
-  border:none;
-  cursor:pointer;
-  flex-shrink:0;
-  width:76px;
-}
-.timeline-line{
-  flex:1 1 30px;
-  max-width:60px;
-  height:1px;
-  background:var(--gold-line);
-  margin-top:22px;
-  align-self:flex-start;
-}
-.timeline-icon{
-  width:44px;
-  height:44px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:var(--bg-card);
-  border:1.5px solid var(--gold-line);
-  color:var(--ink-soft);
-  z-index:1;
-  transition:all .15s;
-}
-.timeline-node.active .timeline-icon{
-  background:var(--teal);
-  border-color:var(--teal);
-  color:#F5EDD9;
-  transform:scale(1.08);
-}
-.timeline-label{
-  font-size:12.5px;
-  font-family:'Tajawal', sans-serif;
-  color:var(--ink-soft);
-  white-space:nowrap;
-}
-.timeline-node.active .timeline-label{
-  color:var(--teal-dark);
-  font-weight:600;
-}
-
-.bottom-tabs{
-  justify-content:center;
-  margin-bottom:26px;
-}
-
-.tabs{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-bottom:26px;
-}
-.tab{
-  font-family:'Tajawal', sans-serif;
-  font-size:14px;
-  font-weight:500;
-  background:transparent;
-  border:1px solid var(--gold-line);
-  color:var(--ink-soft);
-  padding:9px 16px;
-  border-radius:20px;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:7px;
-  white-space:nowrap;
-  transition:all .15s;
-}
-.tab:hover{background:rgba(173,138,62,0.1);}
-.tab.active{
-  background:var(--teal);
-  border-color:var(--teal);
-  color:#F5EDD9;
-}
-.tab.active.all-tab{
-  background:var(--gold);
-  border-color:var(--gold);
-  color:#2B2118;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
-  gap:16px;
-}
-
-.card{
-  background:var(--bg-card);
-  border:1px solid var(--gold-line);
-  border-radius:10px;
-  padding:20px 18px 16px;
-  position:relative;
-  box-shadow:0 1px 0 rgba(43,33,24,0.04), 0 2px 6px rgba(43,33,24,0.05);
-  display:flex;
-  flex-direction:column;
-  min-height:150px;
-}
-
-.card.quran-card{
-  background:linear-gradient(180deg, rgba(31,92,78,0.07), rgba(31,92,78,0.02) 60%), var(--bg-card);
-  border:1.5px solid var(--gold);
-  box-shadow:0 1px 0 rgba(43,33,24,0.04), 0 3px 10px rgba(173,138,62,0.12);
-  grid-column:1 / -1;
-}
-.quran-mark{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  font-size:11.5px;
-  color:var(--gold);
-  margin-bottom:10px;
-  flex-wrap:wrap;
-}
-.quran-image-btn{
-  font-family:'Tajawal', sans-serif;
-  font-size:11.5px;
-  background:rgba(173,138,62,0.1);
-  border:1px solid var(--gold-line);
-  color:var(--gold);
-  padding:3px 10px;
-  border-radius:14px;
-  cursor:pointer;
-  margin-inline-start:6px;
-}
-.quran-image-btn:hover{background:rgba(173,138,62,0.18);}
-
-.lightbox-nav{
-  position:fixed;
-  bottom:20px;
-  background:rgba(18,14,10,0.65);
-  border:1.5px solid rgba(245,237,233,0.35);
-  color:#F5EDD9;
-  font-size:30px;
-  width:46px;
-  height:46px;
-  border-radius:50%;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:60;
-}
-.lightbox-nav:hover{background:rgba(18,14,10,0.85);}
-#lightboxPrev{right:16px;}
-#lightboxNext{left:16px;}
-.lightbox-close{
-  position:fixed;
-  top:16px;
-  left:50%;
-  transform:translateX(-50%);
-  background:rgba(18,14,10,0.65);
-  border:1.5px solid rgba(245,237,233,0.35);
-  color:#F5EDD9;
-  width:38px;
-  height:38px;
-  border-radius:50%;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:60;
-}
-.lightbox-close:hover{background:rgba(18,14,10,0.85);}
-.lightbox-frame{
-  width:min(90vw, 560px);
-  height:min(85vh, 780px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.lightbox-frame img{
-  max-width:100%;
-  max-height:100%;
-  width:auto;
-  height:auto;
-  object-fit:contain;
-  border-radius:6px;
-  box-shadow:0 8px 30px rgba(0,0,0,0.35);
-}
-.lightbox-frame img.align-bottom{align-self:flex-end;}
-.lightbox-frame img.align-top{align-self:flex-start;}
-.lightbox-counter{
-  position:fixed;
-  bottom:24px;
-  left:50%;
-  transform:translateX(-50%);
-  color:#F5EDD9;
-  font-family:'Tajawal', sans-serif;
-  font-size:14px;
-  background:rgba(18,14,10,0.65);
-  border:1.5px solid rgba(245,237,233,0.35);
-  height:38px;
-  min-width:76px;
-  padding:0 20px;
-  white-space:nowrap;
-  border-radius:19px;
-  z-index:60;
-  direction:ltr;
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  max-width:var(--maxw);margin:0 auto;
+  padding:min(14vh,110px) 24px 70px;
   text-align:center;
-  line-height:35px;
 }
-.card.quran-card .card-text{
-  font-family:'Amiri Quran', serif;
-  font-size:21px;
-  line-height:2.1;
-  text-align:right;
-  color:var(--teal-dark);
-  max-width:820px;
-  margin:0 auto;
+.eyebrow{
+  font-size:13px;font-weight:700;letter-spacing:.06em;
+  color:var(--accent);margin-bottom:16px;display:block;
+}
+html[lang="ar"] .eyebrow{letter-spacing:0;}
+.tw-line{
+  font-size:clamp(2.1rem,6vw,3.6rem);
+  font-weight:800;line-height:1.28;
+  min-height:2.6em;
+  max-width:720px;margin-inline:auto;
+}
+html[lang="en"] .tw-line, html[lang="tr"] .tw-line{font-weight:600;}
+.tw-line .prefix{color:var(--ink);}
+.tw-line .suffix-main{color:var(--ink);}
+.tw-line .suffix-key{color:var(--accent);font-size:1.1em;}
+html[lang="ar"] .tw-line .suffix-key{font-size:1.45em;}
+.cursor{display:inline-block;width:3px;height:.9em;background:var(--accent);margin-inline-start:3px;vertical-align:-2px;animation:blink .8s steps(1) infinite;}
+@keyframes blink{50%{opacity:0;}}
+
+/* ============================================================
+   EXPLAINER + ABOUT — two organic brush-stroke panels, stacked
+   (Explainer on top, About below). Each split into 4 quarters
+   with the heading/quote anchored in one quarter (mirrored between
+   the two panels) and the body text filling the rest.
+   ============================================================ */
+.quarters-row{
+  display:grid;grid-template-columns:1fr;gap:24px;
+  max-width:var(--maxw);margin:0 auto;padding:0 24px;
+}
+.define-wrap,.about-wrap{position:relative;}
+
+/* --- shared quarter-grid mechanics --- */
+.define-shape,.about-shape{position:relative;padding:52px 40px;min-height:300px;height:100%;display:flex;align-items:center;}
+.define-bg-svg,.about-bg-svg{position:absolute;inset:0;width:100%;height:100%;z-index:0;}
+.define-inner,.about-inner{
+  position:relative;z-index:2;width:100%;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:28px;align-items:stretch;
 }
 
-.card-text{
-  font-family:'Amiri', serif;
-  font-size:19px;
-  line-height:1.9;
-  color:var(--ink);
-  flex:1;
-  margin:0 0 14px;
+/* --- EXPLAINER: heading in quarter 1 (right) --- */
+.define-title-cell{
+  grid-column:1 / 2;display:flex;align-items:center;
+  padding-inline-end:20px;border-inline-end:1px solid rgba(125,1,2,.22);
+}
+.explainer-title{font-size:clamp(1.3rem,3vw,1.7rem);font-weight:800;line-height:1.35;text-align:start;color:var(--ink);}
+html[lang="en"] .explainer-title, html[lang="tr"] .explainer-title{font-weight:700;}
+html[lang="en"] .about-quote, html[lang="tr"] .about-quote{font-weight:700;}
+.explainer-title .hl{color:var(--accent);}
+html[lang="ar"] .explainer-title .hl{font-size:1.4em;}
+.define-text-cell{grid-column:2 / 5;display:flex;align-items:center;}
+.explainer-text{font-size:15.5px;line-height:1.9;color:var(--ink-soft);}
+.explainer-text .hl{color:var(--accent);font-weight:700;}
+@media(max-width:700px){
+  .define-inner{grid-template-columns:1fr;gap:18px;}
+  .define-title-cell{grid-column:1;border-inline-end:none;padding-inline-end:0;border-bottom:1px solid rgba(125,1,2,.22);padding-bottom:14px;}
+  .define-text-cell{grid-column:1;}
 }
 
-.card-footer{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  border-top:1px solid var(--gold-line);
-  padding-top:10px;
-  margin-top:auto;
+/* --- ABOUT: quote in quarter 4 (left), mirrored --- */
+.about-text-cell{grid-column:1 / 4;display:flex;align-items:center;}
+.about-text{font-size:15.5px;line-height:2;color:var(--ink);}
+html[lang="en"] .about-text, html[lang="tr"] .about-text{font-size:16px;}
+.about-text .hl{color:var(--accent);font-weight:700;}
+.about-quote-cell{
+  grid-column:4 / 5;display:flex;align-items:center;
+  padding-inline-start:20px;border-inline-start:1px solid rgba(125,1,2,.22);
+}
+.about-quote{font-size:clamp(1.3rem,3vw,1.7rem);font-weight:800;line-height:1.35;color:var(--ink);text-align:start;}
+.about-quote .hl{color:var(--accent);}
+html[lang="ar"] .about-quote .hl{font-size:1.4em;}
+@media(max-width:700px){
+  .about-inner{grid-template-columns:1fr;gap:18px;}
+  .about-text-cell{grid-column:1;}
+  .about-quote-cell{grid-column:1;border-inline-start:none;padding-inline-start:0;border-top:1px solid rgba(125,1,2,.22);padding-top:14px;}
 }
 
-.count-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  font-family:'Tajawal', sans-serif;
-  font-size:13px;
-  font-weight:500;
-  color:var(--gold);
-  background:rgba(173,138,62,0.12);
-  border:1px solid var(--gold-line);
-  padding:3px 10px;
-  border-radius:20px;
+/* ============================================================
+   TOOLS — quote card + two opposite-direction marquees
+   ============================================================ */
+.tools-wrap{max-width:var(--maxw);margin:0 auto;padding:20px 24px;}
+.tools-card{
+  background:var(--accent);border-radius:var(--radius);overflow:hidden;
+}
+.tools-quote{
+  padding:36px 30px 22px;text-align:center;
+  font-size:clamp(1.3rem,3vw,1.8rem);font-weight:600;color:var(--cream);
+}
+html[lang="en"] .tools-quote, html[lang="tr"] .tools-quote{font-weight:400;}
+
+.marquee-row{overflow:hidden;position:relative;padding:15px 0;}
+.marquee-row.dark{background:var(--ink);}
+.marquee-row.light{background:var(--white);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+.marquee-track{display:flex;width:max-content;direction:ltr;unicode-bidi:isolate;will-change:transform;transform:translateZ(0);backface-visibility:hidden;}
+.marquee-track.dir-left{animation:marqueeLeft 34s linear infinite;}
+.marquee-track.dir-right{animation:marqueeRight 42s linear infinite;}
+.marquee-item{display:inline-flex;align-items:center;white-space:nowrap;font-weight:700;font-size:14.5px;padding:0;unicode-bidi:isolate;}
+html[lang="ar"] .marquee-item{font-weight:800;}
+.marquee-row.dark .marquee-item{color:var(--cream);}
+.marquee-row.light .marquee-item{color:var(--ink);}
+.marquee-item .dot{color:var(--accent);margin:0 20px;}
+@keyframes marqueeLeft{from{transform:translateX(0);}to{transform:translateX(-25%);}}
+@keyframes marqueeRight{from{transform:translateX(-25%);}to{transform:translateX(0);}}
+@media (prefers-reduced-motion: reduce){.marquee-track{animation:none;}}
+
+/* ============================================================
+   SECTION SHELL
+   ============================================================ */
+
+section{max-width:var(--maxw);margin:0 auto;padding:60px 24px;}
+.section-label{
+  font-size:13px;font-weight:700;color:var(--accent);
+  letter-spacing:.06em;margin-bottom:10px;display:block;
+}
+html[lang="ar"] .section-label{letter-spacing:0;}
+.section-title{
+  font-size:clamp(1.5rem,3.2vw,2.1rem);font-weight:800;margin-bottom:36px;
+}
+html[lang="en"] .section-title, html[lang="tr"] .section-title{font-weight:700;}
+
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease, transform .7s ease;}
+.reveal.active{opacity:1;transform:translateY(0);}
+
+/* ============================================================
+   DESTINATIONS — 2×2 bento hover-expand grid.
+   On real hover devices (mouse), hovering one cell grows it at the
+   expense of the other three (row+column weight redistribution).
+   On touch/no-hover devices, cells stay equal-sized and the
+   description is always visible (no hover state to rely on).
+   ============================================================ */
+.bento-dest{
+  display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);
+  gap:8px;aspect-ratio:1;border-radius:var(--radius);overflow:hidden;
+}
+.bento-cell{position:relative;overflow:hidden;display:flex;align-items:flex-end;}
+.bento-cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.bento-content{position:relative;z-index:2;width:100%;padding:20px 22px;display:flex;flex-direction:column;gap:6px;}
+.bento-title{color:var(--ink);font-weight:800;font-size:17px;line-height:1.3;text-align:start;}
+html[lang="en"] .bento-title, html[lang="tr"] .bento-title{font-weight:700;}
+.bento-desc{color:var(--accent);font-size:12.5px;line-height:1.6;text-align:start;max-height:200px;opacity:1;overflow:hidden;}
+@media(hover:hover) and (pointer:fine){
+  .bento-dest{
+    grid-template-columns:var(--c1,1fr) var(--c2,1fr);
+    grid-template-rows:var(--r1,1fr) var(--r2,1fr);
+    transition:grid-template-columns .45s cubic-bezier(.4,0,.2,1), grid-template-rows .45s cubic-bezier(.4,0,.2,1);
+  }
+  .bento-cell img{transition:transform .5s;}
+  .bento-desc{max-height:0;opacity:0;transition:max-height .4s ease, opacity .3s ease, margin-top .4s ease;}
+  .bento-cell:hover .bento-desc{max-height:120px;opacity:1;margin-top:2px;}
+}
+@media(max-width:480px){
+  .bento-content{padding:14px 16px;}
+  .bento-title{font-size:14px;}
+  .bento-desc{font-size:11px;}
 }
 
-.card-actions{display:flex; gap:6px;}
-.icon-btn{
-  background:none;
-  border:none;
-  cursor:pointer;
-  color:var(--ink-soft);
-  font-size:15px;
-  padding:4px 6px;
-  border-radius:6px;
-  line-height:1;
+/* sub-grid used inside the side-projects card */
+.sub-grid{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+.sub-item{
+  display:flex;align-items:center;gap:9px;
+  background:var(--cream);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;font-size:13.5px;font-weight:600;
+  transition:border-color .2s, background .2s;
 }
-.icon-btn:hover{background:rgba(43,33,24,0.06);}
-.icon-btn.danger:hover{color:var(--danger); background:rgba(140,59,46,0.08);}
+.sub-item:hover{border-color:var(--accent);background:var(--white);}
+.sub-item .sub-logo{
+  width:26px;height:26px;border-radius:7px;background:var(--white);
+  border:1px solid var(--line);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--ink-soft);
+}
+.sub-item.placeholder{opacity:.5;border-style:dashed;}
 
-.order-tag{
-  position:absolute;
-  top:10px;
-  left:10px;
-  font-size:11px;
-  font-family:'Tajawal', sans-serif;
-  color:var(--gold);
-  background:var(--bg);
-  border:1px solid var(--gold-line);
-  border-radius:6px;
-  padding:2px 6px;
+/* articles list */
+.article-row{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:16px 4px;border-bottom:1px solid var(--line);
+}
+.article-row:last-child{border-bottom:none;}
+.article-title{font-size:15.5px;font-weight:600;}
+.article-row svg{width:16px;height:16px;stroke:var(--ink-ghost);flex-shrink:0;transition:transform .2s, stroke .2s;}
+.article-row:hover svg{stroke:var(--accent);transform:translateX(3px);}
+html[dir="rtl"] .article-row:hover svg{transform:translateX(-3px);}
+.article-empty{font-size:14px;color:var(--ink-ghost);}
+
+/* ============================================================
+   SERVICES — horizontal hover-expand accordion.
+   Title always sits on the right. Collapsed: a narrow strip
+   pinned to the right edge holds the rotated title (centering
+   happens inside that narrow strip only, so it can never drift
+   toward the middle of the card). Expanded: a completely separate
+   block shows the title above the description in normal flow,
+   so the two can never overlap.
+   Stacked single column on touch/no-hover devices, description
+   always visible there (no hover to rely on).
+   ============================================================ */
+/* ============================================================
+   SERVICES — hover-expand accordion (desktop) / tap-expand (touch).
+   Same visual shape everywhere: narrow rotated title-strip pinned
+   to the right when collapsed, full title+description stacked
+   block when expanded (title always above description, in normal
+   flow, so they can never overlap).
+   Desktop: a row where hovering a card grows it via flex-grow.
+   Touch: a stacked column where tapping a card grows its height;
+   tapping another card or empty space collapses it again (JS below).
+   ============================================================ */
+.services-grid{display:flex;flex-direction:column;gap:14px;margin-bottom:0;width:100%;}
+.service-card{
+  position:relative;overflow:hidden;border-radius:var(--radius);
+  aspect-ratio:4/1;display:block;
+  transition:aspect-ratio .4s ease, flex-grow .5s cubic-bezier(.4,0,.2,1);
+}
+.service-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+
+.title-strip{
+  display:flex;position:absolute;top:0;bottom:0;right:16px;width:28px;z-index:2;
+  align-items:center;justify-content:center;transition:opacity .25s;
+}
+.title-strip .service-title{white-space:nowrap;font-weight:800;font-size:15px;color:var(--ink);transform:rotate(-90deg);}
+html[lang="en"] .title-strip .service-title, html[lang="tr"] .title-strip .service-title{font-weight:700;}
+
+.content-expanded{
+  position:absolute;inset:0;z-index:2;padding:14px 18px;
+  display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.content-expanded .service-title{color:var(--ink);font-weight:800;font-size:15px;line-height:1.3;text-align:start;white-space:normal;}
+html[lang="en"] .content-expanded .service-title, html[lang="tr"] .content-expanded .service-title{font-weight:700;}
+.service-desc{color:var(--accent);font-size:12px;line-height:1.5;text-align:start;max-height:0;opacity:0;overflow:hidden;transition:max-height .4s ease, opacity .3s ease, margin-top .4s ease;}
+.service-card .wa-badge{position:absolute;top:12px;right:12px;z-index:3;cursor:pointer;transition:transform .2s;}
+.service-card .wa-badge:hover{transform:scale(1.12);}
+
+/* OPEN state — works the same everywhere, whether triggered by
+   real :hover (desktop) or the .is-open class (touch, via JS) */
+.service-card.is-open{aspect-ratio:auto;min-height:150px;}
+.service-card.is-open .title-strip{opacity:0;pointer-events:none;}
+.service-card.is-open .content-expanded{opacity:1;pointer-events:auto;}
+.service-card.is-open .service-desc{max-height:200px;opacity:1;margin-top:4px;}
+
+@media(hover:hover) and (pointer:fine){
+  .services-grid{flex-direction:row;aspect-ratio:2.75/1;gap:8px;}
+  .service-card{flex:1;min-width:60px;aspect-ratio:auto;}
+  .services-grid:hover .service-card{flex-grow:1;}
+  .services-grid .service-card:hover{flex-grow:6;}
+  .service-card img{transition:transform .5s;}
+  .service-card:hover .title-strip{opacity:0;}
+  .service-card:hover .content-expanded{opacity:1;pointer-events:auto;}
+  .service-card:hover .service-desc{max-height:200px;opacity:1;margin-top:4px;}
+}
+@media(max-width:480px){
+  .content-expanded .service-title{font-size:13px;}
+  .service-desc{font-size:10.5px;}
 }
 
-.add-card{
-  border:1.5px dashed var(--gold-line);
-  background:transparent;
-  color:var(--ink-soft);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:150px;
-  cursor:pointer;
-  font-family:'Tajawal', sans-serif;
-  font-size:15px;
-  border-radius:10px;
+/* ============================================================
+   CONTACT
+   ============================================================ */
+.contact-dark{background:var(--ink);padding:70px 24px;text-align:center;}
+.contact-question{
+  font-size:clamp(1.5rem,3.8vw,2.2rem);font-weight:800;margin-bottom:32px;
+  color:var(--cream);max-width:600px;margin-inline:auto;line-height:1.5;
 }
-.add-card:hover{background:rgba(173,138,62,0.06);}
-
-.empty{
-  grid-column:1/-1;
-  text-align:center;
-  padding:50px 20px;
-  color:var(--ink-soft);
-  font-size:15px;
-}
-
-.modal-overlay{
-  position:fixed; inset:0;
-  background:rgba(43,33,24,0.45);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  z-index:50;
-}
-.modal-overlay.open{display:flex;}
-.modal{
-  background:var(--bg-card);
-  border-radius:12px;
-  padding:24px;
-  width:100%;
-  max-width:440px;
-  border:1px solid var(--gold-line);
-}
-.modal h3{
-  font-family:'Reem Kufi', sans-serif;
-  margin:0 0 16px;
-  color:var(--teal-dark);
-  font-size:18px;
-}
-.modal label{
-  display:block;
-  font-size:13px;
-  color:var(--ink-soft);
-  margin:14px 0 6px;
-}
-.modal input, .modal select, .modal textarea{
-  width:100%;
-  font-family:'Tajawal', sans-serif;
-  font-size:14px;
-  padding:9px 12px;
-  border-radius:8px;
-  border:1px solid var(--gold-line);
-  background:#fff;
-  color:var(--ink);
-}
-.modal textarea{
-  font-family:'Amiri', serif;
-  font-size:17px;
-  min-height:100px;
-  resize:vertical;
-}
-.modal-actions{
-  display:flex;
-  gap:8px;
-  margin-top:20px;
-  justify-content:flex-end;
-}
+html[lang="en"] .contact-question, html[lang="tr"] .contact-question{font-weight:700;}
+.contact-question .hl{margin-inline-end:8px;}
+.contact-question .hl-red{color:var(--accent);}
+.contact-question .hl-green{color:#1f7a4a;}
+html[lang="ar"] .contact-question .hl{font-size:1.7em;}
+html[lang="ar"] .contact-question .hl-green{color:#1f7a4a;}
 .btn{
-  font-family:'Tajawal', sans-serif;
-  font-size:14px;
-  padding:9px 18px;
-  border-radius:8px;
-  border:1px solid var(--gold-line);
-  background:transparent;
-  color:var(--ink-soft);
-  cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 24px;border-radius:999px;font-size:14.5px;font-weight:700;
+  border:1px solid transparent;transition:background .2s, color .2s, transform .2s;
 }
-.btn-primary{
-  background:var(--teal);
-  border-color:var(--teal);
-  color:#F5EDD9;
-}
-.error-text{color:var(--danger); font-size:13px; margin-top:8px; display:none;}
-.error-text.show{display:block;}
+.btn-whatsapp{background:#1f7a4a;color:#ffffff;}
+.btn-whatsapp:hover{transform:translateY(-2px);background:#195f3a;}
+.btn svg{width:15px;height:15px;stroke:currentColor;}
 
-.app-footer{
-  max-width:480px;
-  margin:50px auto 0;
-  padding-top:18px;
-  border-top:1px solid var(--gold-line);
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
-  align-items:center;
-  font-size:12.5px;
-  color:var(--ink-soft);
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer{
+  border-top:1px solid var(--line);padding:34px 24px;
+  max-width:var(--maxw);margin:0 auto;
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;
 }
-.footer-name{
-  justify-self:start;
-  font-family:'Tajawal', sans-serif;
-  color:var(--ink-soft);
-  text-decoration:none;
-  border-bottom:1px solid var(--gold-line);
-  padding-bottom:1px;
+@media(max-width:480px){
+  footer{grid-template-columns:1fr;gap:18px;}
+  .foot-copy{justify-self:center !important;text-align:center;}
+  .footer-logo{justify-self:center;}
+  .foot-socials{justify-self:center !important;}
 }
-.footer-name:hover{color:var(--teal-dark); border-color:var(--teal);}
-.footer-link{
-  justify-self:end;
-  font-family:'Tajawal', sans-serif;
-  color:var(--ink-soft);
-  text-decoration:none;
-  border-bottom:1px solid var(--gold-line);
-  padding-bottom:1px;
-  direction:ltr;
+.footer-logo{display:block;justify-self:center;}
+.footer-logo img{height:72px;width:auto;display:block;}
+.foot-copy{font-size:13px;color:var(--ink-ghost);justify-self:start;text-align:start;}
+.foot-socials{display:flex;gap:10px;justify-self:end;}
+.social-btn{
+  width:44px;height:44px;border-radius:10px;background:var(--white);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;color:var(--ink-soft);
+  transition:border-color .2s, color .2s;
 }
-.footer-link:hover{color:var(--teal-dark); border-color:var(--teal);}
-.footer-trigger{
-  justify-self:center;
-  color:var(--gold-line);
-  font-size:13px;
-  cursor:default;
-  user-select:none;
-}
-.footer-trigger.active{color:var(--teal);}
+.social-btn:hover{border-color:var(--accent);color:var(--accent);}
+.social-btn svg{width:20px;height:20px;}
 
-.import-export-btn{
-  font-family:'Tajawal', sans-serif;
-  font-size:12px;
-  background:none;
-  border:1px solid var(--gold-line);
-  color:var(--ink-soft);
-  padding:6px 14px;
-  border-radius:8px;
-  cursor:pointer;
-}
-.import-export-btn:hover{background:rgba(173,138,62,0.08);}
-
-.cat-badge{
-  font-size:12px;
-  color:var(--teal-dark);
-  background:rgba(31,92,78,0.08);
-  border:1px solid rgba(31,92,78,0.2);
-  padding:3px 10px;
-  border-radius:20px;
-  margin-inline-start:6px;
-}
-.title-badge{
-  font-size:12px;
-  font-weight:500;
-  color:var(--ink);
-  background:rgba(43,33,24,0.06);
-  border:1px solid rgba(43,33,24,0.15);
-  padding:3px 10px;
-  border-radius:20px;
-  margin-inline-end:6px;
+@media (prefers-reduced-motion: reduce){
+  .cursor{animation:none;}
+  .reveal{transition:none;opacity:1;transform:none;}
+  *{scroll-behavior:auto;}
 }
 </style>
 </head>
 <body>
-<div class="app">
-  <header class="app-header">
-    <div class="brand">
-      <svg width="30" height="30" viewBox="0 0 34 34">
-        <circle cx="17" cy="17" r="15.5" fill="none" stroke="#AD8A3E" stroke-width="1.3"/>
-        <circle cx="17" cy="6" r="2.4" fill="#1F5C4E"/>
-        <circle cx="26.7" cy="12" r="1.9" fill="#AD8A3E"/>
-        <circle cx="26.7" cy="22" r="1.9" fill="#AD8A3E"/>
-        <circle cx="17" cy="28" r="1.9" fill="#AD8A3E"/>
-        <circle cx="7.3" cy="22" r="1.9" fill="#AD8A3E"/>
-        <circle cx="7.3" cy="12" r="1.9" fill="#AD8A3E"/>
-      </svg>
-      <h1>أذكار وأدعية</h1>
+
+<div class="dot-grid"></div>
+
+<header>
+  <div class="nav-wrap">
+    <a href="#top" class="logo">
+      <img class="mark-img" src="images/logo-icon.png" alt="AST">
+      <span data-i18n="nav.name">أحمد صالح تفاحة</span>
+      <span class="role"><span class="dash"></span><span data-i18n="nav.role">مطوّر أعمال</span><span class="dash"></span></span>
+    </a>
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button data-lang="ar" class="active">AR</button>
+      <button data-lang="en">EN</button>
+      <button data-lang="tr">TR</button>
     </div>
-    <div class="header-actions">
-      <a href="tracker.html" class="header-btn" title="المتابعة اليومية">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/><path d="M8.5 14.5l2 2 4-4"/></svg>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============== HERO ============== -->
+  <div class="hero">
+    <h1 class="tw-line">
+      <span class="prefix" id="tw-prefix"></span>
+      <span class="suffix-main" id="tw-main"></span>
+      <span class="suffix-key hand" id="tw-key"></span><span class="cursor"></span>
+    </h1>
+  </div>
+
+  <!-- ============== EXPLAINER + ABOUT ============== -->
+  <div class="quarters-row">
+    <div class="define-wrap">
+      <div class="define-shape reveal">
+        <svg class="define-bg-svg" viewBox="0 0 800 300" preserveAspectRatio="none">
+          <defs>
+            <filter id="defineRough" x="-25%" y="-25%" width="150%" height="150%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.017 0.1" numOctaves="4" seed="7" result="n"/>
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="20"/>
+            </filter>
+          </defs>
+          <rect x="18" y="18" width="764" height="264" fill="#e3e1da" filter="url(#defineRough)"/>
+        </svg>
+        <div class="define-inner">
+          <div class="define-title-cell">
+            <h2 class="explainer-title" data-i18n-html="explain.title">ما هو <span class="hl hand">تطوير الأعمال</span> بالتحديد؟</h2>
+          </div>
+          <div class="define-text-cell">
+            <p class="explainer-text" data-i18n-html="explain.col1">تطوير الأعمال ليس مجرد مبيعات.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-wrap">
+      <div class="about-shape reveal">
+        <svg class="about-bg-svg" viewBox="0 0 800 300" preserveAspectRatio="none">
+          <defs>
+            <filter id="aboutRough" x="-25%" y="-25%" width="150%" height="150%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.016 0.11" numOctaves="4" seed="21" result="n"/>
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="22"/>
+            </filter>
+          </defs>
+          <rect x="20" y="18" width="760" height="264" fill="#ebdfd8" filter="url(#aboutRough)"/>
+        </svg>
+        <div class="about-inner">
+          <div class="about-text-cell">
+            <p class="about-text" data-i18n-html="about.text"></p>
+          </div>
+          <div class="about-quote-cell">
+            <p class="about-quote" data-i18n-html="about.quote"><span class="hl hand">الوضوح</span> هو ما أتركه خلفي.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== DESTINATIONS ============== -->
+  <section>
+    <div class="bento-dest reveal" id="bento-dest">
+
+      <!-- Portfolio -->
+      <a class="bento-cell" data-r="1" data-c="1" href="https://portfolio.ahmadsalehtuffaha.com/" target="_blank" rel="noopener">
+        <img src="images/Portfolio.png" alt="">
+        <div class="bento-content">
+          <span class="bento-title" data-i18n="dest.portfolio.name">مسيرتي المهنية</span>
+          <p class="bento-desc" data-i18n="dest.portfolio.desc">السيرة المهنية الكاملة: الخبرات، الشهادات، والمهارات بالتفصيل.</p>
+        </div>
       </a>
-      <a href="prayer-times.html" class="header-btn" title="أوقات الصلاة">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M3 12h2.2M18.8 12H21M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke-linecap="round"/></svg>
+
+      <!-- Side projects -->
+      <a class="bento-cell" data-r="1" data-c="2" href="projects.html">
+        <img src="images/Projects.png" alt="">
+        <div class="bento-content">
+          <span class="bento-title" data-i18n="dest.projects.name">نتائج، مش وعود</span>
+          <p class="bento-desc" data-i18n="dest.projects.desc">مشاريع فعلية ونتائج ملموسة قدرت أحققها لعملائي.</p>
+        </div>
       </a>
-      <button id="refreshBtn" class="header-btn" title="تحديث الأذكار من قاعدة البيانات">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
-      </button>
-      <button id="infoBtn" class="header-btn" title="عن الموقع">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="currentColor" stroke="none"/></svg>
-      </button>
+
+      <!-- Articles -->
+      <a class="bento-cell" data-r="2" data-c="1" href="articles.html">
+        <img src="images/Articles.png" alt="">
+        <div class="bento-content">
+          <span class="bento-title" data-i18n="dest.articles.name">خواطر وتجارب</span>
+          <p class="bento-desc" data-i18n="dest.articles.desc">مقالات وتأملات من مسيرتي المهنية ومحطاتها.</p>
+        </div>
+      </a>
+
+      <!-- Apps -->
+      <a class="bento-cell" data-r="2" data-c="2" href="apps.html">
+        <img src="images/Apps.png" alt="">
+        <div class="bento-content">
+          <span class="bento-title" data-i18n="dest.apps.name">تطبيقات، مش أفكار</span>
+          <p class="bento-desc" data-i18n="dest.apps.desc">أدوات وتطبيقات ويب صممتها وبنيتها بنفسي.</p>
+        </div>
+      </a>
+
     </div>
-  </header>
+  </section>
 
-  <div class="ornament"></div>
-
-  <div class="all-btn-wrap">
-    <button class="all-btn" id="allBtn">كل الأدعية</button>
-  </div>
-
-  <nav class="timeline" id="timeline"></nav>
-
-  <div class="prayer-strip" id="prayerStrip" style="display:none;"></div>
-
-  <nav class="tabs bottom-tabs" id="bottomTabs"></nav>
-
-  <main class="grid" id="grid"></main>
-
-  <footer class="app-footer">
-    <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
-    <span class="footer-trigger" id="footerTrigger">❖</span>
-    <a class="footer-link" href="https://ast47.github.io/ahmadsalehtuffaha/" target="_blank" rel="noopener">Portfolio</a>
-  </footer>
-  <div style="text-align:center; margin-top:10px;">
-    <button id="importExportBtn" class="import-export-btn" style="display:none;" onclick="openImportExport()">استيراد / تصدير المحتوى</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="passwordModal">
-  <div class="modal">
-    <h3>الدخول لوضع التعديل</h3>
-    <label>كلمة المرور</label>
-    <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور">
-    <div class="error-text" id="passwordError">كلمة المرور غير صحيحة</div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('passwordModal')">إلغاء</button>
-      <button class="btn btn-primary" onclick="checkPassword()">دخول</button>
+  <!-- ============== TOOLS ============== -->
+  <div class="tools-wrap">
+    <div class="tools-card reveal">
+      <p class="tools-quote" data-i18n="tools.quote">عدّة عمل مرنة مثلي.</p>
+      <div class="marquee-row dark" dir="ltr">
+        <div class="marquee-track dir-left" id="marquee-skills"></div>
+      </div>
+      <div class="marquee-row light" dir="ltr">
+        <div class="marquee-track dir-right" id="marquee-certs"></div>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="modal-overlay" id="editModal">
-  <div class="modal">
-    <h3 id="editModalTitle">إضافة ذكر</h3>
-    <label>العنوان (اختياري)</label>
-    <input type="text" id="editTitle" placeholder="مثال: عند الخروج من المسجد">
-    <label>التصنيف</label>
-    <select id="editCategory"></select>
-    <label>نص الذكر</label>
-    <textarea id="editText" placeholder="اكتب نص الذكر هنا"></textarea>
-    <label>عدد التكرار</label>
-    <input type="number" id="editCount" min="1" value="1">
-    <label style="display:flex; align-items:center; gap:8px; margin-top:14px;">
-      <input type="checkbox" id="editIsQuran" style="width:auto;">
-      <span style="margin:0;">هاد مقطع قرآني (يظهر بتنسيق مميز)</span>
-    </label>
-    <label>روابط صور الرسم العثماني (اختياري، رابط بكل سطر بالترتيب)</label>
-    <textarea id="editImageUrls" placeholder="https://.../mulk-1.png
-https://.../mulk-2.png" style="min-height:80px; font-family:monospace; font-size:12px; direction:ltr; text-align:left;"></textarea>
-    <div class="error-text" id="editError">الرجاء إدخال نص الذكر</div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('editModal')">إلغاء</button>
-      <button class="btn btn-primary" onclick="saveEdit()">حفظ</button>
+  <!-- ============== SERVICES ============== -->
+  <section>
+    <div class="services-grid reveal" id="services-grid">
+      <div class="service-card">
+        <img src="images/Growth.png" alt="">
+        <a class="wa-badge" href="#" target="_blank" rel="noopener" data-service="growth">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg>
+        </a>
+        <div class="title-strip">
+          <span class="service-title" data-i18n="service.growth.name">تطوير الأعمال والنمو</span>
+        </div>
+        <div class="content-expanded">
+          <span class="service-title" data-i18n="service.growth.name">تطوير الأعمال والنمو</span>
+          <p class="service-desc" data-i18n="service.growth.desc">فرص وشراكات تصنع نمواً</p>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <img src="images/Systems.png" alt="">
+        <a class="wa-badge" href="#" target="_blank" rel="noopener" data-service="systems">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg>
+        </a>
+        <div class="title-strip">
+          <span class="service-title" data-i18n="service.systems.name">تصميم الأنظمة وسير العمل</span>
+        </div>
+        <div class="content-expanded">
+          <span class="service-title" data-i18n="service.systems.name">تصميم الأنظمة وسير العمل</span>
+          <p class="service-desc" data-i18n="service.systems.desc">من الطلب لحد التسليم</p>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <img src="images/Waste.png" alt="">
+        <a class="wa-badge" href="#" target="_blank" rel="noopener" data-service="waste">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg>
+        </a>
+        <div class="title-strip">
+          <span class="service-title" data-i18n="service.waste.name">تقليل الهدر التشغيلي</span>
+        </div>
+        <div class="content-expanded">
+          <span class="service-title" data-i18n="service.waste.name">تقليل الهدر التشغيلي</span>
+          <p class="service-desc" data-i18n="service.waste.desc">كشف الهدر ومنع تكراره</p>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <img src="images/Consulting.png" alt="">
+        <a class="wa-badge" href="#" target="_blank" rel="noopener" data-service="consulting">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg>
+        </a>
+        <div class="title-strip">
+          <span class="service-title" data-i18n="service.consulting.name">الاستشارات التشغيلية</span>
+        </div>
+        <div class="content-expanded">
+          <span class="service-title" data-i18n="service.consulting.name">الاستشارات التشغيلية</span>
+          <p class="service-desc" data-i18n="service.consulting.desc">تشخيص وحلول قابلة للتنفيذ</p>
+        </div>
+      </div>
     </div>
+  </section>
+
+  <!-- ============== CONTACT ============== -->
+  <div class="contact-dark">
+    <p class="contact-question reveal" data-i18n-html="contact.q1">عندك <span class="hl hand" style="color:#7d0102">مشكلة</span> وعم تدور على <span class="hl hand" style="color:#1f7a4a">الحل</span>؟</p>
+    <a class="btn btn-whatsapp reveal" href="https://wa.me/905525407377" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg>
+      <span data-i18n="contact.whatsapp">راسلني على واتساب</span>
+    </a>
   </div>
-</div>
 
-<div class="modal-overlay" id="infoModal">
-  <div class="modal info-modal">
-    <h3>عن الموقع</h3>
-    <div class="info-section">
-      <p class="info-about">
-        صمّم هالموقع <a class="info-link" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">أحمد صالح تفاحة</a>، كمشروع شخصي لتجميع الأذكار والأدعية بشكل سهل وسريع الوصول.
-      </p>
-    </div>
+</main>
 
-    <h3 style="margin-top:22px;">سجل الإصدارات</h3>
-    <div class="changelog">
-      <div class="changelog-row"><span class="changelog-version">٢.٦</span><span>صفحة "المتابعة اليومية" لتتبع الصلوات والأذكار وورد القرآن اليومي</span></div>
-      <div class="changelog-row"><span class="changelog-version">٢.٥</span><span>تحميل مسبق لصفحات القرآن التالية أثناء القراءة (بدون تأخير محسوس)</span></div>
-      <div class="changelog-row"><span class="changelog-version">٢.٤</span><span>الصفحة تفتح افتراضياً على "الظهيرة" (منتصف اليوم)</span></div>
-      <div class="changelog-row"><span class="changelog-version">٢.٣</span><span>خط زمني بأيقونات (شروق ← شمس ← غيوم ← غروب ← هلال) بدل التبويبات العادية للتصنيفات الوقتية</span></div>
-      <div class="changelog-row"><span class="changelog-version">٢.٢</span><span>زر "كل الأدعية" مستقل بالأعلى</span></div>
-      <div class="changelog-row"><span class="changelog-version">٢.١</span><span>دعم العمل بدون إنترنت بعد أول تحميل</span></div>
-      <div class="changelog-row"><span class="changelog-version">٢.٠</span><span>الانتقال من تخزين محلي لقاعدة بيانات (مزامنة حقيقية بين كل الأجهزة)</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٤</span><span>إمكانية عرض صور الرسم العثماني الأصلية لكل مقطع قرآني، بمتصفح صور بين الصفحات</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٣</span><span>إضافة خمس سور قرآنية كاملة (يس، الرحمن، الواقعة، الملك، الكهف) بتنسيق مميز</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٢</span><span>إضافة ميزة العناوين لاستخدامها في بعض الأذكار والأدعية</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.١</span><span>بادج تصنيف مميز لكل ذكر بصفحة "كل الأذكار"</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٠</span><span>إطلاق الموقع: كل الأذكار عبر سبع فئات، مع نظام ترتيب ثابت ووضع تعديل للمشرفين</span></div>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('infoModal')">إغلاق</button>
-    </div>
+<footer>
+  <span class="foot-copy" data-i18n="footer.copy">© 2026 أحمد صالح تفاحة — جميع الحقوق محفوظة</span>
+  <a href="index.html" class="footer-logo"><img src="images/Logo.png" alt="Ahmad Saleh Tuffaha — Business Development"></a>
+  <div class="foot-socials">
+    <a class="social-btn" href="https://www.linkedin.com/in/ahmad-saleh-tuffaha/" target="_blank" rel="noopener" aria-label="LinkedIn">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 0 0 2 3.5v17A1.5 1.5 0 0 0 3.5 22h17a1.5 1.5 0 0 0 1.5-1.5v-17A1.5 1.5 0 0 0 20.5 2ZM8 19H5V9h3ZM6.5 7.7A1.7 1.7 0 1 1 8.2 6a1.7 1.7 0 0 1-1.7 1.7ZM19 19h-3v-4.7c0-1.1 0-2.6-1.6-2.6s-1.8 1.2-1.8 2.5V19h-3V9h2.9v1.3h0a3.1 3.1 0 0 1 2.8-1.6c3 0 3.6 2 3.6 4.6Z"/></svg>
+    </a>
+    <a class="social-btn" href="mailto:ahmadsalehtuffaha@gmail.com" aria-label="Email">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+    </a>
+    <a class="social-btn" href="https://wa.me/905525407377" target="_blank" rel="noopener" aria-label="WhatsApp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg>
+    </a>
   </div>
-</div>
+</footer>
 
-<div class="modal-overlay" id="lightboxModal" onclick="closeModal('lightboxModal')">
-  <button class="lightbox-close" onclick="event.stopPropagation(); closeModal('lightboxModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-  <button class="lightbox-nav" id="lightboxPrev" onclick="event.stopPropagation(); lightboxNav(-1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
-  <div class="lightbox-frame">
-    <img id="lightboxImg" src="" alt="الرسم العثماني" onclick="event.stopPropagation()">
-  </div>
-  <button class="lightbox-nav" id="lightboxNext" onclick="event.stopPropagation(); lightboxNav(1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-  <div class="lightbox-counter" id="lightboxCounter"></div>
-</div>
-
-<div class="modal-overlay" id="importExportModal">
-  <div class="modal" style="max-width:600px;">
-    <h3>استيراد / تصدير المحتوى</h3>
-    <p style="font-size:13px; color:var(--ink-soft); margin:0 0 10px;">
-      "تصدير" بيطلعلك كل المحتوى الحالي كـ JSON تقدر تنسخه وتعدل عليه.
-      "استيراد" بيستبدل <strong>كل</strong> المحتوى الحالي بالنص يلي بتلصقه هون — تأكد إنه صحيح قبل ما تأكد.
-    </p>
-    <textarea id="importExportArea" style="min-height:260px; font-family:monospace; font-size:12px; direction:ltr; text-align:left;"></textarea>
-    <div class="error-text" id="importExportError">صيغة JSON غير صحيحة، تأكد من النص وحاول مرة تانية</div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('importExportModal')">إغلاق</button>
-      <button class="btn" onclick="exportItems()">تصدير الحالي</button>
-      <button class="btn btn-primary" onclick="importItems()">استيراد واستبدال الكل</button>
-    </div>
-  </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script>
-// غيّر هاد الإيميل ليطابق حساب المشرف يلي أنشأته بـ Firebase Authentication
-const ADMIN_EMAIL = "salehzuh@gmail.com";
+/* ============================================================
+   CONTENT — edit these arrays/objects to update the page
+   ============================================================ */
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAH4UUe1XRXyTzAZcuuyg-kmBaX03NkK3Q",
-  authDomain: "azkar-10093.firebaseapp.com",
-  projectId: "azkar-10093",
-  storageBucket: "azkar-10093.firebasestorage.app",
-  messagingSenderId: "757288049988",
-  appId: "1:757288049988:web:12d68dac32567bad114b11"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-db.settings({
-  experimentalAutoDetectLongPolling: true,
-  useFetchStreams: false
-});
-db.enablePersistence({synchronizeTabs:true}).catch(err => {
-  console.warn('تعذّر تفعيل التخزين المحلي:', err.code);
-});
-const itemsRef = db.collection('azkar').doc('items');
-
-const CATEGORIES = [
-  {id:'all', label:'كل الأذكار'},
-  {id:'during_day', label:'أثناء اليوم'},
-  {id:'waking', label:'الاستيقاظ'},
-  {id:'morning', label:'الصباح'},
-  {id:'noon', label:'الظهيرة'},
-  {id:'evening', label:'المساء'},
-  {id:'before_sleep', label:'قبل النوم'},
-  {id:'means', label:'الأخذ بالأسباب'}
+// Certifications & training — kept in English since these are official
+// credential titles from the issuing platforms, regardless of site language.
+const CERTIFICATIONS = [
+  "Google Digital Garage — Fundamentals of Digital Marketing",
+  "Meta — Certified Digital Marketing Associate",
+  "Coursera / Meta — Social Media Marketing Professional",
+  "Niuversity — Fundamentals of Digital Marketing",
+  "Niuversity — Search Engine Optimization (SEO)",
+  "IFRC / ICRC — Data Analysis",
+  "IFRC / BRC — Conducting Field Survey",
+  "IFRC — Logistic Inventory Control (LogIC)",
+  "SARC — First Aid Basic",
+  "SARC — Disaster Management Basic",
+  "SARC — Neuro-Linguistic Programming (NLP)",
+  "IFRC Online — Project / Programme Planning",
+  "IFRC Online — Introduction to M&E",
+  "IFRC Online — Emergency Needs Assessment",
+  "IFRC Online — Vulnerability Assessment & Analysis",
+  "IFRC Online — WORC: World of Red Cross",
+  "Damascus University — Commercial Institute / Accounting",
 ];
 
-
-const TIMELINE_ICONS = {
-  waking: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5a3.5 3.5 0 1 1 .6-6.95A4.5 4.5 0 0 1 16.2 11 3.3 3.3 0 0 1 16 17.5H7.5"/></svg>',
-  morning: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 18h18"/><path d="M6 18a6 6 0 0 1 12 0"/><path d="M12 8v2"/><path d="M6.5 10.5l1.4 1.4"/><path d="M17.5 10.5l-1.4 1.4"/></svg>',
-  noon: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/></svg>',
-  evening: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 12a5.5 5.5 0 0 1 11 0"/><path d="M3 15h18"/><path d="M5 19h14"/><path d="M12 3v2.5"/><path d="M17.2 6.8l-1.2 1.2M6.8 6.8L8 8"/></svg>',
-  before_sleep: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.7 6.7 0 0 0 10.5 10.5Z"/></svg>'
+// Prefilled WhatsApp message per service card, per language.
+const SERVICE_WA_MESSAGES = {
+  growth: {
+    ar: "مرحباً أحمد، عندي استفسار حول تطوير الأعمال والنمو.",
+    en: "Hi Ahmad, I have a question about Business Development & Growth.",
+    tr: "Merhaba Ahmad, İş Geliştirme ve Büyüme hakkında bir sorum var."
+  },
+  systems: {
+    ar: "مرحباً أحمد، عندي استفسار حول تصميم الأنظمة وسير العمل.",
+    en: "Hi Ahmad, I have a question about Systems & Workflow Design.",
+    tr: "Merhaba Ahmad, Sistem ve İş Akışı Tasarımı hakkında bir sorum var."
+  },
+  waste: {
+    ar: "مرحباً أحمد، عندي استفسار حول تقليل الهدر التشغيلي.",
+    en: "Hi Ahmad, I have a question about Operational Waste Reduction.",
+    tr: "Merhaba Ahmad, Operasyonel İsrafın Azaltılması hakkında bir sorum var."
+  },
+  consulting: {
+    ar: "مرحباً أحمد، عندي استفسار حول الاستشارات التشغيلية.",
+    en: "Hi Ahmad, I have a question about Operational Consulting.",
+    tr: "Merhaba Ahmad, Operasyonel Danışmanlık hakkında bir sorum var."
+  }
 };
-const TIMELINE_CATEGORIES = ['waking','morning','noon','evening','before_sleep'];
-const BOTTOM_TAB_CATEGORIES = ['during_day','means'];
+const WHATSAPP_NUMBER = "905525407377";
 
-const CATEGORY_PRAYER_MAP = {waking:'Fajr', morning:'Dhuhr', noon:'Asr', evening:'Maghrib', before_sleep:'Isha'};
-const PRAYER_LABELS_AR = {Fajr:'الفجر', Dhuhr:'الظهر', Asr:'العصر', Maghrib:'المغرب', Isha:'العشاء'};
-let showPrayerTimes = localStorage.getItem('show_prayer_times') === '1';
-let prayerTimings = null;
-
-let items = [];
-let activeCategory = 'noon';
-let isAdmin = false;
-let editingId = null;
-
-async function loadData(){
-  // كل المحتوى صار مخزّن على Firestore بالكامل. أي إضافة/تعديل
-  // من هلق ولّح لازم يصير من وضع التعديل بالموقع مباشرة.
-  let doneOnce = false;
-
-  itemsRef.onSnapshot(snap => {
-    doneOnce = true;
-    items = (snap.exists && snap.data().items) ? snap.data().items : [];
-    render();
-  }, err => {
-    console.error('فشل الاتصال بقاعدة البيانات', err);
-    doneOnce = true;
-    items = [];
-    render();
+function updateServiceLinks(lang){
+  document.querySelectorAll("[data-service]").forEach(el=>{
+    const key = el.getAttribute("data-service");
+    const msg = SERVICE_WA_MESSAGES[key][lang] || SERVICE_WA_MESSAGES[key].ar;
+    el.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   });
-
-  // ما بنخلي المستخدم ينتظر أكتر من 4 ثواني — إذا Firestore تأخر أو
-  // فشل، منظهر الواجهة فاضية بدل ما تضل شاشة معلّقة بدون رد.
-  setTimeout(() => {
-    if(!doneOnce){
-      items = [];
-      render();
-    }
-  }, 4000);
 }
 
-async function saveData(){
-  try{
-    await itemsRef.set({items: items});
-  }catch(e){
-    console.error('فشل الحفظ', e);
-    alert('في مشكلة بالحفظ، تأكد من اتصال الإنترنت وحاول مرة تانية.');
+const translations = {
+  ar: {
+    "nav.name": "أحمد صالح تفاحة",
+    "nav.role": "مطوّر أعمال",
+    "hero.prefix": "أبني",
+    "hero.phrases": [
+      {main:"أنظمة تعمل ", key:"بذكاء."},
+      {main:"مسارات عمل بلا ", key:"هدر."},
+      {main:"عمليات واضحة و", key:"مُقاسة."}
+    ],
+    "explain.label": "تعريف",
+    "explain.title": "ما هو <span class=\"hl hand\">تطوير الأعمال</span> بالتحديد؟",
+    "explain.col1": "يربط كثيرون تطوير الأعمال بتحسين المبيعات المباشر، لكنه ليس مبيعات: المبيعات <span class=\"hl\">تُغلق صفقة اليوم</span>، وتطوير الأعمال يبني الأنظمة والشراكات التي تصنع الفرصة و<span class=\"hl\">تؤمّن صفقة الغد</span> — أشبه بالفرق بين من يحصد موسماً واحداً، ومن يخطط للمواسم العشرة القادمة.",
+    "about.watermark": "خبرة تزيد\nعن عشرين عاماً",
+    "about.quote": "<span class=\"hl hand\">الوضوح</span> هو ما أتركه خلفي.",
+    "about.text": "يُكلّف <span class=\"hl\">الهدر التشغيلي والفوضى الخفية</span> الشركاتِ وقتاً وموارداً أكثر بكثير مما يتوقعون. لدي خبرة تزيد عن 20 عاماً في تطوير أعمال الشركات والمؤسسات، وأتمتة سير عملها ومراقبته لتحويل تلك الفوضى إلى <span class=\"hl\">أنظمة دقيقة عالية الكفاءة</span>.",
+    "tools.quote": "عدّة عمل مرنة مثلي.",
+    "tools.skills": ["Excel والبيانات","الذكاء الاصطناعي والأدوات الرقمية","العمليات","أنظمة CRM","حزمة Adobe","التسويق الرقمي","AutoCAD","العربية","الإنكليزية","التركية"],
+    "dest.label": "الوجهات",
+    "dest.title": "وين بدك توصل؟",
+    "dest.portfolio.name": "مسيرتي المهنية",
+    "dest.portfolio.desc": "السيرة المهنية الكاملة: الخبرات، الشهادات، والمهارات بالتفصيل.",
+    "dest.portfolio.cta": "زيارة البورتفوليو",
+    "dest.projects.name": "نتائج، مش وعود",
+    "dest.projects.desc": "مشاريع فعلية ونتائج ملموسة قدرت أحققها لعملائي.",
+    "dest.projects.cta": "تصفح المشاريع",
+    "dest.articles.name": "خواطر وتجارب",
+    "dest.articles.desc": "مقالات وتأملات من مسيرتي المهنية ومحطاتها.",
+    "dest.articles.cta": "قراءة الخواطر",
+    "dest.apps.name": "تطبيقات، مش أفكار",
+    "dest.apps.desc": "أدوات وتطبيقات ويب صممتها وبنيتها بنفسي.",
+    "dest.apps.cta": "تصفح التطبيقات",
+    "service.growth.name": "تطوير الأعمال والنمو",
+    "service.growth.desc": "فرص وشراكات تصنع نمواً",
+    "service.systems.name": "تصميم الأنظمة وسير العمل",
+    "service.systems.desc": "من الطلب لحد التسليم",
+    "service.waste.name": "تقليل الهدر التشغيلي",
+    "service.waste.desc": "كشف الهدر ومنع تكراره",
+    "service.consulting.name": "الاستشارات التشغيلية",
+    "service.consulting.desc": "تشخيص وحلول قابلة للتنفيذ",
+    "service.cta": "تواصل عبر واتساب",
+    "contact.q1": "عندك <span class=\"hl hand\" style=\"color:#7d0102\">مشكلة</span> وعم تدور على <span class=\"hl hand\" style=\"color:#1f7a4a\">الحل</span>؟",
+    "contact.whatsapp": "راسلني على واتساب",
+    "footer.copy": "© 2026 أحمد صالح تفاحة — جميع الحقوق محفوظة",
+  },
+  en: {
+    "nav.name": "Ahmad Saleh Tuffaha",
+    "nav.role": "Business Developer",
+    "hero.prefix": "I build",
+    "hero.phrases": [
+      {main:"systems that work ", key:"smarter."},
+      {main:"workflows with ", key:"zero waste."},
+      {main:"processes that are ", key:"measurable."}
+    ],
+    "about.watermark": "Over 20 Years\nof Experience",
+    "explain.label": "Definition",
+    "explain.title": "What is <span class=\"hl hand\">business development</span>, exactly?",
+    "explain.col1": "Many treat business development as an extension of sales, but it isn't: sales <span class=\"hl\">close today's deal</span>, while business development builds the systems and partnerships that create the opportunity and <span class=\"hl\">secure tomorrow's deal</span> — the difference between harvesting one season and planning for the next ten.",
+    "about.quote": "<span class=\"hl hand\">Clarity</span> is what I leave behind.",
+    "about.text": "<span class=\"hl\">Hidden waste and operational friction</span> cost companies far more time and resources than they realize. I bring over 20 years of experience building and automating business operations for companies and institutions — turning that friction into <span class=\"hl\">precise, high-performing systems</span>.",
+    "tools.quote": "A flexible toolkit, just like me.",
+    "tools.skills": ["Excel & Data","AI & Digital Tools","Operations","CRM Systems","Adobe Suite","Digital Marketing","AutoCAD","Arabic","English","Turkish"],
+    "dest.label": "Destinations",
+    "dest.title": "Where do you want to go?",
+    "dest.portfolio.name": "My Career Journey",
+    "dest.portfolio.desc": "The complete professional story: experience, certifications, and skills in detail.",
+    "dest.portfolio.cta": "Visit the portfolio",
+    "dest.projects.name": "Results, Not Promises",
+    "dest.projects.desc": "Real projects and measurable results delivered for clients.",
+    "dest.projects.cta": "Browse the projects",
+    "dest.articles.name": "Thoughts & Experiences",
+    "dest.articles.desc": "Articles and reflections from my professional journey.",
+    "dest.articles.cta": "Read the thoughts",
+    "dest.apps.name": "Apps, Not Ideas",
+    "dest.apps.desc": "Web tools and apps I designed and built myself.",
+    "dest.apps.cta": "Browse the apps",
+    "service.growth.name": "Business Development & Growth",
+    "service.growth.desc": "Opportunities that create growth",
+    "service.systems.name": "Systems & Workflow Design",
+    "service.systems.desc": "From request to delivery",
+    "service.waste.name": "Operational Waste Reduction",
+    "service.waste.desc": "Find the leaks, stop them",
+    "service.consulting.name": "Operational Consulting",
+    "service.consulting.desc": "Diagnosis, then real solutions",
+    "service.cta": "Message on WhatsApp",
+    "contact.q1": "Have a <span class=\"hl hand\" style=\"color:#7d0102\">problem</span> and looking for the <span class=\"hl hand\" style=\"color:#1f7a4a\">solution</span>?",
+    "contact.whatsapp": "Message me on WhatsApp",
+    "footer.copy": "© 2026 Ahmad Saleh Tuffaha — All rights reserved",
+  },
+  tr: {
+    "nav.name": "Ahmad Saleh Tuffaha",
+    "nav.role": "İş Geliştirme Uzmanı",
+    "hero.prefix": "Şunu kurarım:",
+    "hero.phrases": [
+      {main:"akıllı çalışan ", key:"sistemler."},
+      {main:"israf etmeyen ", key:"iş akışları."},
+      {main:"net ve ölçülebilir ", key:"süreçler."}
+    ],
+    "about.watermark": "20 Yılı Aşkın\nDeneyim",
+    "explain.label": "Tanım",
+    "explain.title": "<span class=\"hl hand\">İş geliştirme</span> tam olarak nedir?",
+    "explain.col1": "Birçok kişi iş geliştirmeyi doğrudan satışla ilişkilendirir, ama iş geliştirme satış değildir: satış <span class=\"hl\">bugünün anlaşmasını kapatır</span>, iş geliştirme ise fırsatı yaratan ve <span class=\"hl\">yarının anlaşmasını güvence altına alan</span> sistemleri ve ortaklıkları kurar — tek bir sezonu hasat etmekle önümüzdeki on sezonu planlamak arasındaki fark gibi.",
+    "about.quote": "Arkamda bıraktığım şey <span class=\"hl hand\">netliktir</span>.",
+    "about.text": "<span class=\"hl\">Görünmeyen israf ve operasyonel karmaşa</span>, şirketlere düşündüklerinden çok daha fazla zaman ve kaynağa mal olur. 20 yılı aşkın deneyimimle şirketlerin ve kurumların iş süreçlerini geliştirip otomatikleştiriyor, bu karmaşayı <span class=\"hl\">hassas ve yüksek verimli sistemlere</span> dönüştürüyorum.",
+    "tools.quote": "Benim gibi esnek bir araç seti.",
+    "tools.skills": ["Excel ve Veri","Yapay Zeka ve Dijital Araçlar","Operasyonlar","CRM Sistemleri","Adobe Suite","Dijital Pazarlama","AutoCAD","Arapça","İngilizce","Türkçe"],
+    "dest.label": "Yönler",
+    "dest.title": "Nereye gitmek istersin?",
+    "dest.portfolio.name": "Kariyer Yolculuğum",
+    "dest.portfolio.desc": "Deneyim, sertifikalar ve yetkinliklerin tamamı.",
+    "dest.portfolio.cta": "Portfolyoyu görüntüle",
+    "dest.projects.name": "Söz Değil, Sonuç",
+    "dest.projects.desc": "Müşteriler için tamamlanan gerçek projeler ve somut sonuçlar.",
+    "dest.projects.cta": "Projelere göz at",
+    "dest.articles.name": "Düşünceler ve Deneyimler",
+    "dest.articles.desc": "Kariyer yolculuğumdan makaleler ve düşünceler.",
+    "dest.articles.cta": "Düşünceleri oku",
+    "dest.apps.name": "Fikir Değil, Uygulama",
+    "dest.apps.desc": "Kendi tasarladığım ve geliştirdiğim web araçları ve uygulamalar.",
+    "dest.apps.cta": "Uygulamalara göz at",
+    "service.growth.name": "İş Geliştirme ve Büyüme",
+    "service.growth.desc": "Sürdürülebilir büyüme fırsatları",
+    "service.systems.name": "Sistem ve İş Akışı Tasarımı",
+    "service.systems.desc": "Uçtan uca iş akışı tasarımı",
+    "service.waste.name": "Operasyonel İsrafın Azaltılması",
+    "service.waste.desc": "Kaybı bulup önlemek",
+    "service.consulting.name": "Operasyonel Danışmanlık",
+    "service.consulting.desc": "Teşhis ve uygulanabilir çözümler",
+    "service.cta": "WhatsApp'tan yaz",
+    "contact.q1": "Bir <span class=\"hl hand\" style=\"color:#7d0102\">sorununuz</span> var ve <span class=\"hl hand\" style=\"color:#1f7a4a\">çözümü</span> mü arıyorsunuz?",
+    "contact.whatsapp": "WhatsApp'tan yaz",
+    "footer.copy": "© 2026 Ahmad Saleh Tuffaha — Tüm hakları saklıdır",
   }
+};
+
+let currentLang = "ar";
+let twTimer = null;
+
+function applyTranslations(lang){
+  document.documentElement.lang = lang;
+  document.documentElement.dir = (lang === "ar") ? "rtl" : "ltr";
+  const dict = translations[lang];
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key = el.getAttribute("data-i18n");
+    if(dict[key]) el.textContent = dict[key];
+  });
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{
+    const key = el.getAttribute("data-i18n-html");
+    if(dict[key]) el.innerHTML = dict[key];
+  });
+  document.querySelectorAll(".lang-switch button").forEach(btn=>{
+    btn.classList.toggle("active", btn.dataset.lang === lang);
+  });
 }
 
-async function manualRefresh(){
-  const btn = document.getElementById('refreshBtn');
-  btn.classList.add('spinning');
-  try{
-    const snap = await itemsRef.get({source: 'server'});
-    items = (snap.exists && snap.data().items) ? snap.data().items : [];
-    render();
-  }catch(e){
-    console.error('فشل التحديث اليدوي', e);
-    alert('ما قدرنا نوصل لقاعدة البيانات هلق، تأكد من النت وجرب كمان.');
+/* typewriter: static prefix + bold main text + handwritten key word */
+function startTypewriter(lang){
+  clearTimeout(twTimer);
+  const prefixEl = document.getElementById("tw-prefix");
+  const mainEl = document.getElementById("tw-main");
+  const keyEl = document.getElementById("tw-key");
+  const phrases = translations[lang]["hero.phrases"];
+  prefixEl.textContent = translations[lang]["hero.prefix"] + " ";
+
+  let i = 0;
+
+  function typeInto(el, text, speed, done){
+    const chars = text.split("");
+    let built = "";
+    (function step(){
+      if(chars.length){
+        built += chars.shift();
+        el.textContent = built;
+        twTimer = setTimeout(step, speed);
+      } else {
+        twTimer = setTimeout(done, 250);
+      }
+    })();
   }
-  btn.classList.remove('spinning');
+
+  function eraseFrom(el, speed, done){
+    let text = el.textContent;
+    (function step(){
+      if(text.length){
+        text = text.slice(0, -1);
+        el.textContent = text;
+        twTimer = setTimeout(step, speed);
+      } else {
+        done();
+      }
+    })();
+  }
+
+  function typePhrase(){
+    mainEl.textContent = "";
+    keyEl.textContent = "";
+    typeInto(mainEl, phrases[i].main, 42, ()=>{
+      typeInto(keyEl, phrases[i].key, 55, ()=>{
+        twTimer = setTimeout(erasePhrase, 1900);
+      });
+    });
+  }
+
+  function erasePhrase(){
+    eraseFrom(keyEl, 25, ()=>{
+      eraseFrom(mainEl, 18, ()=>{
+        i = (i + 1) % phrases.length;
+        twTimer = setTimeout(typePhrase, 350);
+      });
+    });
+  }
+
+  typePhrase();
 }
 
-document.getElementById('refreshBtn').addEventListener('click', manualRefresh);
+function buildMarqueeTrack(el, items){
+  const withDots = items.map(t=>`<span class="marquee-item">${t}<span class="dot">•</span></span>`).join("");
+  // repeat 4x so the strip always covers very wide viewports with no gap
+  el.innerHTML = withDots.repeat(4);
+}
 
-document.getElementById('infoBtn').addEventListener('click', () => {
-  document.getElementById('infoModal').classList.add('open');
+function renderMarquees(lang){
+  buildMarqueeTrack(document.getElementById("marquee-skills"), translations[lang]["tools.skills"]);
+  buildMarqueeTrack(document.getElementById("marquee-certs"), CERTIFICATIONS);
+}
+
+function setLanguage(lang){
+  currentLang = lang;
+  localStorage.setItem("site-lang", lang);
+  applyTranslations(lang);
+  renderMarquees(lang);
+  updateServiceLinks(lang);
+  startTypewriter(lang);
+}
+
+document.querySelectorAll(".lang-switch button").forEach(btn=>{
+  btn.addEventListener("click", ()=> setLanguage(btn.dataset.lang));
 });
 
-function parsePrayerClock(t){
-  const clean = t.split(' ')[0];
-  const [h,m] = clean.split(':').map(Number);
-  const period = h < 12 ? 'ص' : 'م';
-  let h12 = h % 12; if(h12 === 0) h12 = 12;
-  return toArabicDigits(`${h12}:${String(m).padStart(2,'0')}`) + ' ' + period;
-}
 
-function fetchPrayerTimings(){
-  const method = Number(localStorage.getItem('pt_method')) || 13;
-  let tune = [0,0,0,0,0,0,0,0,0];
-  try{
-    const t = JSON.parse(localStorage.getItem('pt_tune') || '{}');
-    tune = [0, t.Fajr||0, t.Sunrise||0, t.Dhuhr||0, t.Asr||0, t.Maghrib||0, 0, t.Isha||0, 0];
-  }catch(e){}
-  const tuneStr = encodeURIComponent(tune.join(','));
-
-  const city = localStorage.getItem('pt_city');
-  const lat = localStorage.getItem('pt_lat');
-  const lon = localStorage.getItem('pt_lon');
-
-  let url = null;
-  if(city){
-    url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=&method=${method}&tune=${tuneStr}`;
-  }else if(lat && lon){
-    url = `https://api.aladhan.com/v1/timings/${Math.floor(Date.now()/1000)}?latitude=${lat}&longitude=${lon}&method=${method}&tune=${tuneStr}`;
-  }
-
-  if(!url){
-    if(navigator.geolocation){
-      navigator.geolocation.getCurrentPosition(pos => {
-        localStorage.setItem('pt_lat', pos.coords.latitude);
-        localStorage.setItem('pt_lon', pos.coords.longitude);
-        fetchPrayerTimings();
-      }, () => { renderPrayerStrip(); });
-    }
-    return;
-  }
-
-  fetch(url).then(r => r.json()).then(d => {
-    if(d.code === 200){
-      prayerTimings = d.data.timings;
-      renderPrayerStrip();
-    }
-  }).catch(() => {});
-}
-
-function renderPrayerStrip(){
-  const strip = document.getElementById('prayerStrip');
-  const prayerKey = CATEGORY_PRAYER_MAP[activeCategory];
-
-  if(!showPrayerTimes || !prayerKey || !prayerTimings){
-    strip.style.display = 'none';
-    return;
-  }
-
-  strip.style.display = 'flex';
-  strip.innerHTML = `<span class="ps-name">وقت ${PRAYER_LABELS_AR[prayerKey]}</span><span class="ps-time">${parsePrayerClock(prayerTimings[prayerKey])}</span>`;
-}
-
-if(showPrayerTimes){
-  fetchPrayerTimings();
-}
-
-function toggleAdmin(){
-  if(isAdmin){
-    auth.signOut();
-    isAdmin = false;
-    document.getElementById('footerTrigger').classList.remove('active');
-    document.getElementById('importExportBtn').style.display = 'none';
-    render();
-  }else{
-    document.getElementById('passwordInput').value = '';
-    document.getElementById('passwordError').classList.remove('show');
-    document.getElementById('passwordModal').classList.add('open');
-  }
-}
-
-async function checkPassword(){
-  const val = document.getElementById('passwordInput').value;
-  const errorBox = document.getElementById('passwordError');
-  errorBox.classList.remove('show');
-
-  try{
-    await auth.signInWithEmailAndPassword(ADMIN_EMAIL, val);
-    isAdmin = true;
-    document.getElementById('footerTrigger').classList.add('active');
-    document.getElementById('importExportBtn').style.display = 'inline-block';
-    closeModal('passwordModal');
-    render();
-  }catch(e){
-    errorBox.classList.add('show');
-  }
-}
-
-function closeModal(id){
-  document.getElementById(id).classList.remove('open');
-}
-
-let lightboxImages = [];
-let lightboxIndex = 0;
-
-function toArabicDigits(n){
-  const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-  return String(n).replace(/[0-9]/g, d => arabicDigits[d]);
-}
-
-function renderLightbox(){
-  const img = document.getElementById('lightboxImg');
-  img.src = lightboxImages[lightboxIndex];
-
-  img.classList.remove('align-top', 'align-bottom');
-  if(lightboxImages.length > 1){
-    if(lightboxIndex === 0){
-      img.classList.add('align-bottom');
-    }else if(lightboxIndex === lightboxImages.length - 1){
-      img.classList.add('align-top');
-    }
-  }
-
-  document.getElementById('lightboxCounter').textContent = toArabicDigits(lightboxIndex + 1) + ' / ' + toArabicDigits(lightboxImages.length);
-  const multi = lightboxImages.length > 1;
-  document.getElementById('lightboxPrev').style.display = (multi && lightboxIndex > 0) ? 'flex' : 'none';
-  document.getElementById('lightboxNext').style.display = (multi && lightboxIndex < lightboxImages.length - 1) ? 'flex' : 'none';
-  document.getElementById('lightboxCounter').style.display = multi ? 'block' : 'none';
-
-  preloadUpcomingImages();
-}
-
-function preloadUpcomingImages(){
-  // نحمّل صفحتين لقدام بالخلفية عشان ما يحس القارئ بأي تأخير وقت يتنقل
-  for(let step = 1; step <= 2; step++){
-    const idx = lightboxIndex + step;
-    if(idx < lightboxImages.length){
-      const preloadImg = new Image();
-      preloadImg.src = lightboxImages[idx];
-    }
-  }
-}
-
-function openLightbox(urls){
-  lightboxImages = Array.isArray(urls) ? urls : [urls];
-  lightboxIndex = 0;
-  renderLightbox();
-  document.getElementById('lightboxModal').classList.add('open');
-}
-
-function lightboxNav(direction){
-  const next = lightboxIndex + direction;
-  if(next < 0 || next >= lightboxImages.length) return;
-  lightboxIndex = next;
-  renderLightbox();
-}
-
-function openImportExport(){
-  document.getElementById('importExportError').classList.remove('show');
-  document.getElementById('importExportArea').value = '';
-  document.getElementById('importExportModal').classList.add('open');
-}
-
-function exportItems(){
-  document.getElementById('importExportArea').value = JSON.stringify(items, null, 2);
-}
-
-async function importItems(){
-  const raw = document.getElementById('importExportArea').value;
-  let parsed;
-  try{
-    parsed = JSON.parse(raw);
-    if(!Array.isArray(parsed)) throw new Error('not an array');
-  }catch(e){
-    document.getElementById('importExportError').classList.add('show');
-    return;
-  }
-  if(!confirm('رح يتم استبدال كل المحتوى الحالي بـ ' + parsed.length + ' عنصر. متأكد؟')) return;
-  items = parsed;
-  await saveData();
-  closeModal('importExportModal');
-  render();
-}
-
-function renderAllButton(){
-  const btn = document.getElementById('allBtn');
-  btn.classList.toggle('active', activeCategory === 'all');
-  btn.onclick = () => { activeCategory = 'all'; render(); };
-}
-
-function renderTimeline(){
-  const wrap = document.getElementById('timeline');
-  wrap.innerHTML = '';
-  TIMELINE_CATEGORIES.forEach((catId, idx) => {
-    const cat = CATEGORIES.find(c => c.id === catId);
-    const node = document.createElement('button');
-    node.className = 'timeline-node' + (activeCategory === catId ? ' active' : '');
-    node.innerHTML = `<span class="timeline-icon">${TIMELINE_ICONS[catId]}</span><span class="timeline-label">${cat.label}</span>`;
-    node.onclick = () => { activeCategory = catId; render(); };
-    wrap.appendChild(node);
-
-    if(idx < TIMELINE_CATEGORIES.length - 1){
-      const line = document.createElement('span');
-      line.className = 'timeline-line';
-      wrap.appendChild(line);
-    }
+/* scroll reveal */
+const reveals = document.querySelectorAll(".reveal");
+function revealOnScroll(){
+  const vh = window.innerHeight;
+  reveals.forEach(el=>{
+    if(el.getBoundingClientRect().top < vh - 80) el.classList.add("active");
   });
 }
+window.addEventListener("scroll", revealOnScroll);
+window.addEventListener("resize", revealOnScroll);
 
-function renderBottomTabs(){
-  const wrap = document.getElementById('bottomTabs');
-  wrap.innerHTML = '';
-  BOTTOM_TAB_CATEGORIES.forEach(catId => {
-    const cat = CATEGORIES.find(c => c.id === catId);
-    const btn = document.createElement('button');
-    btn.className = 'tab' + (activeCategory === catId ? ' active' : '');
-    btn.textContent = cat.label;
-    btn.onclick = () => { activeCategory = catId; render(); };
-    wrap.appendChild(btn);
+function detectLang(){
+  const saved = localStorage.getItem("site-lang");
+  if(translations[saved]) return saved;
+  const nav = (navigator.language || navigator.userLanguage || "").toLowerCase();
+  if(nav.startsWith("ar")) return "ar";
+  if(nav.startsWith("tr")) return "tr";
+  if(nav.startsWith("en")) return "en";
+  return "ar";
+}
+setLanguage(detectLang());
+revealOnScroll();
+
+/* 2x2 bento hover-expand (destinations). Setting the CSS custom
+   properties is harmless on touch devices: the grid-template rule
+   that consumes them only exists inside the (hover:hover) media
+   query, so nothing visually changes there. */
+(function initBentoDest(){
+  const bento = document.getElementById("bento-dest");
+  if(!bento) return;
+  const cells = bento.querySelectorAll(".bento-cell");
+  const BIG = 3, SMALL = 1;
+  function setActive(r, c){
+    bento.style.setProperty("--c1", c === "1" ? `${BIG}fr` : `${SMALL}fr`);
+    bento.style.setProperty("--c2", c === "2" ? `${BIG}fr` : `${SMALL}fr`);
+    bento.style.setProperty("--r1", r === "1" ? `${BIG}fr` : `${SMALL}fr`);
+    bento.style.setProperty("--r2", r === "2" ? `${BIG}fr` : `${SMALL}fr`);
+  }
+  function reset(){
+    bento.style.setProperty("--c1", "1fr");
+    bento.style.setProperty("--c2", "1fr");
+    bento.style.setProperty("--r1", "1fr");
+    bento.style.setProperty("--r2", "1fr");
+  }
+  cells.forEach(cell=>{
+    cell.addEventListener("mouseenter", ()=> setActive(cell.dataset.r, cell.dataset.c));
   });
-}
+  bento.addEventListener("mouseleave", reset);
+})();
 
-function getFilteredItems(){
-  let list = activeCategory === 'all' ? [...items] : items.filter(i => i.categoryId === activeCategory);
-  list.sort((a,b) => a.order - b.order);
-  return list;
-}
-
-function render(){
-  renderAllButton();
-  renderTimeline();
-  renderBottomTabs();
-  renderPrayerStrip();
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
-  const list = getFilteredItems();
-
-  if(list.length === 0 && !isAdmin){
-    grid.innerHTML = '<div class="empty">لا يوجد أذكار في هذا القسم بعد</div>';
-    return;
+/* Service cards: tap to expand (same look as desktop hover).
+   One open at a time; tapping another card or empty space closes it.
+   The wa-badge is the real link and navigates normally — we only
+   intercept taps on the card body itself. */
+(function initServiceCards(){
+  const cards = document.querySelectorAll(".service-card");
+  if(!cards.length) return;
+  function closeAll(except){
+    cards.forEach(c=>{ if(c !== except) c.classList.remove("is-open"); });
   }
-
-  list.forEach((item, idx) => {
-    const card = document.createElement('div');
-    card.className = 'card' + (item.isQuran ? ' quran-card' : '');
-
-    if(isAdmin){
-      const tag = document.createElement('div');
-      tag.className = 'order-tag';
-      tag.textContent = 'ترتيب ' + toArabicDigits(item.order);
-      card.appendChild(tag);
-    }
-
-    if(item.isQuran){
-      const mark = document.createElement('div');
-      mark.className = 'quran-mark';
-      mark.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H12v20H6.5A2.5 2.5 0 0 1 4 19.5v-15Z"/><path d="M20 4.5A2.5 2.5 0 0 0 17.5 2H12v20h5.5a2.5 2.5 0 0 0 2.5-2.5v-15Z"/></svg><span>آية قرآنية</span>';
-
-      if(item.imageUrls && item.imageUrls.length){
-        const imgBtn = document.createElement('button');
-        imgBtn.className = 'quran-image-btn';
-        imgBtn.innerHTML = '🖼 عرض بالرسم العثماني' + (item.imageUrls.length > 1 ? ' (' + toArabicDigits(item.imageUrls.length) + ' صفحات)' : '');
-        imgBtn.onclick = () => openLightbox(item.imageUrls);
-        mark.appendChild(imgBtn);
-      }
-
-      card.appendChild(mark);
-    }
-
-    const text = document.createElement('p');
-    text.className = 'card-text';
-    text.textContent = item.text;
-    card.appendChild(text);
-
-    const footer = document.createElement('div');
-    footer.className = 'card-footer';
-
-    const badgeGroup = document.createElement('div');
-    badgeGroup.style.display = 'flex';
-    badgeGroup.style.alignItems = 'center';
-
-    if(item.title){
-      const titleBadge = document.createElement('span');
-      titleBadge.className = 'title-badge';
-      titleBadge.textContent = item.title;
-      badgeGroup.appendChild(titleBadge);
-    }
-
-    const badge = document.createElement('span');
-    badge.className = 'count-badge';
-    badge.textContent = '× ' + toArabicDigits(item.count);
-    if(item.count > 1){
-      badgeGroup.appendChild(badge);
-    }
-
-    if(activeCategory === 'all'){
-      const catLabel = CATEGORIES.find(c => c.id === item.categoryId);
-      if(catLabel){
-        const catBadge = document.createElement('span');
-        catBadge.className = 'cat-badge';
-        catBadge.textContent = catLabel.label;
-        badgeGroup.appendChild(catBadge);
-      }
-    }
-
-    footer.appendChild(badgeGroup);
-
-    const actions = document.createElement('div');
-    actions.className = 'card-actions';
-
-    if(isAdmin){
-      const upBtn = document.createElement('button');
-      upBtn.className = 'icon-btn';
-      upBtn.title = 'تحريك لأعلى';
-      upBtn.textContent = '↑';
-      upBtn.onclick = () => moveItem(item.id, -1);
-      actions.appendChild(upBtn);
-
-      const downBtn = document.createElement('button');
-      downBtn.className = 'icon-btn';
-      downBtn.title = 'تحريك لأسفل';
-      downBtn.textContent = '↓';
-      downBtn.onclick = () => moveItem(item.id, 1);
-      actions.appendChild(downBtn);
-
-      const editBtn = document.createElement('button');
-      editBtn.className = 'icon-btn';
-      editBtn.title = 'تعديل';
-      editBtn.textContent = '✎';
-      editBtn.onclick = () => openEdit(item.id);
-      actions.appendChild(editBtn);
-
-      const delBtn = document.createElement('button');
-      delBtn.className = 'icon-btn danger';
-      delBtn.title = 'حذف';
-      delBtn.textContent = '✕';
-      delBtn.onclick = () => deleteItem(item.id);
-      actions.appendChild(delBtn);
-    }
-
-    footer.appendChild(actions);
-    card.appendChild(footer);
-    grid.appendChild(card);
-  });
-
-  if(isAdmin){
-    const addCard = document.createElement('div');
-    addCard.className = 'add-card';
-    addCard.textContent = '+ إضافة ذكر';
-    addCard.onclick = () => openEdit(null);
-    grid.appendChild(addCard);
-  }
-}
-
-function moveItem(id, direction){
-  const list = getFilteredItems();
-  const idx = list.findIndex(i => i.id === id);
-  const swapIdx = idx + direction;
-  if(swapIdx < 0 || swapIdx >= list.length) return;
-  const a = list[idx], b = list[swapIdx];
-  const tmp = a.order;
-  a.order = b.order;
-  b.order = tmp;
-  saveData();
-  render();
-}
-
-function openEdit(id){
-  editingId = id;
-  const select = document.getElementById('editCategory');
-  select.innerHTML = '';
-  CATEGORIES.filter(c => c.id !== 'all').forEach(cat => {
-    const opt = document.createElement('option');
-    opt.value = cat.id;
-    opt.textContent = cat.label;
-    select.appendChild(opt);
-  });
-
-  document.getElementById('editError').classList.remove('show');
-
-  if(id){
-    const item = items.find(i => i.id === id);
-    document.getElementById('editModalTitle').textContent = 'تعديل الذكر';
-    document.getElementById('editTitle').value = item.title || '';
-    select.value = item.categoryId;
-    document.getElementById('editText').value = item.text;
-    document.getElementById('editCount').value = item.count;
-    document.getElementById('editIsQuran').checked = !!item.isQuran;
-    document.getElementById('editImageUrls').value = (item.imageUrls || []).join('\n');
-  }else{
-    document.getElementById('editModalTitle').textContent = 'إضافة ذكر';
-    document.getElementById('editTitle').value = '';
-    select.value = activeCategory === 'all' ? CATEGORIES[1].id : activeCategory;
-    document.getElementById('editText').value = '';
-    document.getElementById('editCount').value = 1;
-    document.getElementById('editIsQuran').checked = false;
-    document.getElementById('editImageUrls').value = '';
-  }
-
-  document.getElementById('editModal').classList.add('open');
-}
-
-function saveEdit(){
-  const text = document.getElementById('editText').value.trim();
-  const title = document.getElementById('editTitle').value.trim();
-  const categoryId = document.getElementById('editCategory').value;
-  const count = parseInt(document.getElementById('editCount').value) || 1;
-  const isQuran = document.getElementById('editIsQuran').checked;
-  const imageUrls = document.getElementById('editImageUrls').value
-    .split('\n')
-    .map(s => s.trim())
-    .filter(Boolean);
-
-  if(!text){
-    document.getElementById('editError').classList.add('show');
-    return;
-  }
-
-  if(editingId){
-    const item = items.find(i => i.id === editingId);
-    item.text = text;
-    item.title = title;
-    item.categoryId = categoryId;
-    item.count = count;
-    item.isQuran = isQuran;
-    item.imageUrls = imageUrls;
-  }else{
-    const catItems = items.filter(i => i.categoryId === categoryId);
-    const maxOrder = catItems.length ? Math.max(...catItems.map(i => i.order)) : 0;
-    items.push({
-      id: 'item_' + Date.now(),
-      text, title, categoryId, count, isQuran, imageUrls,
-      order: maxOrder + 1
-    });
-  }
-
-  saveData();
-  closeModal('editModal');
-  render();
-}
-
-function deleteItem(id){
-  if(!confirm('هل تريد حذف هذا الذكر؟')) return;
-  items = items.filter(i => i.id !== id);
-  saveData();
-  render();
-}
-
-document.getElementById('footerTrigger').onclick = toggleAdmin;
-
-if('serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(err => {
-      console.warn('تعذّر تسجيل service worker:', err);
+  cards.forEach(card=>{
+    card.addEventListener("click", (e)=>{
+      if(e.target.closest(".wa-badge")) return;
+      const wasOpen = card.classList.contains("is-open");
+      closeAll(card);
+      card.classList.toggle("is-open", !wasOpen);
     });
   });
-}
-
-loadData();
+  document.addEventListener("click", (e)=>{
+    if(!e.target.closest(".service-card")) closeAll(null);
+  });
+})();
 </script>
 </body>
 </html>
