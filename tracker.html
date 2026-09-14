@@ -40,7 +40,7 @@ body{
   gap:16px;
   flex-wrap:nowrap;
   max-width:480px;
-  margin:0 auto 6px;
+  margin:0 auto 14px;
 }
 .brand{display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto; overflow:hidden;}
 .header-actions{display:flex; align-items:center; gap:8px; flex:0 0 auto;}
@@ -56,10 +56,11 @@ body{
   color:var(--ink-soft);
   cursor:pointer;
   text-decoration:none;
-  transition:background .15s;
+  transition:background .15s, transform .3s;
 }
 .header-btn:hover{background:rgba(173,138,62,0.1);}
 .header-btn.spinning svg{animation:spin .8s linear infinite;}
+.header-btn.active{background:var(--teal); border-color:var(--teal); color:#F5EDD9;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .header-btn.armed{background:rgba(122,46,46,0.1); border-color:rgba(122,46,46,0.4); color:#7A2E2E;}
 
@@ -130,7 +131,7 @@ body{
 .ornament{
   height:14px;
   max-width:480px;
-  margin:2px auto 14px;
+  margin:6px auto 22px;
   background-image: repeating-linear-gradient(45deg, var(--gold-soft) 0 3px, transparent 3px 9px);
   opacity:0.55;
   mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
@@ -256,6 +257,7 @@ section{margin-bottom:26px;}
   cursor:default;
   user-select:none;
 }
+.footer-trigger.active{color:var(--teal);}
 
 @media (max-width:420px){
   .grid5{gap:6px;}
