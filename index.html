@@ -109,8 +109,9 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:10px;
-  max-width:280px;
+  flex-wrap:wrap;
+  gap:6px 10px;
+  max-width:320px;
   margin:0 auto 18px;
   background:var(--bg-card);
   border:1px solid var(--gold-line);
@@ -126,6 +127,13 @@ body{
   color:var(--gold);
   font-size:15px;
   direction:ltr;
+}
+.prayer-strip .ps-remaining{
+  font-size:12px;
+  color:var(--ink-soft);
+  border-right:1px solid var(--gold-line);
+  padding-right:10px;
+  margin-right:-2px;
 }
 .brand svg{flex-shrink:0;}
 .brand h1{
@@ -923,6 +931,28 @@ function parsePrayerClock(t){
   return toArabicDigits(`${h12}:${String(m).padStart(2,'0')}`) + ' ' + period;
 }
 
+function minutesSinceMidnight(t){
+  const clean = t.split(' ')[0];
+  const [h,m] = clean.split(':').map(Number);
+  return h*60+m;
+}
+
+function remainingLabel(prayerKey){
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
+  const targetMin = minutesSinceMidnight(prayerTimings[prayerKey]);
+  const diff = targetMin - nowMin;
+
+  if(diff <= 0){
+    return 'دخل وقتها';
+  }
+  const totalMin = Math.floor(diff);
+  const h = Math.floor(totalMin/60);
+  const m = totalMin%60;
+  if(h > 0) return `باقي ${toArabicDigits(h)} س ${toArabicDigits(m)} د`;
+  return `باقي ${toArabicDigits(m)} د`;
+}
+
 function fetchPrayerTimings(){
   const method = Number(localStorage.getItem('pt_method')) || 13;
   let tune = [0,0,0,0,0,0,0,0,0];
@@ -972,11 +1002,20 @@ function renderPrayerStrip(){
   }
 
   strip.style.display = 'flex';
-  strip.innerHTML = `<span class="ps-name">وقت ${PRAYER_LABELS_AR[prayerKey]}</span><span class="ps-time">${parsePrayerClock(prayerTimings[prayerKey])}</span>`;
+  strip.innerHTML = `<span class="ps-name">وقت ${PRAYER_LABELS_AR[prayerKey]}</span><span class="ps-time">${parsePrayerClock(prayerTimings[prayerKey])}</span><span class="ps-remaining">${remainingLabel(prayerKey)}</span>`;
+}
+
+let prayerStripTimer = null;
+function startPrayerStripTimer(){
+  if(prayerStripTimer) clearInterval(prayerStripTimer);
+  prayerStripTimer = setInterval(() => {
+    if(showPrayerTimes && prayerTimings) renderPrayerStrip();
+  }, 30000);
 }
 
 if(showPrayerTimes){
   fetchPrayerTimings();
+  startPrayerStripTimer();
 }
 
 function toggleAdmin(){
