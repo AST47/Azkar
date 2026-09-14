@@ -937,20 +937,45 @@ function minutesSinceMidnight(t){
   return h*60+m;
 }
 
+const PRAYER_ORDER = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+
+function formatCountdown(diffMinutes, prefix){
+  const totalMin = Math.floor(diffMinutes);
+  const h = Math.floor(totalMin/60);
+  const m = totalMin%60;
+  if(h > 0) return `${prefix} ${toArabicDigits(h)} س ${toArabicDigits(m)} د`;
+  return `${prefix} ${toArabicDigits(m)} د`;
+}
+
 function remainingLabel(prayerKey){
   const now = new Date();
   const nowMin = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
-  const targetMin = minutesSinceMidnight(prayerTimings[prayerKey]);
-  const diff = targetMin - nowMin;
+  const startMin = minutesSinceMidnight(prayerTimings[prayerKey]);
 
-  if(diff <= 0){
-    return 'دخل وقتها';
+  if(prayerKey === 'Fajr'){
+    const sunriseMin = minutesSinceMidnight(prayerTimings.Sunrise);
+    if(nowMin < startMin){
+      return formatCountdown(startMin - nowMin, 'باقي');
+    }
+    if(nowMin >= sunriseMin){
+      return 'انتهى وقتها';
+    }
+    return 'دخل وقتها — ' + formatCountdown(sunriseMin - nowMin, 'باقي للشروق');
   }
-  const totalMin = Math.floor(diff);
-  const h = Math.floor(totalMin/60);
-  const m = totalMin%60;
-  if(h > 0) return `باقي ${toArabicDigits(h)} س ${toArabicDigits(m)} د`;
-  return `باقي ${toArabicDigits(m)} د`;
+
+  if(nowMin < startMin){
+    return formatCountdown(startMin - nowMin, 'باقي');
+  }
+
+  const idx = PRAYER_ORDER.indexOf(prayerKey);
+  const nextKey = PRAYER_ORDER[idx + 1];
+  if(nextKey){
+    const endMin = minutesSinceMidnight(prayerTimings[nextKey]);
+    if(nowMin >= endMin){
+      return 'انتهى وقتها';
+    }
+  }
+  return 'دخل وقتها';
 }
 
 function fetchPrayerTimings(){
