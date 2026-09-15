@@ -319,7 +319,7 @@ section{margin-bottom:26px;}
     <div class="grid5" id="azkarTimesGrid" style="margin-top:10px;"></div>
   </section>
 
-  <div class="reset-note">البوكسات بترجع فاضية تلقائياً مع أذان الفجر (مش الساعة ١٢)</div>
+  <div class="reset-note">البوكسات بترجع فاضية تلقائياً مع أذان الفجر</div>
 
   <footer class="app-footer">
     <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
@@ -366,11 +366,11 @@ const AZKAR_CATEGORIES = [
 ];
 
 const AZKAR_TIMES = [
-  {id:'subhanallah', label:'سبحان الله ×١٠٠'},
+  {id:'subhanallah', label:'×١٠٠ سبحان'},
   {id:'t1', label:'المجموعة الأولى'},
   {id:'t2', label:'المجموعة الثانية'},
   {id:'t3', label:'المجموعة الثالثة'},
-  {id:'lahawla', label:'لا حول ولا قوة إلا بالله ×١٠٠'}
+  {id:'lahawla', label:'×١٠٠ لاحول'}
 ];
 
 let fajrMinutesToday = null; // null until fetched — falls back to midnight boundary
@@ -382,9 +382,10 @@ function dayKeyFor(d){
 function trackerDate(){
   const now = new Date();
   const nowMin = now.getHours()*60 + now.getMinutes();
+  const boundary = (fajrMinutesToday != null) ? fajrMinutesToday : 180; // fallback: 3:00 AM if Fajr time isn't available yet
   const d = new Date(now);
-  if(fajrMinutesToday != null && nowMin < fajrMinutesToday){
-    d.setDate(d.getDate() - 1); // before today's Fajr — still counts as yesterday's tracking day
+  if(nowMin < boundary){
+    d.setDate(d.getDate() - 1); // before the boundary — still counts as yesterday's tracking day
   }
   return d;
 }
