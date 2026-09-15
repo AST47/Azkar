@@ -319,7 +319,7 @@ section{margin-bottom:26px;}
     <div class="grid5" id="azkarTimesGrid" style="margin-top:10px;"></div>
   </section>
 
-  <div class="reset-note">البوكسات بترجع فاضية تلقائياً كل يوم جديد</div>
+  <div class="reset-note">البوكسات بترجع فاضية تلقائياً مع أذان الفجر (مش الساعة ١٢)</div>
 
   <footer class="app-footer">
     <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
@@ -332,7 +332,7 @@ section{margin-bottom:26px;}
   <div class="modal">
     <h3>عن هالصفحة</h3>
     <p class="info-about">
-      صفحة المتابعة اليومية، جزء من مشروع <a class="info-link" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">أحمد صالح تفاحة</a> للأذكار والأدعية. بتساعدك تتابع وردك اليومي من القرآن والصلوات والأذكار، وبترجع فاضية تلقائياً كل يوم جديد.
+      صفحة المتابعة اليومية، جزء من مشروع <a class="info-link" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">أحمد صالح تفاحة</a> للأذكار والأدعية. بتساعدك تتابع وردك اليومي من القرآن والصلوات والأذكار. البوكسات بترجع فاضية تلقائياً مع دخول وقت الفجر كل يوم، مش الساعة ١٢ ليلاً — يعني لو صحيت قبل الفجر، وردك من الليلة يلي فاتت بيضل موجود لحد ما يدخل الفجر.
     </p>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('infoModal')">إغلاق</button>
@@ -373,9 +373,24 @@ const AZKAR_TIMES = [
   {id:'lahawla', label:'لا حول ولا قوة إلا بالله ×١٠٠'}
 ];
 
-function todayKey(){
-  const d = new Date();
+let fajrMinutesToday = null; // null until fetched — falls back to midnight boundary
+
+function dayKeyFor(d){
   return 'tracker-' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+}
+
+function trackerDate(){
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  const d = new Date(now);
+  if(fajrMinutesToday != null && nowMin < fajrMinutesToday){
+    d.setDate(d.getDate() - 1); // before today's Fajr — still counts as yesterday's tracking day
+  }
+  return d;
+}
+
+function todayKey(){
+  return dayKeyFor(trackerDate());
 }
 
 function freshState(){
@@ -394,12 +409,7 @@ function isValidState(s){
     && hasAll(s.azkarCategories, AZKAR_CATEGORIES) && hasAll(s.azkarTimes, AZKAR_TIMES);
 }
 
-function loadState(){
-  const key = todayKey();
-  Object.keys(localStorage)
-    .filter(k => k.startsWith('tracker-') && k !== key)
-    .forEach(k => localStorage.removeItem(k));
-
+function readState(key){
   const raw = localStorage.getItem(key);
   if(raw){
     try{
@@ -410,11 +420,63 @@ function loadState(){
   return freshState();
 }
 
-function saveState(){
-  localStorage.setItem(todayKey(), JSON.stringify(state));
+function cleanupOtherKeys(keepKey){
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('tracker-') && k !== keepKey)
+    .forEach(k => localStorage.removeItem(k));
 }
 
-let state = loadState();
+function saveState(){
+  localStorage.setItem(currentKey, JSON.stringify(state));
+}
+
+// Start with a calendar-day fallback so the page is usable immediately,
+// then correct to the real Fajr-based day once prayer times load.
+let currentKey = todayKey();
+let state = readState(currentKey);
+
+function fetchFajrTime(onDone){
+  const method = Number(localStorage.getItem('pt_method')) || 13;
+  let tune = [0,0,0,0,0,0,0,0,0];
+  try{
+    const t = JSON.parse(localStorage.getItem('pt_tune') || '{}');
+    tune = [0, t.Fajr||0, t.Sunrise||0, t.Dhuhr||0, t.Asr||0, t.Maghrib||0, 0, t.Isha||0, 0];
+  }catch(e){}
+  const tuneStr = encodeURIComponent(tune.join(','));
+
+  function applyTimings(timings){
+    const clean = timings.Fajr.split(' ')[0];
+    const [h,m] = clean.split(':').map(Number);
+    fajrMinutesToday = h*60 + m;
+    onDone();
+  }
+
+  function doFetch(url){
+    fetch(url).then(r => r.json()).then(d => {
+      if(d.code === 200) applyTimings(d.data.timings);
+      else onDone();
+    }).catch(() => onDone());
+  }
+
+  const city = localStorage.getItem('pt_city');
+  const lat = localStorage.getItem('pt_lat');
+  const lon = localStorage.getItem('pt_lon');
+  const method_ = method;
+
+  if(city){
+    doFetch(`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=&method=${method_}&tune=${tuneStr}`);
+  } else if(lat && lon){
+    doFetch(`https://api.aladhan.com/v1/timings/${Math.floor(Date.now()/1000)}?latitude=${lat}&longitude=${lon}&method=${method_}&tune=${tuneStr}`);
+  } else if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos => {
+      localStorage.setItem('pt_lat', pos.coords.latitude);
+      localStorage.setItem('pt_lon', pos.coords.longitude);
+      doFetch(`https://api.aladhan.com/v1/timings/${Math.floor(Date.now()/1000)}?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&method=${method_}&tune=${tuneStr}`);
+    }, () => onDone(), {timeout:8000});
+  } else {
+    onDone();
+  }
+}
 
 function renderDate(){
   const d = new Date();
@@ -463,6 +525,16 @@ function render(){
 renderDate();
 render();
 
+fetchFajrTime(() => {
+  const correctedKey = todayKey();
+  if(correctedKey !== currentKey){
+    currentKey = correctedKey;
+    state = readState(currentKey);
+    render();
+  }
+  cleanupOtherKeys(currentKey);
+});
+
 let resetArmed = false;
 let resetTimer = null;
 const resetBtn = document.getElementById('resetBtn');
@@ -485,7 +557,7 @@ resetBtn.onclick = () => {
   resetArmed = false;
   resetBtn.classList.remove('armed');
   resetBtn.title = resetBtnOriginalTitle;
-  localStorage.removeItem(todayKey());
+  localStorage.removeItem(currentKey);
   state = freshState();
   render();
 };
