@@ -245,12 +245,61 @@ body{
   color:var(--ink-soft);
   z-index:1;
   transition:all .15s;
+  position:relative;
+}
+.timeline-done-dot{
+  position:absolute;
+  top:-2px;
+  left:-2px;
+  width:11px;
+  height:11px;
+  border-radius:50%;
+  background:var(--gold);
+  border:2px solid var(--bg);
 }
 .timeline-node.active .timeline-icon{
   background:var(--teal);
   border-color:var(--teal);
   color:#F5EDD9;
   transform:scale(1.08);
+}
+.complete-toggle-wrap{
+  display:flex;
+  justify-content:center;
+  margin:22px 0 4px;
+}
+.complete-toggle{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:var(--bg-card);
+  border:1px solid var(--gold-line);
+  border-radius:20px;
+  padding:8px 18px;
+  font-family:'Tajawal', sans-serif;
+  font-size:13.5px;
+  color:var(--ink-soft);
+  cursor:pointer;
+  transition:background .15s, border-color .15s;
+}
+.complete-toggle:hover{background:rgba(173,138,62,0.1);}
+.complete-toggle.done{background:var(--teal); border-color:var(--teal); color:#F5EDD9;}
+.complete-circle{
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  border:1.5px solid var(--gold-line);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:transparent;
+  flex-shrink:0;
+  transition:all .15s;
+}
+.complete-toggle.done .complete-circle{
+  background:#F5EDD9;
+  border-color:#F5EDD9;
+  color:var(--teal);
 }
 .timeline-label{
   font-size:12.5px;
@@ -863,6 +912,54 @@ const PRAYER_LABELS_AR = {Fajr:'الفجر', Dhuhr:'الظهر', Asr:'العصر
 let showPrayerTimes = localStorage.getItem('show_prayer_times') === '1';
 let prayerTimings = null;
 
+// ---------- Tracker sync (shared with tracker.html) ----------
+const CATEGORY_TO_TRACKER_ID = {waking:'waking', morning:'morning', noon:'noon', evening:'evening', before_sleep:'sleep'};
+const TRACKER_QURAN_IDS = ['yaseen','rahman','juz','waqiah','mulk'];
+const TRACKER_PRAYER_IDS = ['fajr','dhuhr','asr','maghrib','isha'];
+const TRACKER_AZKAR_CAT_IDS = ['waking','morning','noon','evening','sleep'];
+const TRACKER_AZKAR_TIME_IDS = ['subhanallah','t1','t2','t3','lahawla'];
+
+function freshTrackerState(){
+  const mk = ids => Object.fromEntries(ids.map(id => [id, false]));
+  return {quran: mk(TRACKER_QURAN_IDS), prayers: mk(TRACKER_PRAYER_IDS), azkarCategories: mk(TRACKER_AZKAR_CAT_IDS), azkarTimes: mk(TRACKER_AZKAR_TIME_IDS)};
+}
+
+function trackerDayKey(){
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  const boundary = (prayerTimings && prayerTimings.Fajr) ? minutesSinceMidnight(prayerTimings.Fajr) : 180; // fallback: 3:00 AM
+  const d = new Date(now);
+  if(nowMin < boundary) d.setDate(d.getDate() - 1);
+  return 'tracker-' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+}
+
+function readTrackerState(){
+  const key = trackerDayKey();
+  try{
+    const raw = localStorage.getItem(key);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(parsed && typeof parsed.azkarCategories === 'object') return {key, state: parsed};
+    }
+  }catch(e){}
+  return {key, state: freshTrackerState()};
+}
+
+function isCategoryDone(catId){
+  const trackerId = CATEGORY_TO_TRACKER_ID[catId];
+  if(!trackerId) return false;
+  const {state} = readTrackerState();
+  return !!state.azkarCategories[trackerId];
+}
+
+function toggleCategoryDone(catId){
+  const trackerId = CATEGORY_TO_TRACKER_ID[catId];
+  if(!trackerId) return;
+  const {key, state} = readTrackerState();
+  state.azkarCategories[trackerId] = !state.azkarCategories[trackerId];
+  localStorage.setItem(key, JSON.stringify(state));
+}
+
 let items = [];
 let activeCategory = 'noon';
 let isAdmin = false;
@@ -1173,7 +1270,8 @@ function renderTimeline(){
     const cat = CATEGORIES.find(c => c.id === catId);
     const node = document.createElement('button');
     node.className = 'timeline-node' + (activeCategory === catId ? ' active' : '');
-    node.innerHTML = `<span class="timeline-icon">${TIMELINE_ICONS[catId]}</span><span class="timeline-label">${cat.label}</span>`;
+    const doneDot = isCategoryDone(catId) ? '<span class="timeline-done-dot"></span>' : '';
+    node.innerHTML = `<span class="timeline-icon">${TIMELINE_ICONS[catId]}${doneDot}</span><span class="timeline-label">${cat.label}</span>`;
     node.onclick = () => { activeCategory = catId; render(); };
     wrap.appendChild(node);
 
@@ -1215,6 +1313,7 @@ function render(){
 
   if(list.length === 0 && !isAdmin){
     grid.innerHTML = '<div class="empty">لا يوجد أذكار في هذا القسم بعد</div>';
+    renderCompleteToggle();
     return;
   }
 
@@ -1328,6 +1427,34 @@ function render(){
     addCard.onclick = () => openEdit(null);
     grid.appendChild(addCard);
   }
+
+  renderCompleteToggle();
+}
+
+function renderCompleteToggle(){
+  const existing = document.getElementById('completeToggleWrap');
+  if(existing) existing.remove();
+
+  if(!TIMELINE_CATEGORIES.includes(activeCategory)) return;
+
+  const done = isCategoryDone(activeCategory);
+  const wrap = document.createElement('div');
+  wrap.id = 'completeToggleWrap';
+  wrap.className = 'complete-toggle-wrap';
+  wrap.innerHTML = `
+    <button class="complete-toggle${done ? ' done' : ''}" id="completeToggleBtn">
+      <span class="complete-circle">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </span>
+      <span>${done ? 'تمّت القراءة' : 'أتممت القراءة'}</span>
+    </button>
+  `;
+  document.getElementById('grid').insertAdjacentElement('afterend', wrap);
+
+  document.getElementById('completeToggleBtn').addEventListener('click', () => {
+    toggleCategoryDone(activeCategory);
+    render();
+  });
 }
 
 function moveItem(id, direction){
