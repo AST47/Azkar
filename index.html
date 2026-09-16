@@ -264,26 +264,31 @@ body{
   transform:scale(1.08);
 }
 .complete-toggle-wrap{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
   gap:8px;
-  margin:22px 0 4px;
+  margin:22px auto 4px;
+  max-width:640px;
+}
+@media (max-width:480px){
+  .complete-toggle-wrap{ grid-template-columns:1fr; }
 }
 .complete-toggle{
   display:flex;
   align-items:center;
   justify-content:center;
   gap:8px;
-  min-width:200px;
+  width:100%;
+  box-sizing:border-box;
   background:var(--bg-card);
   border:1px solid var(--gold-line);
   border-radius:20px;
-  padding:8px 18px;
+  padding:8px 14px;
   font-family:'Tajawal', sans-serif;
   font-size:13.5px;
   color:var(--ink-soft);
   cursor:pointer;
+  text-align:center;
   transition:background .15s, border-color .15s;
 }
 .complete-toggle:hover{background:rgba(173,138,62,0.1);}
@@ -981,18 +986,22 @@ function togglePrayerDone(catId){
   localStorage.setItem(key, JSON.stringify(state));
 }
 
-// Tentative: linked to "جزء اليوم" (today's generic portion) since it's the one Quran
-// item in the tracker with no fixed time-of-day — open to changing this mapping.
-const QURAN_WIRD_ID = 'juz';
+// Each time-of-day category maps to its own Quran item, matching traditional recitation times.
+const QURAN_ID_BY_CATEGORY = {waking:'juz', morning:'yaseen', noon:'rahman', evening:'waqiah', before_sleep:'mulk'};
+const QURAN_LABEL_BY_CATEGORY = {waking:'الورد', morning:'يس', noon:'الرحمن', evening:'الواقعة', before_sleep:'الملك'};
 
-function isQuranDone(){
+function isQuranDone(catId){
+  const quranId = QURAN_ID_BY_CATEGORY[catId];
+  if(!quranId) return false;
   const {state} = readTrackerState();
-  return !!state.quran[QURAN_WIRD_ID];
+  return !!state.quran[quranId];
 }
 
-function toggleQuranDone(){
+function toggleQuranDone(catId){
+  const quranId = QURAN_ID_BY_CATEGORY[catId];
+  if(!quranId) return;
   const {key, state} = readTrackerState();
-  state.quran[QURAN_WIRD_ID] = !state.quran[QURAN_WIRD_ID];
+  state.quran[quranId] = !state.quran[quranId];
   localStorage.setItem(key, JSON.stringify(state));
 }
 
@@ -1476,10 +1485,11 @@ function renderCompleteToggle(){
   const prayerId = CATEGORY_PRAYER_MAP[activeCategory];
   const prayerName = PRAYER_LABELS_AR[prayerId];
 
+  const quranLabel = QURAN_LABEL_BY_CATEGORY[activeCategory];
   const rows = [
     {done: isPrayerDone(activeCategory), label: `صليت ${prayerName}`, doneLabel: `صليت ${prayerName}`, onToggle: () => togglePrayerDone(activeCategory)},
     {done: isCategoryDone(activeCategory), label: 'أتممت الأذكار', doneLabel: 'أتممت الأذكار', onToggle: () => toggleCategoryDone(activeCategory)},
-    {done: isQuranDone(), label: 'قرأت الورد', doneLabel: 'قرأت الورد', onToggle: () => toggleQuranDone()},
+    {done: isQuranDone(activeCategory), label: `قرأت ${quranLabel}`, doneLabel: `قرأت ${quranLabel}`, onToggle: () => toggleQuranDone(activeCategory)},
   ];
 
   const wrap = document.createElement('div');
