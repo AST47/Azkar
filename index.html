@@ -265,13 +265,17 @@ body{
 }
 .complete-toggle-wrap{
   display:flex;
-  justify-content:center;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
   margin:22px 0 4px;
 }
 .complete-toggle{
   display:flex;
   align-items:center;
+  justify-content:center;
   gap:8px;
+  min-width:200px;
   background:var(--bg-card);
   border:1px solid var(--gold-line);
   border-radius:20px;
@@ -960,6 +964,38 @@ function toggleCategoryDone(catId){
   localStorage.setItem(key, JSON.stringify(state));
 }
 
+const CATEGORY_TO_TRACKER_PRAYER_ID = {waking:'fajr', morning:'dhuhr', noon:'asr', evening:'maghrib', before_sleep:'isha'};
+
+function isPrayerDone(catId){
+  const prayerId = CATEGORY_TO_TRACKER_PRAYER_ID[catId];
+  if(!prayerId) return false;
+  const {state} = readTrackerState();
+  return !!state.prayers[prayerId];
+}
+
+function togglePrayerDone(catId){
+  const prayerId = CATEGORY_TO_TRACKER_PRAYER_ID[catId];
+  if(!prayerId) return;
+  const {key, state} = readTrackerState();
+  state.prayers[prayerId] = !state.prayers[prayerId];
+  localStorage.setItem(key, JSON.stringify(state));
+}
+
+// Tentative: linked to "جزء اليوم" (today's generic portion) since it's the one Quran
+// item in the tracker with no fixed time-of-day — open to changing this mapping.
+const QURAN_WIRD_ID = 'juz';
+
+function isQuranDone(){
+  const {state} = readTrackerState();
+  return !!state.quran[QURAN_WIRD_ID];
+}
+
+function toggleQuranDone(){
+  const {key, state} = readTrackerState();
+  state.quran[QURAN_WIRD_ID] = !state.quran[QURAN_WIRD_ID];
+  localStorage.setItem(key, JSON.stringify(state));
+}
+
 let items = [];
 let activeCategory = 'noon';
 let isAdmin = false;
@@ -1437,23 +1473,33 @@ function renderCompleteToggle(){
 
   if(!TIMELINE_CATEGORIES.includes(activeCategory)) return;
 
-  const done = isCategoryDone(activeCategory);
+  const prayerId = CATEGORY_PRAYER_MAP[activeCategory];
+  const prayerName = PRAYER_LABELS_AR[prayerId];
+
+  const rows = [
+    {done: isPrayerDone(activeCategory), label: `صليت ${prayerName}`, doneLabel: `صليت ${prayerName}`, onToggle: () => togglePrayerDone(activeCategory)},
+    {done: isCategoryDone(activeCategory), label: 'أتممت الأذكار', doneLabel: 'أتممت الأذكار', onToggle: () => toggleCategoryDone(activeCategory)},
+    {done: isQuranDone(), label: 'قرأت الورد', doneLabel: 'قرأت الورد', onToggle: () => toggleQuranDone()},
+  ];
+
   const wrap = document.createElement('div');
   wrap.id = 'completeToggleWrap';
   wrap.className = 'complete-toggle-wrap';
-  wrap.innerHTML = `
-    <button class="complete-toggle${done ? ' done' : ''}" id="completeToggleBtn">
+  wrap.innerHTML = rows.map((r, i) => `
+    <button class="complete-toggle${r.done ? ' done' : ''}" data-idx="${i}">
       <span class="complete-circle">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
       </span>
-      <span>${done ? 'تمّت القراءة' : 'أتممت القراءة'}</span>
+      <span>${r.done ? r.doneLabel : r.label}</span>
     </button>
-  `;
+  `).join('');
   document.getElementById('grid').insertAdjacentElement('afterend', wrap);
 
-  document.getElementById('completeToggleBtn').addEventListener('click', () => {
-    toggleCategoryDone(activeCategory);
-    render();
+  wrap.querySelectorAll('.complete-toggle').forEach((btn, i) => {
+    btn.addEventListener('click', () => {
+      rows[i].onToggle();
+      render();
+    });
   });
 }
 
