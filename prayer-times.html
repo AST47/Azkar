@@ -61,6 +61,32 @@
 
   .brand{display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto; overflow:hidden;}
   .header-actions{display:flex; align-items:center; gap:8px; flex:0 0 auto;}
+  .pages-menu{position:relative;}
+  .pages-dropdown{
+    position:absolute; top:calc(100% + 8px); left:0;
+    background:var(--bg-card); border:1px solid var(--gold-line);
+    border-radius:12px; padding:6px; min-width:190px;
+    box-shadow:0 10px 26px rgba(43,33,24,0.18);
+    display:none; flex-direction:column; gap:2px; z-index:70;
+  }
+  .pages-dropdown.open{display:flex;}
+  .bottom-bar{
+  display:flex; align-items:center; justify-content:center; gap:14px;
+  max-width:480px; margin:36px auto 0; padding-top:16px;
+  border-top:1px solid var(--gold-line);
+}
+.pages-divider{height:1px; background:var(--gold-line); margin:4px 6px;}
+.pages-item{
+  width:100%; border:none; background:none; cursor:pointer; text-align:right;
+    display:flex; align-items:center; gap:10px;
+    padding:9px 12px; border-radius:8px;
+    font-family:'Tajawal', sans-serif; font-size:13.5px; color:var(--ink);
+    text-decoration:none; transition:background .15s;
+  }
+  .pages-item:hover{background:rgba(173,138,62,0.1);}
+  .pages-item svg{flex-shrink:0; color:var(--ink-soft);}
+.pages-item.spinning svg{animation:spin .8s linear infinite;}
+.pages-item.armed{background:rgba(122,46,46,0.1); color:#7A2E2E;}
 
   .header-btn{
     width:34px;
@@ -82,6 +108,9 @@
   @keyframes spin{to{transform:rotate(360deg);}}
 
   .brand svg{flex-shrink:0;}
+  .brand svg a{cursor:pointer;}
+  .brand svg a circle:last-child{transition:opacity .15s;}
+  .brand svg a:hover circle:last-child{opacity:.7;}
   .brand h1{
     font-family:'Reem Kufi', sans-serif;
     font-weight:700;
@@ -476,28 +505,44 @@
     <div class="brand">
       <svg width="30" height="30" viewBox="0 0 34 34">
         <circle cx="17" cy="17" r="15.5" fill="none" stroke="#AD8A3E" stroke-width="1.3"/>
-        <circle cx="17" cy="6" r="2.4" fill="#1F5C4E"/>
-        <circle cx="26.7" cy="12" r="1.9" fill="#AD8A3E"/>
-        <circle cx="26.7" cy="22" r="1.9" fill="#AD8A3E"/>
-        <circle cx="17" cy="28" r="1.9" fill="#AD8A3E"/>
-        <circle cx="7.3" cy="22" r="1.9" fill="#AD8A3E"/>
-        <circle cx="7.3" cy="12" r="1.9" fill="#AD8A3E"/>
+        <a href="index.html"><circle cx="17" cy="6" r="6" fill="transparent"/><circle cx="17" cy="6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="tracker.html"><circle cx="27.5" cy="13.6" r="6" fill="transparent"/><circle cx="27.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="prayer-times.html"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="2.4" fill="#1F5C4E"/></a>
+        <a href="counter.html"><circle cx="23.5" cy="25.9" r="6" fill="transparent"/><circle cx="23.5" cy="25.9" r="1.9" fill="#AD8A3E"/></a>
+        <circle cx="10.5" cy="25.9" r="1.9" fill="#AD8A3E" opacity="0.35"/>
       </svg>
       <h1>أوقات الصلاة</h1>
     </div>
     <div class="header-actions">
-      <a href="index.html" class="header-btn" title="رجوع للأذكار">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
-      </a>
-      <a href="tracker.html" class="header-btn" title="المتابعة اليومية">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/><path d="M8.5 14.5l2 2 4-4"/></svg>
-      </a>
-      <button id="locateBtn" class="header-btn" title="تغيير الموقع">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
-      </button>
-      <button id="infoBtn" class="header-btn" title="عن الصفحة">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="currentColor" stroke="none"/></svg>
-      </button>
+      <div class="pages-menu">
+        <button id="pagesBtn" class="header-btn" title="القائمة">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
+        </button>
+        <div class="pages-dropdown" id="pagesDropdown">
+          <button id="locateBtn" class="pages-item" title="تغيير الموقع">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+            تغيير الموقع
+          </button>
+          <div class="pages-divider"></div>
+          <a href="index.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.6-1.3-3.6-2-6-2v12c2.4 0 4.4.7 6 2 1.6-1.3 3.6-2 6-2v-12c-2.4 0-4.4.7-6 2z"/><path d="M12 6.5v12"/></svg>
+            الأذكار
+          </a>
+          <a href="tracker.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/><path d="M8.5 14.5l2 2 4-4"/></svg>
+            المتابعة اليومية
+          </a>
+          <a href="counter.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            عدّادة الذكر
+          </a>
+          <div class="pages-divider"></div>
+          <button id="infoBtn" class="pages-item" title="عن الصفحة">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="currentColor" stroke="none"/></svg>
+            عن الصفحة
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -528,6 +573,21 @@
       </label>
     </div>
   </details>
+
+  <nav class="bottom-bar">
+    <a href="index.html" class="header-btn" title="الأذكار">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.6-1.3-3.6-2-6-2v12c2.4 0 4.4.7 6 2 1.6-1.3 3.6-2 6-2v-12c-2.4 0-4.4.7-6 2z"/><path d="M12 6.5v12"/></svg>
+    </a>
+    <a href="tracker.html" class="header-btn" title="المتابعة اليومية">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/><path d="M8.5 14.5l2 2 4-4"/></svg>
+    </a>
+    <a href="prayer-times.html" class="header-btn active" title="أوقات الصلاة">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M3 12h2.2M18.8 12H21M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="counter.html" class="header-btn" title="عدّادة الذكر">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </nav>
 
   <footer class="app-footer">
     <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
@@ -916,6 +976,15 @@
   document.getElementById('infoBtn').addEventListener('click', () => {
     document.getElementById('infoModal').classList.add('open');
   });
+
+  document.getElementById('pagesBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('pagesDropdown').classList.toggle('open');
+  });
+  document.addEventListener('click', () => {
+    document.getElementById('pagesDropdown').classList.remove('open');
+  });
+  document.getElementById('pagesDropdown').addEventListener('click', e => e.stopPropagation());
 
   const showInAzkarCheckbox = document.getElementById('showInAzkarCheckbox');
   showInAzkarCheckbox.checked = localStorage.getItem('show_prayer_times') === '1';

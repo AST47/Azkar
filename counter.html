@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1F5C4E">
+<title>عدّادة الذكر</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap');
+
+:root{
+  --bg:#F2E8D5;
+  --bg-card:#FBF5E8;
+  --ink:#2B2118;
+  --ink-soft:#6B5A45;
+  --teal:#1F5C4E;
+  --teal-dark:#123B31;
+  --gold:#AD8A3E;
+  --gold-soft:#DCC08A;
+  --gold-line: rgba(173,138,62,0.35);
+  --panel:#FBF5E8;
+  --line: rgba(173,138,62,0.35);
+  --parchment-deep:#E8DEC8;
+  --teal-soft:#4d8b83;
+  --leaf:#3f7a52;
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(173,138,62,0.07) 1px, transparent 0);
+  background-size: 18px 18px;
+  color:var(--ink);
+  font-family:'Tajawal', sans-serif;
+  min-height:100vh;
+  padding:28px 20px 60px;
+}
+
+.app{max-width:480px; margin:0 auto;}
+
+.app-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:nowrap;
+  max-width:480px;
+  margin:0 auto 14px;
+}
+.brand{display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto; overflow:hidden;}
+.header-actions{display:flex; align-items:center; gap:8px; flex:0 0 auto;}
+.pages-menu{position:relative;}
+.pages-dropdown{
+  position:absolute; top:calc(100% + 8px); left:0;
+  background:var(--bg-card); border:1px solid var(--gold-line);
+  border-radius:12px; padding:6px; min-width:190px;
+  box-shadow:0 10px 26px rgba(43,33,24,0.18);
+  display:none; flex-direction:column; gap:2px; z-index:70;
+}
+.pages-dropdown.open{display:flex;}
+.bottom-bar{
+  display:flex; align-items:center; justify-content:center; gap:14px;
+  max-width:480px; margin:36px auto 0; padding-top:16px;
+  border-top:1px solid var(--gold-line);
+}
+.pages-divider{height:1px; background:var(--gold-line); margin:4px 6px;}
+.pages-item{
+  width:100%; border:none; background:none; cursor:pointer; text-align:right;
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:8px;
+  font-family:'Tajawal', sans-serif; font-size:13.5px; color:var(--ink);
+  text-decoration:none; transition:background .15s;
+}
+.pages-item:hover{background:rgba(173,138,62,0.1);}
+.pages-item svg{flex-shrink:0; color:var(--ink-soft);}
+.pages-item.spinning svg{animation:spin .8s linear infinite;}
+.pages-item.armed{background:rgba(122,46,46,0.1); color:#7A2E2E;}
+.header-btn{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--bg-card);
+  border:1px solid var(--gold-line);
+  color:var(--ink-soft);
+  cursor:pointer;
+  text-decoration:none;
+  transition:background .15s, transform .3s;
+}
+.header-btn:hover{background:rgba(173,138,62,0.1);}
+.header-btn.spinning svg{animation:spin .8s linear infinite;}
+.header-btn.active{background:var(--teal); border-color:var(--teal); color:#F5EDD9;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.modal-overlay{
+  position:fixed; inset:0;
+  background:rgba(43,33,24,0.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:50;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--bg-card);
+  border-radius:12px;
+  padding:24px;
+  width:100%;
+  max-width:440px;
+  border:1px solid var(--gold-line);
+}
+.modal h3{
+  font-family:'Reem Kufi', sans-serif;
+  margin:0 0 16px;
+  color:var(--teal-dark);
+  font-size:18px;
+}
+.info-about{
+  font-size:14px;
+  line-height:1.8;
+  color:var(--ink-soft);
+  margin:0;
+}
+.info-link{
+  color:var(--teal-dark);
+  text-decoration:none;
+  border-bottom:1px solid var(--gold-line);
+}
+.info-link:hover{border-color:var(--teal);}
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:20px;
+}
+.btn{
+  font-family:'Tajawal', sans-serif;
+  font-size:14px;
+  padding:9px 18px;
+  border-radius:8px;
+  border:1px solid var(--gold-line);
+  background:transparent;
+  color:var(--ink-soft);
+  cursor:pointer;
+}
+.brand svg{flex-shrink:0;}
+.brand svg a{cursor:pointer;}
+.brand svg a circle:last-child{transition:opacity .15s;}
+.brand svg a:hover circle:last-child{opacity:.7;}
+.brand h1{
+  font-family:'Reem Kufi', sans-serif;
+  font-weight:700;
+  font-size:clamp(11px, 5.5vw, 26px);
+  margin:0;
+  color:var(--teal-dark);
+  letter-spacing:0.5px;
+  white-space:nowrap;
+  overflow:hidden;
+  min-width:0;
+}
+
+.ornament{
+  height:14px;
+  max-width:480px;
+  margin:6px auto 22px;
+  background-image: repeating-linear-gradient(45deg, var(--gold-soft) 0 3px, transparent 3px 9px);
+  opacity:0.55;
+  mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+}
+
+.app-footer{
+  max-width:480px;
+  margin:50px auto 0;
+  padding-top:18px;
+  border-top:1px solid var(--gold-line);
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  font-size:12.5px;
+  color:var(--ink-soft);
+}
+.footer-name{
+  justify-self:start;
+  font-family:'Tajawal', sans-serif;
+  color:var(--ink-soft);
+  text-decoration:none;
+  border-bottom:1px solid var(--gold-line);
+  padding-bottom:1px;
+}
+.footer-name:hover{color:var(--teal-dark); border-color:var(--teal);}
+.footer-link{
+  justify-self:end;
+  font-family:'Tajawal', sans-serif;
+  color:var(--ink-soft);
+  text-decoration:none;
+  border-bottom:1px solid var(--gold-line);
+  padding-bottom:1px;
+  direction:ltr;
+}
+.footer-link:hover{color:var(--teal-dark); border-color:var(--teal);}
+.footer-trigger{
+  justify-self:center;
+  color:var(--gold-line);
+  font-size:13px;
+  cursor:default;
+  user-select:none;
+}
+.footer-trigger.active{color:var(--teal);}
+
+/* ---------- Counter widget (page-specific) ---------- */
+.counter-header{ text-align:center; display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:20px; }
+.preset-select{
+  appearance:none; font-family:'Tajawal', sans-serif; font-size:13px; color:var(--ink-soft);
+  background:var(--parchment-deep); border:1px solid var(--line); border-radius:999px;
+  padding:6px 14px; cursor:pointer;
+}
+.preset-select:focus{ outline:1.5px solid var(--teal-soft); }
+.dhikr-text{ font-size:clamp(15px, 4vw, 19px); color:var(--ink-soft); margin:0; font-family:'Amiri', serif; }
+.tracked-note{ font-size:12px; color:var(--teal-soft); margin:0; min-height:15px; }
+
+.counter-main{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; padding: 10px 0 26px; }
+
+.dial{ position:relative; width:min(64vw, 300px); height:min(64vw, 300px); display:flex; align-items:center; justify-content:center; margin:0 auto; }
+.dial svg{ position:absolute; inset:0; width:100%; height:100%; transform:rotate(-90deg); }
+.dial circle{ fill:none; stroke-width:10; }
+.dial .track{ stroke:var(--line); }
+.dial .base{ fill:none; stroke-width:10; stroke:transparent; }
+.dial .progress{ stroke:var(--teal-soft); stroke-linecap:round; transition:stroke-dashoffset .35s ease; }
+
+.tap{
+  position:relative; width:78%; height:78%; border-radius:50%;
+  background:var(--panel); border:1px solid var(--line);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; user-select:none;
+  transition:transform .08s ease, background .3s ease, border-color .3s ease;
+  box-shadow:0 1px 0 rgba(43,33,24,0.04) inset;
+}
+.tap:active{ transform:scale(0.96); }
+.count{ font-size:clamp(48px, 15vw, 72px); font-weight:700; line-height:1; color:var(--ink); font-variant-numeric:tabular-nums; }
+.of-target{ margin-top:8px; font-size:clamp(13px, 3.6vw, 15px); color:var(--ink-soft); }
+
+.hint{ font-size:13px; color:var(--ink-soft); text-align:center; min-height:18px; }
+
+.controls{ width:100%; max-width:420px; margin:0 auto; display:flex; flex-direction:column; align-items:center; gap:16px; }
+.targets{ display:flex; gap:8px; background:var(--parchment-deep); padding:4px; border-radius:999px; border:1px solid var(--line); }
+.targets button{
+  appearance:none; border:none; background:transparent; padding:8px 20px; border-radius:999px;
+  font-family:inherit; font-size:14px; color:var(--ink-soft); cursor:pointer;
+  transition:background .2s ease, color .2s ease;
+}
+.targets button.active{ background:var(--teal); color:#fbf8ee; }
+.targets.locked button{ pointer-events:none; opacity:.5; }
+.targets.locked button.active{ opacity:1; }
+
+.row{ display:flex; align-items:center; justify-content:center; gap:22px; }
+.textbtn{
+  appearance:none; background:none; border:none; font-family:inherit; font-size:14px;
+  color:var(--ink-soft); cursor:pointer; padding:6px 4px; border-bottom:1px solid transparent;
+}
+.textbtn:hover{ border-bottom-color:var(--line); }
+
+.toggle{ display:flex; align-items:center; gap:8px; font-size:14px; color:var(--ink-soft); cursor:pointer; }
+.switch{ width:38px; height:22px; border-radius:999px; background:var(--line); position:relative; transition:background .2s ease; flex-shrink:0; }
+.switch::after{
+  content:""; position:absolute; top:2px; inset-inline-start:2px; width:18px; height:18px;
+  border-radius:50%; background:#fff; transition:inset-inline-start .2s ease;
+}
+.toggle.on .switch{ background:var(--teal-soft); }
+.toggle.on .switch::after{ inset-inline-start:18px; }
+
+@media (prefers-reduced-motion: reduce){
+  .tap, .dial .progress, .switch, .switch::after{ transition:none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="app-header">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 34 34">
+        <circle cx="17" cy="17" r="15.5" fill="none" stroke="#AD8A3E" stroke-width="1.3"/>
+        <a href="index.html"><circle cx="17" cy="6" r="6" fill="transparent"/><circle cx="17" cy="6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="tracker.html"><circle cx="27.5" cy="13.6" r="6" fill="transparent"/><circle cx="27.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="prayer-times.html"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="counter.html"><circle cx="23.5" cy="25.9" r="6" fill="transparent"/><circle cx="23.5" cy="25.9" r="2.4" fill="#1F5C4E"/></a>
+        <circle cx="10.5" cy="25.9" r="1.9" fill="#AD8A3E" opacity="0.35"/>
+      </svg>
+      <h1>عدّادة الذكر</h1>
+    </div>
+    <div class="header-actions">
+      <div class="pages-menu">
+        <button id="pagesBtn" class="header-btn" title="القائمة">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
+        </button>
+        <div class="pages-dropdown" id="pagesDropdown">
+          <button id="resetBtn" class="pages-item" title="تصفير العداد">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+            تصفير العداد
+          </button>
+          <div class="pages-divider"></div>
+          <a href="index.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.6-1.3-3.6-2-6-2v12c2.4 0 4.4.7 6 2 1.6-1.3 3.6-2 6-2v-12c-2.4 0-4.4.7-6 2z"/><path d="M12 6.5v12"/></svg>
+            الأذكار
+          </a>
+          <a href="tracker.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/><path d="M8.5 14.5l2 2 4-4"/></svg>
+            المتابعة اليومية
+          </a>
+          <a href="prayer-times.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M3 12h2.2M18.8 12H21M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke-linecap="round"/></svg>
+            أوقات الصلاة
+          </a>
+          <div class="pages-divider"></div>
+          <button id="infoBtn" class="pages-item" title="عن الصفحة">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="currentColor" stroke="none"/></svg>
+            عن الصفحة
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="ornament"></div>
+
+  <header class="counter-header">
+    <select class="preset-select" id="presetSelect">
+      <option value="">عدّاد حر</option>
+      <option value="salawat">الصلاة على النبي</option>
+      <option value="subhanallah-azeem">سبحان الله العظيم وبحمده</option>
+      <option value="lahawla">لا حول ولا قوة إلا بالله</option>
+      <option value="istighfar1">استغفار</option>
+      <option value="la-ilaha-illa-anta">لا إله إلا أنت سبحانك</option>
+      <option value="la-ilaha-illa-allah">لا إله إلا الله وحده</option>
+      <option value="taysir">اللهم لا سهل إلا ما جعلته سهلًا</option>
+      <option value="tawakkul">اللهم إني وكّلتك أمري</option>
+      <option value="hawl-quwwa">اللهم أخرجني من حولي إلى حولك</option>
+      <option value="kifaya">اللهم اكفنيهم بما شئت</option>
+      <option value="sayyid-istighfar">سيد الاستغفار</option>
+      <option value="rizq">اللهم افتح لي أبواب رحمتك</option>
+      <option value="istighna">اللهم اكفني بحلالك عن حرامك</option>
+      <option value="hirman-masiya">اللهم احرمني لذة معصيتك</option>
+      <option value="naariya">الصلاة النارية</option>
+    </select>
+    <p class="dhikr-text" id="dhikrText"></p>
+    <p class="tracked-note" id="trackedNote"></p>
+  </header>
+
+  <main class="counter-main">
+    <div class="dial" id="dial">
+      <svg viewBox="0 0 120 120">
+        <circle class="track" cx="60" cy="60" r="52"></circle>
+        <circle class="base" id="baseRing" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="0"></circle>
+        <circle class="progress" id="progressRing" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"></circle>
+      </svg>
+      <div class="tap" id="tap">
+        <div class="count" id="count">٠</div>
+        <div class="of-target" id="ofTarget">من ٣٣</div>
+      </div>
+    </div>
+    <p class="hint" id="hint">اضغط الدائرة لتبدأ</p>
+  </main>
+
+  <div class="controls">
+    <div class="targets" id="targets">
+      <button data-target="10">١٠</button>
+      <button data-target="33" class="active">٣٣</button>
+      <button data-target="100">١٠٠</button>
+    </div>
+    <div class="row">
+      <label class="toggle on" id="vibToggle">
+        <span>الاهتزاز</span>
+        <span class="switch"></span>
+      </label>
+    </div>
+  </div>
+
+  <nav class="bottom-bar">
+    <a href="index.html" class="header-btn" title="الأذكار">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.6-1.3-3.6-2-6-2v12c2.4 0 4.4.7 6 2 1.6-1.3 3.6-2 6-2v-12c-2.4 0-4.4.7-6 2z"/><path d="M12 6.5v12"/></svg>
+    </a>
+    <a href="tracker.html" class="header-btn" title="المتابعة اليومية">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/><path d="M8.5 14.5l2 2 4-4"/></svg>
+    </a>
+    <a href="prayer-times.html" class="header-btn" title="أوقات الصلاة">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M3 12h2.2M18.8 12H21M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="counter.html" class="header-btn active" title="عدّادة الذكر">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </nav>
+
+  <footer class="app-footer">
+    <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
+    <span class="footer-trigger">❖</span>
+    <a class="footer-link" href="https://ast47.github.io/ahmadsalehtuffaha/" target="_blank" rel="noopener">Portfolio</a>
+  </footer>
+</div>
+
+<div class="modal-overlay" id="infoModal">
+  <div class="modal">
+    <h3>عن هالصفحة</h3>
+    <p class="info-about">
+      عدّادة الذكر، جزء من مشروع <a class="info-link" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">أحمد صالح تفاحة</a> للأذكار والأدعية. عدّاد حر بأي هدف تختاره، أو أذكار محدّدة بعدد تكرار ثابت — وإذا اخترت ذكر مربوط بالمتابعة اليومية (زي لا حول ولا قوة إلا بالله)، بينحط صح عندها تلقائياً أول ما توصل للعدد.
+    </p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('infoModal')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+  function toArabicNumber(n){
+    return String(n).split('').map(ch => /[0-9]/.test(ch) ? arabicDigits[ch] : ch).join('');
+  }
+
+  const state = {
+    count: parseInt(localStorage.getItem('dhikr_count') || '0', 10),
+    target: parseInt(localStorage.getItem('dhikr_target') || '33', 10),
+    vibrate: localStorage.getItem('dhikr_vibrate') !== 'off',
+    preset: localStorage.getItem('dhikr_preset') || ''
+  };
+
+  const PRESETS = {
+    '': { text: '' },
+    'salawat': { text: 'اللهم صلِّ وسلّم وبارك، على سيّدنا محمّد وصحبه وآله', target: 100 },
+    'subhanallah-azeem': { text: 'سبحان الله العظيم وبحمده', target: 100 },
+    'lahawla': { text: 'لا حول ولا قوة إلا بالله', target: 100, trackerKey: 'lahawla' },
+    'istighfar1': { text: 'أستغفر الله العظيم، من كل ذنب قد فعلت، يا ليتني ما فعلت، لم أعد أفعل', target: 10 },
+    'la-ilaha-illa-anta': { text: 'لا إله إلا أنت سبحانك، إني كنت من الظالمين، وأنت أرحم الراحمين', target: 10 },
+    'la-ilaha-illa-allah': { text: 'لا إله إلا الله وحده لا شريك له، له الملك، وله الحمد، وهو يُحيي ويُميت، وهو على كل شيء قدير', target: 10 },
+    'taysir': { text: 'اللهم لا سهل إلا ما جعلته سهلًا، وأنت تجعل الحزن إذا شئت سهلًا', target: 10 },
+    'tawakkul': { text: 'اللهم إني وكّلتك أمري، واستودعتك همّي، فبشّرني بما يفتح مداخل السعادة إلى قلبي', target: 10 },
+    'hawl-quwwa': { text: 'اللهم أخرجني من حولي إلى حولك، ومن عزمي إلى عزمك، ومن ضيق اختياري إلى براح إرادتك، ومن ضعفي إلى قوّتك، ومن انكساري إلى عزّتك، يا عزيز يا ذا القوّة المتين', target: 10 },
+    'kifaya': { text: 'اللهمّ اكفتهيم بما شئت، وكيف شئت، إنّك على ما تشاء قدير', target: 10 },
+    'sayyid-istighfar': { text: 'اللّهمّ أنت ربّي، لا إله إلّا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شرّ ما صنعت، أبوء لك بنعمتك عليّ، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت', target: 10 },
+    'rizq': { text: 'اللّهمّ افتح لي أبواب رحمتك، وارزقني بفضلك، رزقًا حلالًا طيّبًا مباركًا يا رب العالمين', target: 10 },
+    'istighna': { text: 'اللّهمّ اكفني بحلالك عن حرامك، واشغلني بطاعتك عن معصيتك، وأغنني بفضلك عمّن سواك', target: 10 },
+    'hirman-masiya': { text: 'اللهم احرمني لذّة معصيتك، وارزقني لذّة طاعتك', target: 10 },
+    'naariya': { text: 'اللهم صلِّ صلاةً كاملةً وسلِّم سلاماً تاماً على سيدنا محمد الذي تنحل به العقد وتنفرج به الكرب وتقضى به الحوائج وتنال به الرغائب وحسن الخواتيم ويستسقى الغمام بوجهه الكريم وعلى آله وصحبه وسلم' }
+  };
+
+  const countEl = document.getElementById('count');
+  const ofTargetEl = document.getElementById('ofTarget');
+  const baseRingEl = document.getElementById('baseRing');
+  const progressRingEl = document.getElementById('progressRing');
+  const tapEl = document.getElementById('tap');
+  const hintEl = document.getElementById('hint');
+  const targetsEl = document.getElementById('targets');
+  const resetBtn = document.getElementById('resetBtn');
+  const vibToggle = document.getElementById('vibToggle');
+  const presetSelectEl = document.getElementById('presetSelect');
+  const dhikrTextEl = document.getElementById('dhikrText');
+  const trackedNoteEl = document.getElementById('trackedNote');
+
+  const CIRC = 326.7;
+
+  // ---------- Shared tracker bridge (same localStorage schema as tracker.html) ----------
+  const TRACKER_QURAN_IDS = ['yaseen','rahman','juz','waqiah','mulk'];
+  const TRACKER_PRAYER_IDS = ['fajr','dhuhr','asr','maghrib','isha'];
+  const TRACKER_AZKAR_CAT_IDS = ['waking','morning','noon','evening','sleep'];
+  const TRACKER_AZKAR_TIME_IDS = ['subhanallah','t1','t2','t3','lahawla'];
+
+  function freshTrackerState(){
+    const mk = ids => Object.fromEntries(ids.map(id => [id, false]));
+    return {
+      quran: mk(TRACKER_QURAN_IDS),
+      prayers: mk(TRACKER_PRAYER_IDS),
+      azkarCategories: mk(TRACKER_AZKAR_CAT_IDS),
+      azkarTimes: mk(TRACKER_AZKAR_TIME_IDS)
+    };
+  }
+  function isCompleteTrackerState(s){
+    if(!s || typeof s !== 'object') return false;
+    const has = (obj, ids) => obj && typeof obj === 'object' && ids.every(id => id in obj);
+    return has(s.quran, TRACKER_QURAN_IDS) && has(s.prayers, TRACKER_PRAYER_IDS)
+      && has(s.azkarCategories, TRACKER_AZKAR_CAT_IDS) && has(s.azkarTimes, TRACKER_AZKAR_TIME_IDS);
+  }
+
+  let fajrMinutesToday = null;
+  function trackerDayKey(){
+    const now = new Date();
+    const nowMin = now.getHours()*60 + now.getMinutes();
+    const boundary = fajrMinutesToday != null ? fajrMinutesToday : 180;
+    const d = new Date(now);
+    if(nowMin < boundary) d.setDate(d.getDate() - 1);
+    return 'tracker-' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+  }
+  function fetchFajrTime(onDone){
+    if(fajrMinutesToday != null){ onDone(); return; }
+    const method = Number(localStorage.getItem('pt_method')) || 13;
+    let tune = [0,0,0,0,0,0,0,0,0];
+    try{
+      const t = JSON.parse(localStorage.getItem('pt_tune') || '{}');
+      tune = [0, t.Fajr||0, t.Sunrise||0, t.Dhuhr||0, t.Asr||0, t.Maghrib||0, 0, t.Isha||0, 0];
+    }catch(e){}
+    const tuneStr = encodeURIComponent(tune.join(','));
+    function applyTimings(timings){
+      const clean = timings.Fajr.split(' ')[0];
+      const [h,m] = clean.split(':').map(Number);
+      fajrMinutesToday = h*60 + m;
+      onDone();
+    }
+    function doFetch(url){
+      fetch(url).then(r => r.json()).then(d => {
+        if(d.code === 200) applyTimings(d.data.timings);
+        else onDone();
+      }).catch(() => onDone());
+    }
+    const city = localStorage.getItem('pt_city');
+    const lat = localStorage.getItem('pt_lat');
+    const lon = localStorage.getItem('pt_lon');
+    if(city){
+      doFetch(`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=&method=${method}&tune=${tuneStr}`);
+    } else if(lat && lon){
+      doFetch(`https://api.aladhan.com/v1/timings/${Math.floor(Date.now()/1000)}?latitude=${lat}&longitude=${lon}&method=${method}&tune=${tuneStr}`);
+    } else {
+      onDone();
+    }
+  }
+
+  function markTrackerDone(trackerKey){
+    fetchFajrTime(() => {
+      const key = trackerDayKey();
+      let st = null;
+      try{
+        const raw = localStorage.getItem(key);
+        if(raw) st = JSON.parse(raw);
+      }catch(e){}
+      if(!isCompleteTrackerState(st)) st = freshTrackerState();
+      st.azkarTimes[trackerKey] = true;
+      localStorage.setItem(key, JSON.stringify(st));
+      if(trackedNoteEl){ trackedNoteEl.textContent = 'انحطّت صح بالمتابعة اليومية ✓'; }
+    });
+  }
+
+  function cycleColor(n){
+    if(n <= 0) return null;
+    return (n % 2 === 1) ? 'var(--gold)' : 'var(--leaf)';
+  }
+
+  function activePreset(){ return PRESETS[state.preset] || PRESETS['']; }
+
+  function render(){
+    countEl.textContent = toArabicNumber(state.count);
+    ofTargetEl.textContent = 'من ' + toArabicNumber(state.target);
+
+    const completedCycles = Math.floor(state.count / state.target);
+    const remainder = state.count - completedCycles * state.target;
+
+    const baseColor = cycleColor(completedCycles);
+    baseRingEl.style.stroke = baseColor || 'transparent';
+
+    if(remainder === 0){
+      progressRingEl.style.stroke = 'transparent';
+      progressRingEl.setAttribute('stroke-dashoffset', String(CIRC));
+    } else {
+      const progressColor = cycleColor(completedCycles + 1);
+      progressRingEl.style.stroke = progressColor;
+      const lapFraction = remainder / state.target;
+      progressRingEl.setAttribute('stroke-dashoffset', String(CIRC * (1 - lapFraction)));
+    }
+
+    tapEl.style.borderColor = (remainder !== 0 ? cycleColor(completedCycles + 1) : baseColor) || 'var(--line)';
+
+    hintEl.textContent = state.count === 0
+      ? 'اضغط الدائرة لتبدأ'
+      : (completedCycles > 0 ? 'أتممتَ ' + toArabicNumber(completedCycles) + ' — تقبّل الله' : '');
+
+    [...targetsEl.querySelectorAll('button')].forEach(btn=>{
+      btn.classList.toggle('active', parseInt(btn.dataset.target,10) === state.target);
+    });
+
+    vibToggle.classList.toggle('on', state.vibrate);
+
+    dhikrTextEl.textContent = activePreset().text;
+    dhikrTextEl.style.display = activePreset().text ? '' : 'none';
+    presetSelectEl.value = state.preset;
+  }
+
+  function save(){
+    localStorage.setItem('dhikr_count', String(state.count));
+    localStorage.setItem('dhikr_target', String(state.target));
+    localStorage.setItem('dhikr_vibrate', state.vibrate ? 'on' : 'off');
+    localStorage.setItem('dhikr_preset', state.preset);
+  }
+
+  function doVibrate(pattern){
+    if(!state.vibrate) return;
+    try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){}
+  }
+
+  tapEl.addEventListener('click', ()=>{
+    state.count += 1;
+    const justReached = state.count % state.target === 0;
+    render();
+    save();
+    doVibrate(justReached ? [20, 60, 20] : 15);
+
+    const preset = activePreset();
+    if(preset.trackerKey && state.count === state.target){
+      markTrackerDone(preset.trackerKey);
+    }
+  });
+
+  targetsEl.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    state.target = parseInt(btn.dataset.target, 10);
+    render();
+    save();
+  });
+
+  presetSelectEl.addEventListener('change', ()=>{
+    state.preset = presetSelectEl.value;
+    const preset = activePreset();
+    if(preset.target){ state.target = preset.target; }
+    trackedNoteEl.textContent = '';
+    render();
+    save();
+  });
+
+  resetBtn.addEventListener('click', ()=>{
+    state.count = 0;
+    render();
+    save();
+  });
+
+  vibToggle.addEventListener('click', ()=>{
+    state.vibrate = !state.vibrate;
+    render();
+    save();
+    if(state.vibrate) doVibrate(15);
+  });
+
+  render();
+  if(activePreset().trackerKey && state.count >= state.target){
+    markTrackerDone(activePreset().trackerKey);
+  }
+})();
+
+document.getElementById('infoBtn').addEventListener('click', () => {
+  document.getElementById('infoModal').classList.add('open');
+});
+
+document.getElementById('pagesBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('pagesDropdown').classList.toggle('open');
+});
+document.addEventListener('click', () => {
+  document.getElementById('pagesDropdown').classList.remove('open');
+});
+document.getElementById('pagesDropdown').addEventListener('click', e => e.stopPropagation());
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+}
+</script>
+</body>
+</html>
