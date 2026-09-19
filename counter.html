@@ -666,7 +666,7 @@ body{
     const justReached = state.count % state.target === 0;
     render();
     save();
-    doVibrate(justReached ? [30, 60, 30] : 25);
+    doVibrate(justReached ? [60, 120, 60] : 50);
 
     const preset = activePreset();
     if(preset.trackerKey && state.count === state.target){
@@ -701,7 +701,7 @@ body{
     state.vibrate = !state.vibrate;
     render();
     save();
-    if(state.vibrate) doVibrate(25);
+    if(state.vibrate) doVibrate(50);
   });
 
   render();
