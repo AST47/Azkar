@@ -29,6 +29,7 @@ body{
   font-family:'Tajawal', sans-serif;
   min-height:100vh;
   padding:28px 20px 60px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .app{max-width:480px; margin:0 auto;}
@@ -118,7 +119,37 @@ body{
   font-size:14px;
   line-height:1.8;
   color:var(--ink-soft);
-  margin:0;
+  margin:0 0 10px;
+}
+.modal.info-modal{max-width:520px; max-height:85vh; overflow-y:auto;}
+.info-section{margin-bottom:4px;}
+.info-page-name{
+  font-family:'Tajawal', sans-serif;
+  font-weight:700;
+  font-size:13.5px;
+  color:var(--teal-dark);
+  margin:14px 0 4px;
+}
+.info-page-name:first-child{margin-top:0;}
+.changelog{display:flex; flex-direction:column; gap:8px;}
+.changelog-row{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  font-size:13px;
+  color:var(--ink-soft);
+  line-height:1.6;
+}
+.changelog-version{
+  flex-shrink:0;
+  background:rgba(31,92,78,0.1);
+  color:var(--teal-dark);
+  font-family:'Tajawal', sans-serif;
+  font-weight:600;
+  font-size:12px;
+  padding:2px 8px;
+  border-radius:10px;
+  direction:ltr;
 }
 .info-link{
   color:var(--teal-dark);
@@ -251,17 +282,15 @@ section{margin-bottom:26px;}
 
 .app-footer{
   max-width:480px;
-  margin:50px auto 0;
-  padding-top:18px;
-  border-top:1px solid var(--gold-line);
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
+  margin:16px auto 0;
+  display:flex;
   align-items:center;
+  justify-content:center;
+  gap:10px;
   font-size:12.5px;
   color:var(--ink-soft);
 }
 .footer-name{
-  justify-self:start;
   font-family:'Tajawal', sans-serif;
   color:var(--ink-soft);
   text-decoration:none;
@@ -269,18 +298,7 @@ section{margin-bottom:26px;}
   padding-bottom:1px;
 }
 .footer-name:hover{color:var(--teal-dark); border-color:var(--teal);}
-.footer-link{
-  justify-self:end;
-  font-family:'Tajawal', sans-serif;
-  color:var(--ink-soft);
-  text-decoration:none;
-  border-bottom:1px solid var(--gold-line);
-  padding-bottom:1px;
-  direction:ltr;
-}
-.footer-link:hover{color:var(--teal-dark); border-color:var(--teal);}
 .footer-trigger{
-  justify-self:center;
   color:var(--gold-line);
   font-size:13px;
   cursor:default;
@@ -370,15 +388,15 @@ section{margin-bottom:26px;}
 
   <div class="reset-note">البوكسات بترجع فاضية تلقائياً مع أذان الفجر</div>
 
-  <nav class="bottom-bar">
-    <a href="index.html" class="header-btn" title="الأذكار">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.6-1.3-3.6-2-6-2v12c2.4 0 4.4.7 6 2 1.6-1.3 3.6-2 6-2v-12c-2.4 0-4.4.7-6 2z"/><path d="M12 6.5v12"/></svg>
+    <nav class="bottom-bar">
+    <a href="prayer-times.html" class="header-btn" title="أوقات الصلاة">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M3 12h2.2M18.8 12H21M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke-linecap="round"/></svg>
     </a>
     <a href="tracker.html" class="header-btn active" title="المتابعة اليومية">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/><path d="M8.5 14.5l2 2 4-4"/></svg>
     </a>
-    <a href="prayer-times.html" class="header-btn" title="أوقات الصلاة">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M3 12h2.2M18.8 12H21M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke-linecap="round"/></svg>
+    <a href="index.html" class="header-btn" title="الأذكار">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.6-1.3-3.6-2-6-2v12c2.4 0 4.4.7 6 2 1.6-1.3 3.6-2 6-2v-12c-2.4 0-4.4.7-6 2z"/><path d="M12 6.5v12"/></svg>
     </a>
     <a href="counter.html" class="header-btn" title="عدّادة الذكر">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -389,18 +407,54 @@ section{margin-bottom:26px;}
   </nav>
 
   <footer class="app-footer">
-    <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
     <span class="footer-trigger">❖</span>
-    <a class="footer-link" href="https://ast47.github.io/ahmadsalehtuffaha/" target="_blank" rel="noopener">Portfolio</a>
+    <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
   </footer>
 </div>
 
 <div class="modal-overlay" id="infoModal">
-  <div class="modal">
-    <h3>عن هالصفحة</h3>
-    <p class="info-about">
-      صفحة المتابعة اليومية، جزء من مشروع <a class="info-link" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">أحمد صالح تفاحة</a> للأذكار والأدعية. بتساعدك تتابع وردك اليومي من القرآن والصلوات والأذكار. البوكسات بترجع فاضية تلقائياً مع دخول وقت الفجر كل يوم، مش الساعة ١٢ ليلاً — يعني لو صحيت قبل الفجر، وردك من الليلة يلي فاتت بيضل موجود لحد ما يدخل الفجر.
-    </p>
+  <div class="modal info-modal">
+    <h3>عن هذه الصفحة</h3>
+    <div class="info-section">
+      <p class="info-about">الغرض من هذه الصفحة أن تكون المساعدة في متابعة الورد اليومي من القرآن والصلوات والأذكار. البوكسات بترجع فاضية تلقائياً مع دخول وقت الفجر كل يوم، (يعني لو صحيت قبل الفجر، وردك من الليلة يلي فاتت بيضل موجود لحد ما يدخل الفجر). من أجل المزامنة بين كافة الأجهزة يجب تسجيل الدخول (حالياً يتم حفظ معلومات المتابعة ضمن المتصفح الخاص بكم على الجهاز المستخدم فقط).</p>
+    </div>
+
+    <h3 style="margin-top:22px;">عن التطبيق</h3>
+    <div class="info-section">
+      <p class="info-about">
+        صمّم هذا التطبيق <a class="info-link" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">أحمد صالح تفاحة</a>، كمشروع شخصي لتجميع الأذكار والأدعية بشكل سهل وسريع الوصول ثم تطور ليكون تطبيق يشمل بعض الخدمات الأخرى، وتم الربط بينها من أجل الحصول على الفائدة العظمى.
+      </p>
+    </div>
+
+    <h3 style="margin-top:22px;">سجل الإصدارات</h3>
+    <div class="changelog">
+      <div class="changelog-row"><span class="changelog-version">١.٧.١</span><span>تحديثات وتعديلات عامة تجهيزاً للمراحل القادمة</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٧.٠</span><span>تعديل التنقّل ليصبح موحّد بكل الصفحات: قائمة واحدة وبار تنقّل سفلي وشعار تفاعلي بنفس الشكل في كل مكان</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٦.١</span><span>تحسينات على الشكل العام والبرمجية</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٦.٠</span><span>إضافة صفحة "اتجاه القبلة": بوصلة تفاعلية تحسب اتجاه الكعبة ومسافتها من موقعك</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٥.١</span><span>إضافة قائمة تحوي مجموعة أذكار جاهزة ومزامنة تلقائية مع المتابعة اليومية</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٥.٠</span><span>إضافة صفحة "عدّادة الذكر": عدّاد تفاعلي بأهداف قابلة للتخصيص</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٤.٢</span><span>إمكانية إظهار أوقات الصلاة ضمن صفحة الأذكار، مع إضافة خيار تفعيل الخاصية وإلغائها</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٤.١</span><span>إضافة طرق حساب إضافية من أجل بعض الدول</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٤.٠</span><span>إضافة صفحة "أوقات الصلاة": حساب المواقيت حسب موقعك، مع اختيار طريقة الحساب وتصحيح يدوي</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٣.٢</span><span>تحديث على الشكل العام وتعديل على المسميات</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٣.١</span><span>ربط وإضافة بوكسات إتمام ضمن صفحة الأذكار مرتبط بشكل مباشر مع صفحة المتابعة، مع مؤشرات إتمام على الأيقونات في الأعلى</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٣.٠</span><span>إضافة صفحة "المتابعة اليومية" لتتبع الصلوات والأذكار وورد القرآن اليومي</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٢.٧</span><span>إمكانية عرض صور للأدعية الطويلة من أجل سهولة القراءة</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٢.٦</span><span>إضافة "أذكار يومية"، "أذكار اسبوعية"، "أذكار شهرية"، "الأخذ بالأسباب" إلى التصنيفات</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٢.٥</span><span>تحميل مسبق لصفحات القرآن التالية أثناء القراءة (بدون تأخير محسوس)</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٢.٤</span><span>الصفحة تفتح افتراضياً على "الظهيرة" (منتصف اليوم)</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٢.٣</span><span>خط زمني بأيقونات (شروق ← شمس ← غيوم ← غروب ← هلال) بدل التبويبات العادية للتصنيفات الوقتية</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٢.٢</span><span>زر "كافة الأدعية والأذكار" مستقل بالأعلى</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٢.١</span><span>دعم العمل بدون إنترنت بعد أول تحميل</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.٢.٠</span><span>الانتقال من تخزين محلي لقاعدة بيانات (مزامنة حقيقية بين كل الأجهزة)</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.١.٤</span><span>إمكانية عرض صور الرسم العثماني الأصلية لكل مقطع قرآني، بمتصفح صور بين الصفحات</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.١.٣</span><span>إضافة خمس سور قرآنية كاملة (يس، الرحمن، الواقعة، الملك، الكهف) بتنسيق مميز</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.١.٢</span><span>إضافة ميزة العناوين لاستخدامها في بعض الأذكار والأدعية</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.١.١</span><span>بادج تصنيف مميز لكل ذكر بصفحة "كل الأذكار"</span></div>
+      <div class="changelog-row"><span class="changelog-version">١.١.٠</span><span>إطلاق الموقع: كل الأذكار عبر سبع فئات، مع نظام ترتيب ثابت ووضع تعديل للمشرفين</span></div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('infoModal')">إغلاق</button>
     </div>
