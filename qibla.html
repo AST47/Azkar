@@ -461,6 +461,8 @@ body{
   let qiblaBearing = null;
   let deviceHeading = null;
   let compassActive = false;
+  let orientationHandlerAbs = null;
+  let orientationHandlerRel = null;
 
   function toRad(d){ return d * Math.PI / 180; }
   function toDeg(r){ return r * 180 / Math.PI; }
@@ -499,15 +501,23 @@ body{
 
   function tryLiveLocation(onFail){
     if(!navigator.geolocation){ if(onFail) onFail(); return; }
+    let settled = false;
+    const finish = fn => { if(settled) return; settled = true; clearTimeout(safety); locateBtn.classList.remove('spinning'); if(fn) fn(); };
+    // Some browsers/webviews never fire either callback (e.g. permission prompt
+    // left open, or Location Services off at the OS level) — the API's own
+    // "timeout" option isn't honored consistently, so add a hard fallback.
+    const safety = setTimeout(() => finish(onFail), 12000);
     navigator.geolocation.getCurrentPosition(
       pos => {
-        localStorage.setItem('pt_lat', pos.coords.latitude);
-        localStorage.setItem('pt_lon', pos.coords.longitude);
-        localStorage.removeItem('pt_city');
-        useLocation(pos.coords.latitude, pos.coords.longitude, 'live');
+        finish(() => {
+          localStorage.setItem('pt_lat', pos.coords.latitude);
+          localStorage.setItem('pt_lon', pos.coords.longitude);
+          localStorage.removeItem('pt_city');
+          useLocation(pos.coords.latitude, pos.coords.longitude, 'live');
+        });
       },
-      () => { if(onFail) onFail(); },
-      { timeout: 10000 }
+      () => finish(onFail),
+      { timeout: 10000, maximumAge: 0 }
     );
   }
 
@@ -524,13 +534,24 @@ body{
     }
   }
 
-  function handleOrientation(e){
+  let gotAbsolute = false;
+
+  function handleOrientation(e, isAbsoluteEvent){
     let heading;
     if(typeof e.webkitCompassHeading === 'number'){
+      // iOS: already a true (magnetic-north-relative) heading.
       heading = e.webkitCompassHeading;
-    } else if(e.alpha !== null && e.alpha !== undefined){
+    } else if(isAbsoluteEvent || e.absolute === true){
+      if(e.alpha === null || e.alpha === undefined) return;
+      heading = (360 - e.alpha) % 360;
+    } else if(!gotAbsolute && e.alpha !== null && e.alpha !== undefined){
+      // No absolute source ever fired on this device — fall back to relative
+      // alpha as a best effort (may drift from true north on some Android
+      // devices, since it isn't anchored to a fixed reference).
       heading = (360 - e.alpha) % 360;
     } else {
+      // We already have a reliable absolute/compass source — ignore the
+      // unreliable plain deviceorientation event so it can't override it.
       return;
     }
     deviceHeading = heading;
@@ -540,8 +561,29 @@ body{
   }
 
   function attachOrientationListeners(){
-    window.addEventListener('deviceorientationabsolute', handleOrientation, true);
-    window.addEventListener('deviceorientation', handleOrientation, true);
+    orientationHandlerAbs = e => { gotAbsolute = true; handleOrientation(e, true); };
+    orientationHandlerRel = e => handleOrientation(e, false);
+    window.addEventListener('deviceorientationabsolute', orientationHandlerAbs, true);
+    window.addEventListener('deviceorientation', orientationHandlerRel, true);
+    compassActive = true;
+    setToggleLabel();
+  }
+
+  function stopCompass(){
+    if(orientationHandlerAbs) window.removeEventListener('deviceorientationabsolute', orientationHandlerAbs, true);
+    if(orientationHandlerRel) window.removeEventListener('deviceorientation', orientationHandlerRel, true);
+    orientationHandlerAbs = null;
+    orientationHandlerRel = null;
+    gotAbsolute = false;
+    compassActive = false;
+    deviceHeading = null;
+    hintText.textContent = 'البوصلة موقوفة — اضغط "تشغيل البوصلة" لتفعيلها، أو استخدم الدرجة المذكورة فوق مع بوصلة عادية.';
+    updateArrow();
+    setToggleLabel();
+  }
+
+  function setToggleLabel(){
+    enableCompassBtn.textContent = compassActive ? 'إيقاف البوصلة' : 'تشغيل البوصلة';
   }
 
   function startCompassIfPossible(){
@@ -550,24 +592,28 @@ body{
       hintText.textContent = 'جهازك ما بيدعم البوصلة — استخدم الدرجة المذكورة فوق مع بوصلة عادية لتحديد الاتجاه.';
       return;
     }
-    if(typeof DeviceOrientationEvent.requestPermission === 'function'){
-      enableWrap.style.display = 'flex';
-    } else {
-      attachOrientationListeners();
-    }
+    enableWrap.style.display = 'flex';
+    setToggleLabel();
   }
 
   enableCompassBtn.addEventListener('click', () => {
-    DeviceOrientationEvent.requestPermission().then(result => {
-      if(result === 'granted'){
-        attachOrientationListeners();
-        enableWrap.style.display = 'none';
-      } else {
-        hintText.textContent = 'ما تم السماح بالوصول للبوصلة — استخدم الدرجة المذكورة فوق مع بوصلة عادية.';
-      }
-    }).catch(() => {
-      hintText.textContent = 'تعذّر تفعيل البوصلة على هذا الجهاز.';
-    });
+    if(compassActive){
+      stopCompass();
+      return;
+    }
+    if(typeof DeviceOrientationEvent.requestPermission === 'function'){
+      DeviceOrientationEvent.requestPermission().then(result => {
+        if(result === 'granted'){
+          attachOrientationListeners();
+        } else {
+          hintText.textContent = 'ما تم السماح بالوصول للبوصلة — استخدم الدرجة المذكورة فوق مع بوصلة عادية.';
+        }
+      }).catch(() => {
+        hintText.textContent = 'تعذّر تفعيل البوصلة على هذا الجهاز.';
+      });
+    } else {
+      attachOrientationListeners();
+    }
   });
 
   locateBtn.addEventListener('click', () => {
@@ -576,7 +622,6 @@ body{
     tryLiveLocation(() => {
       statusText.textContent = 'تعذّر تحديد الموقع';
     });
-    setTimeout(() => locateBtn.classList.remove('spinning'), 1200);
   });
 
   initLocation();
