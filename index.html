@@ -794,7 +794,7 @@ body{
   <div class="ornament"></div>
 
   <div class="all-btn-wrap">
-    <button class="all-btn" id="allBtn">كل الأدعية</button>
+    <button class="all-btn" id="allBtn">كافّة الأدعية والأذكار</button>
   </div>
 
   <nav class="timeline" id="timeline"></nav>
@@ -975,8 +975,10 @@ db.enablePersistence({synchronizeTabs:true}).catch(err => {
 const itemsRef = db.collection('azkar').doc('items');
 
 const CATEGORIES = [
-  {id:'all', label:'كل الأذكار'},
+  {id:'all', label:'كافّة الأدعية والأذكار'},
   {id:'during_day', label:'أثناء اليوم'},
+  {id:'weekend', label:'نهاية الأسبوع'},
+  {id:'monthly', label:'كل شهر'},
   {id:'waking', label:'الاستيقاظ'},
   {id:'morning', label:'الصباح'},
   {id:'noon', label:'الظهيرة'},
@@ -994,7 +996,7 @@ const TIMELINE_ICONS = {
   before_sleep: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.7 6.7 0 0 0 10.5 10.5Z"/></svg>'
 };
 const TIMELINE_CATEGORIES = ['waking','morning','noon','evening','before_sleep'];
-const BOTTOM_TAB_CATEGORIES = ['during_day','means'];
+const BOTTOM_TAB_CATEGORIES = ['during_day','weekend','monthly','means'];
 
 const CATEGORY_PRAYER_MAP = {waking:'Fajr', morning:'Dhuhr', noon:'Asr', evening:'Maghrib', before_sleep:'Isha'};
 const PRAYER_LABELS_AR = {Fajr:'الفجر', Dhuhr:'الظهر', Asr:'العصر', Maghrib:'المغرب', Isha:'العشاء'};
