@@ -39,6 +39,7 @@ body{
   font-family:'Tajawal', sans-serif;
   min-height:100vh;
   padding:28px 20px 60px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .app{max-width:480px; margin:0 auto;}
@@ -239,7 +240,8 @@ body{
   position:relative; width:78%; height:78%; border-radius:50%;
   background:var(--panel); border:1px solid var(--line);
   display:flex; flex-direction:column; align-items:center; justify-content:center;
-  cursor:pointer; user-select:none;
+  cursor:pointer; user-select:none; touch-action:manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition:transform .08s ease, background .3s ease, border-color .3s ease;
   box-shadow:0 1px 0 rgba(43,33,24,0.04) inset;
 }
@@ -291,7 +293,7 @@ body{
         <a href="tracker.html"><circle cx="27.5" cy="13.6" r="6" fill="transparent"/><circle cx="27.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
         <a href="prayer-times.html"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
         <a href="counter.html"><circle cx="23.5" cy="25.9" r="6" fill="transparent"/><circle cx="23.5" cy="25.9" r="2.4" fill="#1F5C4E"/></a>
-        <circle cx="10.5" cy="25.9" r="1.9" fill="#AD8A3E" opacity="0.35"/>
+        <a href="qibla.html"><circle cx="10.5" cy="25.9" r="6" fill="transparent"/><circle cx="10.5" cy="25.9" r="1.9" fill="#AD8A3E"/></a>
       </svg>
       <h1>عدّادة الذكر</h1>
     </div>
@@ -317,6 +319,10 @@ body{
           <a href="prayer-times.html" class="pages-item">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M3 12h2.2M18.8 12H21M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke-linecap="round"/></svg>
             أوقات الصلاة
+          </a>
+          <a href="qibla.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="15.5,8.5 12.5,12.5 8.5,15.5 11.5,11.5" fill="currentColor" stroke="none"/></svg>
+            اتجاه القبلة
           </a>
           <div class="pages-divider"></div>
           <button id="infoBtn" class="pages-item" title="عن الصفحة">
@@ -394,6 +400,9 @@ body{
     </a>
     <a href="counter.html" class="header-btn active" title="عدّادة الذكر">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="qibla.html" class="header-btn" title="اتجاه القبلة">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="15.5,8.5 12.5,12.5 8.5,15.5 11.5,11.5" fill="currentColor" stroke="none"/></svg>
     </a>
   </nav>
 

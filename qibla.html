@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1F5C4E">
+<title>اتجاه القبلة</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap');
+
+:root{
+  --bg:#F2E8D5;
+  --bg-card:#FBF5E8;
+  --ink:#2B2118;
+  --ink-soft:#6B5A45;
+  --teal:#1F5C4E;
+  --teal-dark:#123B31;
+  --gold:#AD8A3E;
+  --gold-soft:#DCC08A;
+  --gold-line: rgba(173,138,62,0.35);
+  --panel:#FBF5E8;
+  --line: rgba(173,138,62,0.35);
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(173,138,62,0.07) 1px, transparent 0);
+  background-size: 18px 18px;
+  color:var(--ink);
+  font-family:'Tajawal', sans-serif;
+  min-height:100vh;
+  padding:28px 20px 60px;
+}
+
+.app{max-width:480px; margin:0 auto;}
+
+.app-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:nowrap;
+  max-width:480px;
+  margin:0 auto 14px;
+}
+.brand{display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto; overflow:hidden;}
+.header-actions{display:flex; align-items:center; gap:8px; flex:0 0 auto;}
+.pages-menu{position:relative;}
+.pages-dropdown{
+  position:absolute; top:calc(100% + 8px); left:0;
+  background:var(--bg-card); border:1px solid var(--gold-line);
+  border-radius:12px; padding:6px; min-width:190px;
+  box-shadow:0 10px 26px rgba(43,33,24,0.18);
+  display:none; flex-direction:column; gap:2px; z-index:70;
+}
+.pages-dropdown.open{display:flex;}
+.bottom-bar{
+  display:flex; align-items:center; justify-content:center; gap:14px;
+  max-width:480px; margin:36px auto 0; padding-top:16px;
+  border-top:1px solid var(--gold-line);
+}
+.pages-divider{height:1px; background:var(--gold-line); margin:4px 6px;}
+.pages-item{
+  width:100%; border:none; background:none; cursor:pointer; text-align:right;
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:8px;
+  font-family:'Tajawal', sans-serif; font-size:13.5px; color:var(--ink);
+  text-decoration:none; transition:background .15s;
+}
+.pages-item:hover{background:rgba(173,138,62,0.1);}
+.pages-item svg{flex-shrink:0; color:var(--ink-soft);}
+.pages-item.spinning svg{animation:spin .8s linear infinite;}
+.pages-item.armed{background:rgba(122,46,46,0.1); color:#7A2E2E;}
+.header-btn{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--bg-card);
+  border:1px solid var(--gold-line);
+  color:var(--ink-soft);
+  cursor:pointer;
+  text-decoration:none;
+  transition:background .15s, transform .3s;
+}
+.header-btn:hover{background:rgba(173,138,62,0.1);}
+.header-btn.spinning svg{animation:spin .8s linear infinite;}
+.header-btn.active{background:var(--teal); border-color:var(--teal); color:#F5EDD9;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.modal-overlay{
+  position:fixed; inset:0;
+  background:rgba(43,33,24,0.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:50;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--bg-card);
+  border-radius:12px;
+  padding:24px;
+  width:100%;
+  max-width:440px;
+  border:1px solid var(--gold-line);
+}
+.modal h3{
+  font-family:'Reem Kufi', sans-serif;
+  margin:0 0 16px;
+  color:var(--teal-dark);
+  font-size:18px;
+}
+.info-about{
+  font-size:14px;
+  line-height:1.8;
+  color:var(--ink-soft);
+  margin:0;
+}
+.info-link{
+  color:var(--teal-dark);
+  text-decoration:none;
+  border-bottom:1px solid var(--gold-line);
+}
+.info-link:hover{border-color:var(--teal);}
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:20px;
+}
+.btn{
+  font-family:'Tajawal', sans-serif;
+  font-size:14px;
+  padding:9px 18px;
+  border-radius:8px;
+  border:1px solid var(--gold-line);
+  background:transparent;
+  color:var(--ink-soft);
+  cursor:pointer;
+}
+.brand svg{flex-shrink:0;}
+.brand svg a{cursor:pointer;}
+.brand svg a circle:last-child{transition:opacity .15s;}
+.brand svg a:hover circle:last-child{opacity:.7;}
+.brand h1{
+  font-family:'Reem Kufi', sans-serif;
+  font-weight:700;
+  font-size:clamp(11px, 5.5vw, 26px);
+  margin:0;
+  color:var(--teal-dark);
+  letter-spacing:0.5px;
+  white-space:nowrap;
+  overflow:hidden;
+  min-width:0;
+}
+
+.ornament{
+  height:14px;
+  max-width:480px;
+  margin:6px auto 22px;
+  background-image: repeating-linear-gradient(45deg, var(--gold-soft) 0 3px, transparent 3px 9px);
+  opacity:0.55;
+  mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+}
+
+.app-footer{
+  max-width:480px;
+  margin:50px auto 0;
+  padding-top:18px;
+  border-top:1px solid var(--gold-line);
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  font-size:12.5px;
+  color:var(--ink-soft);
+}
+.footer-name{
+  justify-self:start;
+  font-family:'Tajawal', sans-serif;
+  color:var(--ink-soft);
+  text-decoration:none;
+  border-bottom:1px solid var(--gold-line);
+  padding-bottom:1px;
+}
+.footer-name:hover{color:var(--teal-dark); border-color:var(--teal);}
+.footer-link{
+  justify-self:end;
+  font-family:'Tajawal', sans-serif;
+  color:var(--ink-soft);
+  text-decoration:none;
+  border-bottom:1px solid var(--gold-line);
+  padding-bottom:1px;
+  direction:ltr;
+}
+.footer-link:hover{color:var(--teal-dark); border-color:var(--teal);}
+.footer-trigger{
+  justify-self:center;
+  color:var(--gold-line);
+  font-size:13px;
+  cursor:default;
+  user-select:none;
+}
+.footer-trigger.active{color:var(--teal);}
+
+/* ---------- Qibla page (page-specific) ---------- */
+.qibla-header{ text-align:center; margin-bottom:22px; }
+.qibla-header p{ font-size:13.5px; color:var(--ink-soft); margin:0; }
+.qibla-status{ font-size:13px; color:var(--ink-soft); text-align:center; min-height:18px; margin-bottom:6px; }
+
+.compass-wrap{
+  position:relative; width:min(72vw, 290px); height:min(72vw, 290px);
+  margin:0 auto 22px;
+}
+.compass-wrap svg{ width:100%; height:100%; }
+.compass-dial{ fill:var(--bg-card); stroke:var(--gold-line); stroke-width:2; }
+.compass-ticks line{ stroke:var(--gold-soft); stroke-width:1.5; }
+.compass-ticks line.major{ stroke:var(--gold); stroke-width:2.5; }
+.compass-top-mark{ fill:var(--ink-soft); }
+.qibla-arrow{ transform-origin:100px 100px; transition:transform .25s ease-out; }
+.qibla-arrow path{ fill:var(--gold); }
+.qibla-arrow circle{ fill:var(--teal); }
+.kaaba-label{
+  font-family:'Reem Kufi', sans-serif; font-size:11px; fill:var(--teal-dark);
+  text-anchor:middle;
+}
+
+.qibla-figures{
+  display:flex; justify-content:center; gap:28px;
+  margin-bottom:18px; text-align:center;
+}
+.qibla-figure .num{ font-size:22px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; }
+.qibla-figure .lbl{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
+
+.qibla-hint{ font-size:13px; color:var(--ink-soft); text-align:center; line-height:1.8; margin:0 auto 18px; max-width:340px; }
+
+.enable-wrap{ display:flex; justify-content:center; margin-bottom:18px; }
+.enable-btn{
+  font-family:'Tajawal', sans-serif; font-size:14px; font-weight:500;
+  padding:11px 22px; border-radius:999px;
+  background:var(--teal); color:#F5EDD9; border:none; cursor:pointer;
+}
+.enable-btn:hover{ background:var(--teal-dark); }
+
+@media (prefers-reduced-motion: reduce){
+  .qibla-arrow{ transition:none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="app-header">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 34 34">
+        <circle cx="17" cy="17" r="15.5" fill="none" stroke="#AD8A3E" stroke-width="1.3"/>
+        <a href="index.html"><circle cx="17" cy="6" r="6" fill="transparent"/><circle cx="17" cy="6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="tracker.html"><circle cx="27.5" cy="13.6" r="6" fill="transparent"/><circle cx="27.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="counter.html"><circle cx="23.5" cy="25.9" r="6" fill="transparent"/><circle cx="23.5" cy="25.9" r="1.9" fill="#AD8A3E"/></a>
+        <a href="prayer-times.html"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
+        <circle cx="10.5" cy="25.9" r="2.4" fill="#1F5C4E"/>
+      </svg>
+      <h1>اتجاه القبلة</h1>
+    </div>
+    <div class="header-actions">
+      <div class="pages-menu">
+        <button id="pagesBtn" class="header-btn" title="القائمة">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg>
+        </button>
+        <div class="pages-dropdown" id="pagesDropdown">
+          <button id="locateBtn" class="pages-item" title="تحديد الموقع">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+            تحديد الموقع
+          </button>
+          <div class="pages-divider"></div>
+          <a href="index.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.6-1.3-3.6-2-6-2v12c2.4 0 4.4.7 6 2 1.6-1.3 3.6-2 6-2v-12c-2.4 0-4.4.7-6 2z"/><path d="M12 6.5v12"/></svg>
+            الأذكار
+          </a>
+          <a href="tracker.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/><path d="M8.5 14.5l2 2 4-4"/></svg>
+            المتابعة اليومية
+          </a>
+          <a href="prayer-times.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M3 12h2.2M18.8 12H21M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke-linecap="round"/></svg>
+            أوقات الصلاة
+          </a>
+          <a href="counter.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            عدّادة الذكر
+          </a>
+          <div class="pages-divider"></div>
+          <button id="infoBtn" class="pages-item" title="عن الصفحة">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="currentColor" stroke="none"/></svg>
+            عن الصفحة
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="ornament"></div>
+
+  <header class="qibla-header">
+    <p id="statusText">جارٍ تحديد موقعك…</p>
+  </header>
+
+  <div class="enable-wrap" id="enableWrap" style="display:none;">
+    <button class="enable-btn" id="enableCompassBtn">تفعيل البوصلة</button>
+  </div>
+
+  <div class="compass-wrap">
+    <svg viewBox="0 0 200 200">
+      <circle class="compass-dial" cx="100" cy="100" r="92"/>
+      <g class="compass-ticks">
+        <line x1="100" y1="10" x2="100" y2="24" class="major"/>
+        <line x1="100" y1="176" x2="100" y2="190"/>
+        <line x1="190" y1="100" x2="176" y2="100"/>
+        <line x1="10" y1="100" x2="24" y2="100"/>
+      </g>
+      <path class="compass-top-mark" d="M100 6 L106 18 L94 18 Z"/>
+      <g class="qibla-arrow" id="qiblaArrow">
+        <path d="M100 26 L114 108 L100 92 L86 108 Z"/>
+        <circle cx="100" cy="100" r="7"/>
+        <text class="kaaba-label" x="100" y="46">🕋</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="qibla-figures">
+    <div class="qibla-figure">
+      <div class="num" id="bearingNum">--</div>
+      <div class="lbl">درجة من الشمال</div>
+    </div>
+    <div class="qibla-figure">
+      <div class="num" id="distanceNum">--</div>
+      <div class="lbl">كم إلى الكعبة</div>
+    </div>
+  </div>
+
+  <p class="qibla-hint" id="hintText">استدر بجهازك حتى يشير السهم للأعلى — عندها تكون متّجهاً نحو الكعبة المشرّفة.</p>
+
+  <nav class="bottom-bar">
+    <a href="index.html" class="header-btn" title="الأذكار">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.6-1.3-3.6-2-6-2v12c2.4 0 4.4.7 6 2 1.6-1.3 3.6-2 6-2v-12c-2.4 0-4.4.7-6 2z"/><path d="M12 6.5v12"/></svg>
+    </a>
+    <a href="tracker.html" class="header-btn" title="المتابعة اليومية">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/><path d="M8.5 14.5l2 2 4-4"/></svg>
+    </a>
+    <a href="prayer-times.html" class="header-btn" title="أوقات الصلاة">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M3 12h2.2M18.8 12H21M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke-linecap="round"/></svg>
+    </a>
+    <a href="counter.html" class="header-btn" title="عدّادة الذكر">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    <a href="qibla.html" class="header-btn active" title="اتجاه القبلة">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="15.5,8.5 12.5,12.5 8.5,15.5 11.5,11.5" fill="currentColor" stroke="none"/></svg>
+    </a>
+  </nav>
+
+  <footer class="app-footer">
+    <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
+    <span class="footer-trigger">❖</span>
+    <a class="footer-link" href="https://ast47.github.io/ahmadsalehtuffaha/" target="_blank" rel="noopener">Portfolio</a>
+  </footer>
+</div>
+
+<div class="modal-overlay" id="infoModal">
+  <div class="modal">
+    <h3>عن هالصفحة</h3>
+    <p class="info-about">
+      اتجاه القبلة، جزء من مشروع <a class="info-link" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">أحمد صالح تفاحة</a> للأذكار والأدعية. بتحسب اتجاه الكعبة من موقعك، وبتستخدم بوصلة جهازك (إذا كانت مدعومة) لعرض سهم يدلّك على الاتجاه مباشرة. دقّة البوصلة بتعتمد على جهازك وبيئتك — استخدمها كمساعد، مش كبديل عن وسيلة تأكيد موثوقة عند الحاجة.
+    </p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('infoModal')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const KAABA_LAT = 21.4225;
+  const KAABA_LON = 39.8262;
+
+  const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+  function toArabicNumber(n){
+    return String(n).split('').map(ch => /[0-9]/.test(ch) ? arabicDigits[ch] : ch).join('');
+  }
+
+  const statusText = document.getElementById('statusText');
+  const bearingNum = document.getElementById('bearingNum');
+  const distanceNum = document.getElementById('distanceNum');
+  const qiblaArrow = document.getElementById('qiblaArrow');
+  const hintText = document.getElementById('hintText');
+  const enableWrap = document.getElementById('enableWrap');
+  const enableCompassBtn = document.getElementById('enableCompassBtn');
+  const locateBtn = document.getElementById('locateBtn');
+
+  let qiblaBearing = null;
+  let deviceHeading = null;
+  let compassActive = false;
+
+  function toRad(d){ return d * Math.PI / 180; }
+  function toDeg(r){ return r * 180 / Math.PI; }
+
+  function calcBearing(lat, lon){
+    const φ1 = toRad(lat), φ2 = toRad(KAABA_LAT);
+    const Δλ = toRad(KAABA_LON - lon);
+    const y = Math.sin(Δλ) * Math.cos(φ2);
+    const x = Math.cos(φ1)*Math.sin(φ2) - Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
+    return (toDeg(Math.atan2(y, x)) + 360) % 360;
+  }
+
+  function calcDistance(lat, lon){
+    const R = 6371;
+    const dLat = toRad(KAABA_LAT - lat);
+    const dLon = toRad(KAABA_LON - lon);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat))*Math.cos(toRad(KAABA_LAT))*Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function updateArrow(){
+    if(qiblaBearing === null) return;
+    const rotation = deviceHeading === null ? qiblaBearing : (qiblaBearing - deviceHeading + 360) % 360;
+    qiblaArrow.style.transform = `rotate(${rotation}deg)`;
+  }
+
+  function useLocation(lat, lon, source){
+    qiblaBearing = calcBearing(lat, lon);
+    const dist = calcDistance(lat, lon);
+    bearingNum.textContent = toArabicNumber(Math.round(qiblaBearing)) + '°';
+    distanceNum.textContent = toArabicNumber(Math.round(dist).toLocaleString('ar'));
+    statusText.textContent = source === 'live' ? 'تم تحديد موقعك' : 'موقع محفوظ مسبقاً';
+    updateArrow();
+    startCompassIfPossible();
+  }
+
+  function tryLiveLocation(onFail){
+    if(!navigator.geolocation){ if(onFail) onFail(); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        localStorage.setItem('pt_lat', pos.coords.latitude);
+        localStorage.setItem('pt_lon', pos.coords.longitude);
+        localStorage.removeItem('pt_city');
+        useLocation(pos.coords.latitude, pos.coords.longitude, 'live');
+      },
+      () => { if(onFail) onFail(); },
+      { timeout: 10000 }
+    );
+  }
+
+  function initLocation(){
+    const lat = parseFloat(localStorage.getItem('pt_lat'));
+    const lon = parseFloat(localStorage.getItem('pt_lon'));
+    if(!isNaN(lat) && !isNaN(lon)){
+      useLocation(lat, lon, 'cached');
+      tryLiveLocation(); // silently refresh in the background
+    } else {
+      tryLiveLocation(() => {
+        statusText.textContent = 'تعذّر تحديد الموقع — فعّل الوصول للموقع أو حدّده من صفحة أوقات الصلاة';
+      });
+    }
+  }
+
+  function handleOrientation(e){
+    let heading;
+    if(typeof e.webkitCompassHeading === 'number'){
+      heading = e.webkitCompassHeading;
+    } else if(e.alpha !== null && e.alpha !== undefined){
+      heading = (360 - e.alpha) % 360;
+    } else {
+      return;
+    }
+    deviceHeading = heading;
+    compassActive = true;
+    hintText.textContent = 'استدر بجهازك حتى يشير السهم للأعلى — عندها تكون متّجهاً نحو الكعبة المشرّفة.';
+    updateArrow();
+  }
+
+  function attachOrientationListeners(){
+    window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+    window.addEventListener('deviceorientation', handleOrientation, true);
+  }
+
+  function startCompassIfPossible(){
+    if(compassActive) return;
+    if(typeof DeviceOrientationEvent === 'undefined'){
+      hintText.textContent = 'جهازك ما بيدعم البوصلة — استخدم الدرجة المذكورة فوق مع بوصلة عادية لتحديد الاتجاه.';
+      return;
+    }
+    if(typeof DeviceOrientationEvent.requestPermission === 'function'){
+      enableWrap.style.display = 'flex';
+    } else {
+      attachOrientationListeners();
+    }
+  }
+
+  enableCompassBtn.addEventListener('click', () => {
+    DeviceOrientationEvent.requestPermission().then(result => {
+      if(result === 'granted'){
+        attachOrientationListeners();
+        enableWrap.style.display = 'none';
+      } else {
+        hintText.textContent = 'ما تم السماح بالوصول للبوصلة — استخدم الدرجة المذكورة فوق مع بوصلة عادية.';
+      }
+    }).catch(() => {
+      hintText.textContent = 'تعذّر تفعيل البوصلة على هذا الجهاز.';
+    });
+  });
+
+  locateBtn.addEventListener('click', () => {
+    locateBtn.classList.add('spinning');
+    statusText.textContent = 'جارٍ تحديد موقعك…';
+    tryLiveLocation(() => {
+      statusText.textContent = 'تعذّر تحديد الموقع';
+    });
+    setTimeout(() => locateBtn.classList.remove('spinning'), 1200);
+  });
+
+  initLocation();
+
+  document.getElementById('infoBtn').addEventListener('click', () => {
+    document.getElementById('infoModal').classList.add('open');
+  });
+  document.getElementById('pagesBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('pagesDropdown').classList.toggle('open');
+  });
+  document.addEventListener('click', () => {
+    document.getElementById('pagesDropdown').classList.remove('open');
+  });
+  document.getElementById('pagesDropdown').addEventListener('click', e => e.stopPropagation());
+})();
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+}
+</script>
+</body>
+</html>
