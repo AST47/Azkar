@@ -288,13 +288,15 @@ body{
 .timeline-done-dot{
   position:absolute;
   top:-2px;
-  left:-2px;
   width:11px;
   height:11px;
   border-radius:50%;
   background:var(--gold);
   border:2px solid var(--bg);
 }
+.timeline-done-dot.dot-prayer{ right:-2px; }
+.timeline-done-dot.dot-azkar{ left:50%; transform:translateX(-50%); }
+.timeline-done-dot.dot-quran{ left:-2px; }
 .timeline-node.active .timeline-icon{
   background:var(--teal);
   border-color:var(--teal);
@@ -860,7 +862,7 @@ body{
       <input type="checkbox" id="editIsQuran" style="width:auto;">
       <span style="margin:0;">هاد مقطع قرآني (يظهر بتنسيق مميز)</span>
     </label>
-    <label>روابط صور الرسم العثماني (اختياري، رابط بكل سطر بالترتيب)</label>
+    <label>روابط صور (اختياري، رابط بكل سطر بالترتيب — بتخلي الكرت ياخد عرض الصفحة كامل)</label>
     <textarea id="editImageUrls" placeholder="https://.../mulk-1.png
 https://.../mulk-2.png" style="min-height:80px; font-family:monospace; font-size:12px; direction:ltr; text-align:left;"></textarea>
     <div class="error-text" id="editError">الرجاء إدخال نص الذكر</div>
@@ -1406,8 +1408,10 @@ function renderTimeline(){
     const cat = CATEGORIES.find(c => c.id === catId);
     const node = document.createElement('button');
     node.className = 'timeline-node' + (activeCategory === catId ? ' active' : '');
-    const doneDot = isCategoryDone(catId) ? '<span class="timeline-done-dot"></span>' : '';
-    node.innerHTML = `<span class="timeline-icon">${TIMELINE_ICONS[catId]}${doneDot}</span><span class="timeline-label">${cat.label}</span>`;
+    const prayerDot = isPrayerDone(catId) ? '<span class="timeline-done-dot dot-prayer"></span>' : '';
+    const azkarDot = isCategoryDone(catId) ? '<span class="timeline-done-dot dot-azkar"></span>' : '';
+    const quranDot = isQuranDone(catId) ? '<span class="timeline-done-dot dot-quran"></span>' : '';
+    node.innerHTML = `<span class="timeline-icon">${TIMELINE_ICONS[catId]}${prayerDot}${azkarDot}${quranDot}</span><span class="timeline-label">${cat.label}</span>`;
     node.onclick = () => { activeCategory = catId; render(); };
     wrap.appendChild(node);
 
@@ -1455,7 +1459,7 @@ function render(){
 
   list.forEach((item, idx) => {
     const card = document.createElement('div');
-    card.className = 'card' + (item.isQuran ? ' quran-card' : '');
+    card.className = 'card' + ((item.isQuran || (item.imageUrls && item.imageUrls.length)) ? ' quran-card' : '');
 
     if(isAdmin){
       const tag = document.createElement('div');
@@ -1477,6 +1481,15 @@ function render(){
         mark.appendChild(imgBtn);
       }
 
+      card.appendChild(mark);
+    }else if(item.imageUrls && item.imageUrls.length){
+      const mark = document.createElement('div');
+      mark.className = 'quran-mark';
+      const imgBtn = document.createElement('button');
+      imgBtn.className = 'quran-image-btn';
+      imgBtn.innerHTML = '🖼 عرض كصورة' + (item.imageUrls.length > 1 ? ' (' + toArabicDigits(item.imageUrls.length) + ' صفحات)' : '');
+      imgBtn.onclick = () => openLightbox(item.imageUrls);
+      mark.appendChild(imgBtn);
       card.appendChild(mark);
     }
 
@@ -1670,12 +1683,18 @@ function saveEdit(){
 
   if(editingId){
     const item = items.find(i => i.id === editingId);
+    const categoryChanged = item.categoryId !== categoryId;
     item.text = text;
     item.title = title;
     item.categoryId = categoryId;
     item.count = count;
     item.isQuran = isQuran;
     item.imageUrls = imageUrls;
+    if(categoryChanged){
+      const catItems = items.filter(i => i.categoryId === categoryId && i.id !== editingId);
+      const maxOrder = catItems.length ? Math.max(...catItems.map(i => i.order)) : 0;
+      item.order = maxOrder + 1;
+    }
   }else{
     const catItems = items.filter(i => i.categoryId === categoryId);
     const maxOrder = catItems.length ? Math.max(...catItems.map(i => i.order)) : 0;

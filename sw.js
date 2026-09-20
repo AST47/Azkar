@@ -1,4 +1,4 @@
-const CACHE_NAME = 'azkar-cache-v5';
+const CACHE_NAME = 'azkar-cache-v6';
 
 // نخزن الصفحة نفسها فوراً وقت التثبيت، عشان التطبيقات المثبّتة على
 // الشاشة الرئيسية (خصوصاً آيفون) يكون عندها نسخة محفوظة من أول لحظة،
@@ -20,9 +20,16 @@ const STATIC_ASSETS = [
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll([...PAGE_ASSETS, ...STATIC_ASSETS]))
-      .catch(() => {})
+    Promise.all([
+      // الملفات الأساسية للصفحة — لازم تتخزن، هاي أساس عمل التطبيق أوفلاين
+      caches.open(CACHE_NAME).then(cache => cache.addAll(PAGE_ASSETS)),
+      // ملفات خارجية (خطوط + فايربيس) — بأفضل جهد، فشلها ما لازم يوقف تخزين الصفحة
+      caches.open(CACHE_NAME).then(cache =>
+        Promise.all(STATIC_ASSETS.map(url =>
+          cache.add(url).catch(() => {})
+        ))
+      )
+    ])
   );
   self.skipWaiting();
 });
