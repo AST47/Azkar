@@ -222,7 +222,15 @@ body{
 .all-btn-wrap{
   display:flex;
   justify-content:center;
-  margin-bottom:26px;
+  align-items:stretch;
+  gap:0;
+  margin:0 auto 26px;
+  max-width:620px;
+  transition:gap .3s ease;
+}
+.all-btn-wrap.search-mode{
+  justify-content:space-between;
+  gap:14px;
 }
 .all-btn{
   font-family:'Reem Kufi', sans-serif;
@@ -235,13 +243,71 @@ body{
   border-radius:30px;
   cursor:pointer;
   box-shadow:0 3px 10px rgba(173,138,62,0.25);
-  transition:transform .15s, box-shadow .15s;
+  transition:transform .15s, box-shadow .15s, flex-basis .3s ease, padding .3s ease, font-size .3s ease;
+  flex:0 1 auto;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 .all-btn:hover{transform:translateY(-1px); box-shadow:0 5px 14px rgba(173,138,62,0.32);}
 .all-btn.active{
   background:var(--teal);
   color:#F5EDD9;
   box-shadow:0 3px 10px rgba(31,92,78,0.3);
+}
+.all-btn-wrap.search-mode .all-btn{
+  flex:1 1 0;
+  padding:12px 18px;
+  font-size:14px;
+}
+.search-box{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:0 0 0%;
+  width:0;
+  opacity:0;
+  overflow:hidden;
+  background:var(--bg-card);
+  border:1.5px solid var(--gold-line);
+  border-radius:30px;
+  padding:0;
+  color:var(--ink-soft);
+  transition:all .3s ease;
+}
+.all-btn-wrap.search-mode .search-box{
+  flex:1 1 0;
+  width:auto;
+  opacity:1;
+  padding:0 16px;
+}
+.search-box input{
+  border:none;
+  background:none;
+  outline:none;
+  font-family:'Tajawal', sans-serif;
+  font-size:14px;
+  width:100%;
+  min-width:0;
+  padding:11px 0;
+  color:var(--ink);
+}
+.search-box input::placeholder{color:var(--ink-soft); opacity:0.7;}
+.search-clear{
+  border:none;
+  background:none;
+  cursor:pointer;
+  color:var(--ink-soft);
+  flex-shrink:0;
+  display:flex;
+  padding:2px;
+}
+.search-clear:hover{color:var(--ink);}
+mark.search-hit{
+  background:var(--gold);
+  color:#2B2118;
+  border-radius:3px;
+  padding:0 1px;
 }
 
 .timeline{
@@ -795,8 +861,15 @@ body{
 
   <div class="ornament"></div>
 
-  <div class="all-btn-wrap">
+  <div class="all-btn-wrap" id="allBtnWrap">
     <button class="all-btn" id="allBtn">كافّة الأدعية والأذكار</button>
+    <div class="search-box" id="searchBox">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="دوّر بالأدعية والأذكار...">
+      <button class="search-clear" id="searchClear" title="مسح" style="display:none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
   </div>
 
   <nav class="timeline" id="timeline"></nav>
@@ -1093,6 +1166,7 @@ let items = [];
 let activeCategory = 'noon';
 let isAdmin = false;
 let editingId = null;
+let searchQuery = '';
 
 async function loadData(){
   // كل المحتوى صار مخزّن على Firestore بالكامل. أي إضافة/تعديل
@@ -1321,6 +1395,45 @@ function toArabicDigits(n){
   return String(n).replace(/[0-9]/g, d => arabicDigits[d]);
 }
 
+// -------- بحث نصي يتجاهل التشكيل --------
+const TASHKEEL_RE = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E8\u06EA-\u06ED\u0640]/;
+
+function stripTashkeel(str){
+  let out = '';
+  for(let i=0;i<(str||'').length;i++){
+    if(!TASHKEEL_RE.test(str[i])) out += str[i];
+  }
+  return out;
+}
+
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// بيرجّع النص كـ HTML، مع تمييز أول تطابق مع كلمة البحث (بتجاهل التشكيل بالمطابقة بس مش بالعرض)
+function highlightMatch(text, query){
+  text = text || '';
+  const q = stripTashkeel(query || '').trim();
+  if(!q) return escapeHtml(text);
+
+  let clean = '';
+  const map = [];
+  for(let i=0;i<text.length;i++){
+    if(!TASHKEEL_RE.test(text[i])){
+      clean += text[i];
+      map.push(i);
+    }
+  }
+  const idx = clean.indexOf(q);
+  if(idx === -1) return escapeHtml(text);
+
+  const startOrig = map[idx];
+  const endOrig = map[idx + q.length - 1] + 1;
+  return escapeHtml(text.slice(0, startOrig))
+    + '<mark class="search-hit">' + escapeHtml(text.slice(startOrig, endOrig)) + '</mark>'
+    + escapeHtml(text.slice(endOrig));
+}
+
 function renderLightbox(){
   const img = document.getElementById('lightboxImg');
   img.src = lightboxImages[lightboxIndex];
@@ -1396,9 +1509,33 @@ async function importItems(){
 }
 
 function renderAllButton(){
+  const wrap = document.getElementById('allBtnWrap');
   const btn = document.getElementById('allBtn');
+  const input = document.getElementById('searchInput');
+  const clearBtn = document.getElementById('searchClear');
+
+  const searchMode = activeCategory === 'all';
+  wrap.classList.toggle('search-mode', searchMode);
   btn.classList.toggle('active', activeCategory === 'all');
-  btn.onclick = () => { activeCategory = 'all'; render(); };
+  btn.onclick = () => {
+    activeCategory = 'all';
+    render();
+    input.focus();
+  };
+
+  if(input.value !== searchQuery) input.value = searchQuery;
+  clearBtn.style.display = searchQuery ? 'flex' : 'none';
+
+  input.oninput = () => {
+    searchQuery = input.value;
+    render();
+  };
+
+  clearBtn.onclick = () => {
+    searchQuery = '';
+    render();
+    input.focus();
+  };
 }
 
 function renderTimeline(){
@@ -1438,6 +1575,12 @@ function renderBottomTabs(){
 
 function getFilteredItems(){
   let list = activeCategory === 'all' ? [...items] : items.filter(i => i.categoryId === activeCategory);
+  if(activeCategory === 'all' && searchQuery.trim()){
+    const q = stripTashkeel(searchQuery.trim());
+    list = list.filter(i =>
+      stripTashkeel(i.text || '').includes(q) || stripTashkeel(i.title || '').includes(q)
+    );
+  }
   list.sort((a,b) => a.order - b.order);
   return list;
 }
@@ -1452,7 +1595,9 @@ function render(){
   const list = getFilteredItems();
 
   if(list.length === 0 && !isAdmin){
-    grid.innerHTML = '<div class="empty">لا يوجد أذكار في هذا القسم بعد</div>';
+    grid.innerHTML = (activeCategory === 'all' && searchQuery.trim())
+      ? '<div class="empty">ما في نتائج مطابقة لبحثك</div>'
+      : '<div class="empty">لا يوجد أذكار في هذا القسم بعد</div>';
     renderCompleteToggle();
     return;
   }
@@ -1495,7 +1640,11 @@ function render(){
 
     const text = document.createElement('p');
     text.className = 'card-text';
-    text.textContent = item.text;
+    if(activeCategory === 'all' && searchQuery.trim()){
+      text.innerHTML = highlightMatch(item.text, searchQuery);
+    }else{
+      text.textContent = item.text;
+    }
     card.appendChild(text);
 
     const footer = document.createElement('div');
@@ -1508,7 +1657,11 @@ function render(){
     if(item.title){
       const titleBadge = document.createElement('span');
       titleBadge.className = 'title-badge';
-      titleBadge.textContent = item.title;
+      if(activeCategory === 'all' && searchQuery.trim()){
+        titleBadge.innerHTML = highlightMatch(item.title, searchQuery);
+      }else{
+        titleBadge.textContent = item.title;
+      }
       badgeGroup.appendChild(titleBadge);
     }
 
