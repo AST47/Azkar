@@ -233,11 +233,15 @@ body{
   background:var(--gold);
   color:#2B2118;
   border:none;
-  padding:12px 40px;
+  padding:12px 24px;
   border-radius:30px;
   cursor:pointer;
   box-shadow:0 3px 10px rgba(173,138,62,0.25);
-  transition:transform .4s cubic-bezier(.22,1,.36,1), box-shadow .15s;
+  box-sizing:border-box;
+  max-width:400px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  transition:transform .4s cubic-bezier(.22,1,.36,1), max-width .4s cubic-bezier(.22,1,.36,1), box-shadow .15s;
   white-space:nowrap;
 }
 .all-btn:hover{transform:translateY(-1px); box-shadow:0 5px 14px rgba(173,138,62,0.32);}
@@ -246,10 +250,11 @@ body{
   color:#F5EDD9;
   box-shadow:0 3px 10px rgba(31,92,78,0.3);
 }
-.all-btn-wrap.search-mode .all-btn{
+.all-btn-wrap.btn-shifted .all-btn{
   transform:translateX(92px);
+  max-width:min(270px, 46%);
 }
-.all-btn-wrap.search-mode .all-btn:hover{
+.all-btn-wrap.btn-shifted .all-btn:hover{
   transform:translateX(92px) translateY(-1px);
 }
 .search-box{
@@ -270,12 +275,13 @@ body{
   opacity:0;
   transform:translateY(-50%) scale(.9);
   pointer-events:none;
-  transition:opacity .3s ease .12s, transform .3s ease .12s;
+  transition:opacity .22s ease, transform .22s ease;
 }
-.all-btn-wrap.search-mode .search-box{
+.all-btn-wrap.search-visible .search-box{
   opacity:1;
   transform:translateY(-50%) scale(1);
   pointer-events:auto;
+  transition:opacity .28s ease, transform .28s ease;
 }
 .search-box input{
   border:none;
@@ -1510,8 +1516,21 @@ function renderAllButton(){
   const input = document.getElementById('searchInput');
   const clearBtn = document.getElementById('searchClear');
 
-  const searchMode = activeCategory === 'all';
-  wrap.classList.toggle('search-mode', searchMode);
+  const wantSearch = activeCategory === 'all';
+  const isShifted = wrap.classList.contains('btn-shifted');
+
+  if(wantSearch && !isShifted){
+    // فتح: نزيح الزر فوراً، وبعد ما يوصل مكانه نظهر صندوق البحث
+    wrap.classList.add('btn-shifted');
+    clearTimeout(wrap._searchTimer);
+    wrap._searchTimer = setTimeout(() => wrap.classList.add('search-visible'), 180);
+  }else if(!wantSearch && isShifted){
+    // إغلاق: نخفي صندوق البحث فوراً، وبعد ما يختفي تقريباً نرجّع الزر
+    wrap.classList.remove('search-visible');
+    clearTimeout(wrap._searchTimer);
+    wrap._searchTimer = setTimeout(() => wrap.classList.remove('btn-shifted'), 200);
+  }
+
   btn.classList.toggle('active', activeCategory === 'all');
   btn.onclick = () => {
     activeCategory = 'all';
