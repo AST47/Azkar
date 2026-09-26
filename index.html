@@ -938,8 +938,8 @@ mark.search-hit{
       <span style="margin:0;">هاد مقطع قرآني (يظهر بتنسيق مميز)</span>
     </label>
     <label>روابط صور (اختياري، رابط بكل سطر بالترتيب — بتخلي الكرت ياخد عرض الصفحة كامل)</label>
-    <textarea id="editImageUrls" placeholder="https://.../mulk-1.webp
-https://.../mulk-2.png" style="min-height:80px; font-family:monospace; font-size:12px; direction:ltr; text-align:left;"></textarea>
+    <textarea id="editImageUrls" placeholder="https://raw.githubusercontent.com/AST47/Azkar/refs/heads/main/images/mulk-01.webp
+https://raw.githubusercontent.com/AST47/Azkar/refs/heads/main/images/mulk-02.webp" style="min-height:80px; font-family:monospace; font-size:12px; direction:ltr; text-align:left;"></textarea>
     <div class="error-text" id="editError">الرجاء إدخال نص الذكر</div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('editModal')">إلغاء</button>
@@ -1053,9 +1053,10 @@ const itemsRef = db.collection('azkar').doc('items');
 
 const CATEGORIES = [
   {id:'all', label:'كافّة الأدعية والأذكار'},
-  {id:'during_day', label:'أثناء اليوم'},
+  {id:'during_day', label:'بعد الظهر'},
   {id:'weekend', label:'نهاية الأسبوع'},
   {id:'monthly', label:'كل شهر'},
+  {id:'yearly', label:'مرّة بالسنة'},
   {id:'waking', label:'الاستيقاظ'},
   {id:'morning', label:'الصباح'},
   {id:'noon', label:'الظهيرة'},
@@ -1069,13 +1070,14 @@ const TIMELINE_ICONS = {
   waking: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5a3.5 3.5 0 1 1 .6-6.95A4.5 4.5 0 0 1 16.2 11 3.3 3.3 0 0 1 16 17.5H7.5"/></svg>',
   morning: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 18h18"/><path d="M6 18a6 6 0 0 1 12 0"/><path d="M12 8v2"/><path d="M6.5 10.5l1.4 1.4"/><path d="M17.5 10.5l-1.4 1.4"/></svg>',
   noon: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/></svg>',
+  during_day: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="6.5"/></svg>',
   evening: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 12a5.5 5.5 0 0 1 11 0"/><path d="M3 15h18"/><path d="M5 19h14"/><path d="M12 3v2.5"/><path d="M17.2 6.8l-1.2 1.2M6.8 6.8L8 8"/></svg>',
   before_sleep: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.7 6.7 0 0 0 10.5 10.5Z"/></svg>'
 };
-const TIMELINE_CATEGORIES = ['waking','morning','noon','evening','before_sleep'];
-const BOTTOM_TAB_CATEGORIES = ['during_day','weekend','monthly','means'];
+const TIMELINE_CATEGORIES = ['waking','morning','noon','during_day','evening','before_sleep'];
+const BOTTOM_TAB_CATEGORIES = ['weekend','monthly','yearly','means'];
 
-const CATEGORY_PRAYER_MAP = {waking:'Fajr', morning:'Dhuhr', noon:'Asr', evening:'Maghrib', before_sleep:'Isha'};
+const CATEGORY_PRAYER_MAP = {waking:'Fajr', noon:'Dhuhr', during_day:'Asr', evening:'Maghrib', before_sleep:'Isha'};
 const PRAYER_LABELS_AR = {Fajr:'الفجر', Dhuhr:'الظهر', Asr:'العصر', Maghrib:'المغرب', Isha:'العشاء'};
 let showPrayerTimes = localStorage.getItem('show_prayer_times') === '1';
 let prayerTimings = null;
@@ -1128,7 +1130,7 @@ function toggleCategoryDone(catId){
   localStorage.setItem(key, JSON.stringify(state));
 }
 
-const CATEGORY_TO_TRACKER_PRAYER_ID = {waking:'fajr', morning:'dhuhr', noon:'asr', evening:'maghrib', before_sleep:'isha'};
+const CATEGORY_TO_TRACKER_PRAYER_ID = {waking:'fajr', noon:'dhuhr', during_day:'asr', evening:'maghrib', before_sleep:'isha'};
 
 function isPrayerDone(catId){
   const prayerId = CATEGORY_TO_TRACKER_PRAYER_ID[catId];
@@ -1146,8 +1148,8 @@ function togglePrayerDone(catId){
 }
 
 // Each time-of-day category maps to its own Quran item, matching traditional recitation times.
-const QURAN_ID_BY_CATEGORY = {waking:'juz', morning:'yaseen', noon:'rahman', evening:'waqiah', before_sleep:'mulk'};
-const QURAN_LABEL_BY_CATEGORY = {waking:'الورد', morning:'يس', noon:'الرحمن', evening:'الواقعة', before_sleep:'الملك'};
+const QURAN_ID_BY_CATEGORY = {waking:'yaseen', morning:'juz', noon:'rahman', evening:'waqiah', before_sleep:'mulk'};
+const QURAN_LABEL_BY_CATEGORY = {waking:'يس', morning:'جزء اليوم', noon:'الرحمن', evening:'الواقعة', before_sleep:'الملك'};
 
 function isQuranDone(catId){
   const quranId = QURAN_ID_BY_CATEGORY[catId];
@@ -1164,6 +1166,34 @@ function toggleQuranDone(catId){
   localStorage.setItem(key, JSON.stringify(state));
 }
 
+// تسمية زر "أتممت..." تختلف حسب التصنيف (بعد الظهر عمداً بدون هالزر إطلاقاً)
+const AZKAR_DONE_LABEL_BY_CATEGORY = {waking:'أتممت الأذكار', morning:'أتممت الأذكار', noon:'أتممت الأدعية', evening:'أتممت الأذكار', before_sleep:'أتممت الأذكار'};
+
+// أزرار إضافية خاصة بتصنيفات معيّنة، بتستخدم مخزون azkarTimes المشترك
+// أصلاً مع tracker.html (subhanallah/t1/t2/t3/lahawla) بدل ما نضيف حقول جديدة.
+const CATEGORY_CUSTOM_TOGGLES = {
+  waking: [
+    {id:'t1', label:'أتممت التوحيد'},
+    {id:'t2', label:'أتممت الاستغفار'}
+  ],
+  during_day: [
+    {id:'t3', label:'صلاة على النبي'},
+    {id:'subhanallah', label:'تسبيح'},
+    {id:'lahawla', label:'لا حول ولا قوة إلا بالله'}
+  ]
+};
+
+function isAzkarTimeDone(id){
+  const {state} = readTrackerState();
+  return !!state.azkarTimes[id];
+}
+
+function toggleAzkarTimeDone(id){
+  const {key, state} = readTrackerState();
+  state.azkarTimes[id] = !state.azkarTimes[id];
+  localStorage.setItem(key, JSON.stringify(state));
+}
+
 let items = [];
 let activeCategory = 'noon';
 let isAdmin = false;
@@ -1175,10 +1205,22 @@ async function loadData(){
   // من هلق ولّح لازم يصير من وضع التعديل بالموقع مباشرة.
   let doneOnce = false;
 
+  // قراءة فورية من التخزين المحلي (IndexedDB) بس، بدون أي انتظار
+  // للشبكة إطلاقاً — هاي أسرع طريقة نعرض فيها البيانات المحفوظة
+  // عند اتصال ضعيف، بدل ما نستنى onSnapshot يقرر هو الاتصال شغال ولا لأ.
+  itemsRef.get({source: 'cache'}).then(snap => {
+    if(!doneOnce && snap.exists){
+      items = snap.data().items || [];
+      render();
+      precacheImages();
+    }
+  }).catch(() => {}); // ما في نسخة محلية محفوظة بعد — onSnapshot تحت رح يتكفل
+
   itemsRef.onSnapshot(snap => {
     doneOnce = true;
     items = (snap.exists && snap.data().items) ? snap.data().items : [];
     render();
+    precacheImages();
   }, err => {
     console.error('فشل الاتصال بقاعدة البيانات', err);
     doneOnce = true;
@@ -1186,13 +1228,11 @@ async function loadData(){
     render();
   });
 
-  // ما بنخلي المستخدم ينتظر أكتر من 4 ثواني — إذا Firestore تأخر أو
-  // فشل، منظهر الواجهة فاضية بدل ما تضل شاشة معلّقة بدون رد.
+  // ما بنخلي المستخدم ينتظر أكتر من 4 ثواني بلا أي رد بالواجهة — بس
+  // ما منفترض إنه القسم فاضي فعلياً، لأنه ممكن البيانات توصل متأخرة
+  // (اتصال ضعيف) والمستمع (onSnapshot) لسا شغال وبيحدّث لما توصل.
   setTimeout(() => {
-    if(!doneOnce){
-      items = [];
-      render();
-    }
+    if(!doneOnce) render();
   }, 4000);
 }
 
@@ -1212,11 +1252,21 @@ async function manualRefresh(){
     const snap = await itemsRef.get({source: 'server'});
     items = (snap.exists && snap.data().items) ? snap.data().items : [];
     render();
+    forceRefreshImages();
   }catch(e){
     console.error('فشل التحديث اليدوي', e);
     alert('ما قدرنا نوصل لقاعدة البيانات هلق، تأكد من النت وجرب كمان.');
   }
   btn.classList.remove('spinning');
+}
+
+// تحديث شامل حقيقي للصور: نطلب من الـService Worker يعيد تحميل كل صورة
+// من الشبكة ويستبدل النسخة المخزّنة، حتى لو الرابط نفسه ما تغيّر —
+// عكس التخزين العادي يلي بس بيخزّن الصورة إذا ما كانت موجودة أصلاً.
+function forceRefreshImages(){
+  if(!navigator.serviceWorker.controller) return;
+  const urls = [...new Set(items.flatMap(i => i.imageUrls || []))];
+  if(urls.length) navigator.serviceWorker.controller.postMessage({type: 'REFRESH_IMAGES', urls});
 }
 
 document.getElementById('refreshBtn').addEventListener('click', manualRefresh);
@@ -1232,7 +1282,6 @@ document.getElementById('pagesBtn').addEventListener('click', (e) => {
 document.addEventListener('click', () => {
   document.getElementById('pagesDropdown').classList.remove('open');
 });
-document.getElementById('pagesDropdown').addEventListener('click', e => e.stopPropagation());
 
 function parsePrayerClock(t){
   const clean = t.split(' ')[0];
@@ -1610,9 +1659,10 @@ function render(){
   const list = getFilteredItems();
 
   if(list.length === 0 && !isAdmin){
-    grid.innerHTML = (activeCategory === 'all' && searchQuery.trim())
-      ? '<div class="empty">ما في نتائج مطابقة لبحثك</div>'
-      : '<div class="empty">لا يوجد أذكار في هذا القسم بعد</div>';
+    const emptyMsg = (activeCategory === 'all' && searchQuery.trim())
+      ? 'ما في نتائج مطابقة لبحثك'
+      : 'لا يوجد أذكار في هذا القسم بعد';
+    grid.innerHTML = '<div class="empty">' + emptyMsg + '</div>';
     renderCompleteToggle();
     return;
   }
@@ -1754,15 +1804,26 @@ function renderCompleteToggle(){
 
   if(!TIMELINE_CATEGORIES.includes(activeCategory)) return;
 
+  // كل تصنيف بالتايم لاين إله مجموعة أزرار مختلفة (صلاة/أذكار/سور/أزرار
+  // خاصة) — مو كلهم نفس الثلاثة الثابتة متل قبل.
   const prayerId = CATEGORY_PRAYER_MAP[activeCategory];
-  const prayerName = PRAYER_LABELS_AR[prayerId];
-
+  const prayerName = prayerId ? PRAYER_LABELS_AR[prayerId] : null;
+  const azkarLabel = AZKAR_DONE_LABEL_BY_CATEGORY[activeCategory];
   const quranLabel = QURAN_LABEL_BY_CATEGORY[activeCategory];
-  const rows = [
-    {done: isPrayerDone(activeCategory), label: `صليت ${prayerName}`, doneLabel: `صليت ${prayerName}`, onToggle: () => togglePrayerDone(activeCategory)},
-    {done: isCategoryDone(activeCategory), label: 'أتممت الأذكار', doneLabel: 'أتممت الأذكار', onToggle: () => toggleCategoryDone(activeCategory)},
-    {done: isQuranDone(activeCategory), label: `قرأت ${quranLabel}`, doneLabel: `قرأت ${quranLabel}`, onToggle: () => toggleQuranDone(activeCategory)},
-  ];
+
+  const rows = [];
+  if(prayerName){
+    rows.push({done: isPrayerDone(activeCategory), label: `صليت ${prayerName}`, doneLabel: `صليت ${prayerName}`, onToggle: () => togglePrayerDone(activeCategory)});
+  }
+  if(azkarLabel){
+    rows.push({done: isCategoryDone(activeCategory), label: azkarLabel, doneLabel: azkarLabel, onToggle: () => toggleCategoryDone(activeCategory)});
+  }
+  (CATEGORY_CUSTOM_TOGGLES[activeCategory] || []).forEach(t => {
+    rows.push({done: isAzkarTimeDone(t.id), label: t.label, doneLabel: t.label, onToggle: () => toggleAzkarTimeDone(t.id)});
+  });
+  if(quranLabel){
+    rows.push({done: isQuranDone(activeCategory), label: `قرأت ${quranLabel}`, doneLabel: `قرأت ${quranLabel}`, onToggle: () => toggleQuranDone(activeCategory)});
+  }
 
   const wrap = document.createElement('div');
   wrap.id = 'completeToggleWrap';
@@ -1893,6 +1954,16 @@ if('serviceWorker' in navigator){
       console.warn('تعذّر تسجيل service worker:', err);
     });
   });
+  // أول ما الـ Service Worker ياخد السيطرة (بعد أول تثبيت)، منبعثله
+  // كل روابط الصور الحالية مشان يخزّنها — هيك كل شي بيصير عالجهاز
+  // من أول استخدام، مش بس أول مرة تنفتح فيها صورة معيّنة.
+  navigator.serviceWorker.addEventListener('controllerchange', precacheImages);
+}
+
+function precacheImages(){
+  if(!navigator.serviceWorker.controller || !items.length) return;
+  const urls = [...new Set(items.flatMap(i => i.imageUrls || []))];
+  if(urls.length) navigator.serviceWorker.controller.postMessage({type:'CACHE_IMAGES', urls});
 }
 
 loadData();
