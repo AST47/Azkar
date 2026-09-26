@@ -1053,28 +1053,31 @@ const itemsRef = db.collection('azkar').doc('items');
 
 const CATEGORIES = [
   {id:'all', label:'كافّة الأدعية والأذكار'},
-  {id:'during_day', label:'بعد الظهر'},
+  {id:'during_day', label:'أثناء اليوم'},
   {id:'weekend', label:'نهاية الأسبوع'},
   {id:'monthly', label:'كل شهر'},
   {id:'yearly', label:'مرّة بالسنة'},
-  {id:'waking', label:'الاستيقاظ'},
-  {id:'morning', label:'الصباح'},
+  {id:'waking', label:'الاستيقاظ والصباح'},
   {id:'noon', label:'الظهيرة'},
   {id:'evening', label:'المساء'},
   {id:'before_sleep', label:'قبل النوم'},
   {id:'means', label:'الأخذ بالأسباب'}
 ];
+// "الصباح" (morning) صار مدموج بصرياً مع "الاستيقاظ" (waking) تحت اسم
+// "الاستيقاظ والصباح" — أي عنصر قديم متعلّم بـ categoryId:'morning' لسا
+// موجود بقاعدة البيانات وبيظهر تلقائياً هون (شوف getFilteredItems).
 
 
 const TIMELINE_ICONS = {
-  waking: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5a3.5 3.5 0 1 1 .6-6.95A4.5 4.5 0 0 1 16.2 11 3.3 3.3 0 0 1 16 17.5H7.5"/></svg>',
-  morning: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 18h18"/><path d="M6 18a6 6 0 0 1 12 0"/><path d="M12 8v2"/><path d="M6.5 10.5l1.4 1.4"/><path d="M17.5 10.5l-1.4 1.4"/></svg>',
+  // أيقونة الاستيقاظ والصباح (كانت أيقونة "الصباح" القديمة)
+  waking: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 18h18"/><path d="M6 18a6 6 0 0 1 12 0"/><path d="M12 8v2"/><path d="M6.5 10.5l1.4 1.4"/><path d="M17.5 10.5l-1.4 1.4"/></svg>',
   noon: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/></svg>',
-  during_day: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="6.5"/></svg>',
+  // أيقونة الغيمة (كانت أيقونة "الاستيقاظ" القديمة)
+  during_day: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.5a3.5 3.5 0 1 1 .6-6.95A4.5 4.5 0 0 1 16.2 11 3.3 3.3 0 0 1 16 17.5H7.5"/></svg>',
   evening: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.5 12a5.5 5.5 0 0 1 11 0"/><path d="M3 15h18"/><path d="M5 19h14"/><path d="M12 3v2.5"/><path d="M17.2 6.8l-1.2 1.2M6.8 6.8L8 8"/></svg>',
   before_sleep: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.7 6.7 0 0 0 10.5 10.5Z"/></svg>'
 };
-const TIMELINE_CATEGORIES = ['waking','morning','noon','during_day','evening','before_sleep'];
+const TIMELINE_CATEGORIES = ['waking','noon','during_day','evening','before_sleep'];
 const BOTTOM_TAB_CATEGORIES = ['weekend','monthly','yearly','means'];
 
 const CATEGORY_PRAYER_MAP = {waking:'Fajr', noon:'Dhuhr', during_day:'Asr', evening:'Maghrib', before_sleep:'Isha'};
@@ -1147,20 +1150,21 @@ function togglePrayerDone(catId){
   localStorage.setItem(key, JSON.stringify(state));
 }
 
-// Each time-of-day category maps to its own Quran item, matching traditional recitation times.
-const QURAN_ID_BY_CATEGORY = {waking:'yaseen', morning:'juz', noon:'rahman', evening:'waqiah', before_sleep:'mulk'};
-const QURAN_LABEL_BY_CATEGORY = {waking:'يس', morning:'جزء اليوم', noon:'الرحمن', evening:'الواقعة', before_sleep:'الملك'};
+// كل تصنيف ممكن يكون إله أكتر من عنصر قرآني (متل "الاستيقاظ والصباح"
+// يلي دمجنا فيها يس + جزء اليوم مع بعض).
+const QURAN_ITEMS_BY_CATEGORY = {
+  waking: [{id:'yaseen', label:'يس'}, {id:'juz', label:'جزء اليوم'}],
+  noon: [{id:'rahman', label:'الرحمن'}],
+  evening: [{id:'waqiah', label:'الواقعة'}],
+  before_sleep: [{id:'mulk', label:'الملك'}]
+};
 
-function isQuranDone(catId){
-  const quranId = QURAN_ID_BY_CATEGORY[catId];
-  if(!quranId) return false;
+function isQuranItemDone(quranId){
   const {state} = readTrackerState();
   return !!state.quran[quranId];
 }
 
-function toggleQuranDone(catId){
-  const quranId = QURAN_ID_BY_CATEGORY[catId];
-  if(!quranId) return;
+function toggleQuranItemDone(quranId){
   const {key, state} = readTrackerState();
   state.quran[quranId] = !state.quran[quranId];
   localStorage.setItem(key, JSON.stringify(state));
@@ -1177,8 +1181,8 @@ const CATEGORY_CUSTOM_TOGGLES = {
     {id:'t2', label:'أتممت الاستغفار'}
   ],
   during_day: [
-    {id:'t3', label:'صلاة على النبي'},
     {id:'subhanallah', label:'تسبيح'},
+    {id:'t3', label:'×١٠٠ صلاة على النبي'},
     {id:'lahawla', label:'لا حول ولا قوة إلا بالله'}
   ]
 };
@@ -1611,7 +1615,8 @@ function renderTimeline(){
     node.className = 'timeline-node' + (activeCategory === catId ? ' active' : '');
     const prayerDot = isPrayerDone(catId) ? '<span class="timeline-done-dot dot-prayer"></span>' : '';
     const azkarDot = isCategoryDone(catId) ? '<span class="timeline-done-dot dot-azkar"></span>' : '';
-    const quranDot = isQuranDone(catId) ? '<span class="timeline-done-dot dot-quran"></span>' : '';
+    const quranItems = QURAN_ITEMS_BY_CATEGORY[catId] || [];
+    const quranDot = (quranItems.length && quranItems.every(q => isQuranItemDone(q.id))) ? '<span class="timeline-done-dot dot-quran"></span>' : '';
     node.innerHTML = `<span class="timeline-icon">${TIMELINE_ICONS[catId]}${prayerDot}${azkarDot}${quranDot}</span><span class="timeline-label">${cat.label}</span>`;
     node.onclick = () => { activeCategory = catId; render(); };
     wrap.appendChild(node);
@@ -1638,7 +1643,15 @@ function renderBottomTabs(){
 }
 
 function getFilteredItems(){
-  let list = activeCategory === 'all' ? [...items] : items.filter(i => i.categoryId === activeCategory);
+  let list;
+  if(activeCategory === 'all'){
+    list = [...items];
+  }else if(activeCategory === 'waking'){
+    // "الاستيقاظ والصباح" مدموجة من التصنيفين القديمين
+    list = items.filter(i => i.categoryId === 'waking' || i.categoryId === 'morning');
+  }else{
+    list = items.filter(i => i.categoryId === activeCategory);
+  }
   if(activeCategory === 'all' && searchQuery.trim()){
     const q = stripTashkeel(searchQuery.trim());
     list = list.filter(i =>
@@ -1809,7 +1822,6 @@ function renderCompleteToggle(){
   const prayerId = CATEGORY_PRAYER_MAP[activeCategory];
   const prayerName = prayerId ? PRAYER_LABELS_AR[prayerId] : null;
   const azkarLabel = AZKAR_DONE_LABEL_BY_CATEGORY[activeCategory];
-  const quranLabel = QURAN_LABEL_BY_CATEGORY[activeCategory];
 
   const rows = [];
   if(prayerName){
@@ -1821,9 +1833,9 @@ function renderCompleteToggle(){
   (CATEGORY_CUSTOM_TOGGLES[activeCategory] || []).forEach(t => {
     rows.push({done: isAzkarTimeDone(t.id), label: t.label, doneLabel: t.label, onToggle: () => toggleAzkarTimeDone(t.id)});
   });
-  if(quranLabel){
-    rows.push({done: isQuranDone(activeCategory), label: `قرأت ${quranLabel}`, doneLabel: `قرأت ${quranLabel}`, onToggle: () => toggleQuranDone(activeCategory)});
-  }
+  (QURAN_ITEMS_BY_CATEGORY[activeCategory] || []).forEach(q => {
+    rows.push({done: isQuranItemDone(q.id), label: `قرأت ${q.label}`, doneLabel: `قرأت ${q.label}`, onToggle: () => toggleQuranItemDone(q.id)});
+  });
 
   const wrap = document.createElement('div');
   wrap.id = 'completeToggleWrap';
