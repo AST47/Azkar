@@ -1890,7 +1890,9 @@ function openEdit(id){
     const item = items.find(i => i.id === id);
     document.getElementById('editModalTitle').textContent = 'تعديل الذكر';
     document.getElementById('editTitle').value = item.title || '';
-    select.value = item.categoryId;
+    // "الصباح" (morning) مش خيار بالقائمة عاد — انضمت لـ"الاستيقاظ والصباح".
+    // أي ذكر قديم بهالتصنيف منفتحه محدّد على البديل الصحيح تلقائياً.
+    select.value = (item.categoryId === 'morning') ? 'waking' : item.categoryId;
     document.getElementById('editText').value = item.text;
     document.getElementById('editCount').value = item.count;
     document.getElementById('editIsQuran').checked = !!item.isQuran;
