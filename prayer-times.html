@@ -1046,7 +1046,6 @@
   document.addEventListener('click', () => {
     document.getElementById('pagesDropdown').classList.remove('open');
   });
-  document.getElementById('pagesDropdown').addEventListener('click', e => e.stopPropagation());
 
   const showInAzkarCheckbox = document.getElementById('showInAzkarCheckbox');
   showInAzkarCheckbox.checked = localStorage.getItem('show_prayer_times') === '1';

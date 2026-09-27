@@ -479,12 +479,19 @@ const PRAYERS = [
 ];
 
 const AZKAR_CATEGORIES = [
-  {id:'waking', label:'الاستيقاظ'},
-  {id:'morning', label:'الصباح'},
+  {id:'waking', label:'الاستيقاظ والصبح'},
   {id:'noon', label:'الظهيرة'},
+  {id:'during_day', label:'أثناء اليوم'},
   {id:'evening', label:'المساء'},
   {id:'sleep', label:'قبل النوم'}
 ];
+// نفس الخمسة أزرار يلي بالسطر التاني من ورد الأذكار اليومي (AZKAR_TIMES) —
+// "أثناء اليوم" مو قيمة مخزّنة لحالها، هي محسوبة منهم مباشرة، ونفس الفكرة
+// متل النقطة النصانية لزر "أثناء اليوم" بالتايم لاين بالصفحة الرئيسية.
+const DURING_DAY_LINKED_IDS = ['subhanallah','t1','t3','t2','lahawla'];
+function isDuringDayDone(){
+  return DURING_DAY_LINKED_IDS.every(id => state.azkarTimes[id]);
+}
 
 const AZKAR_TIMES = [
   {id:'subhanallah', label:'×١٠٠ تسبيح'},
@@ -616,9 +623,37 @@ function renderProgress(){
   const total = QURAN.length + PRAYERS.length + AZKAR_CATEGORIES.length + AZKAR_TIMES.length;
   let done = QURAN.filter(q => state.quran[q.id]).length;
   done += PRAYERS.filter(p => state.prayers[p.id]).length;
-  done += AZKAR_CATEGORIES.filter(a => state.azkarCategories[a.id]).length;
+  done += AZKAR_CATEGORIES.filter(a => a.id === 'during_day' ? isDuringDayDone() : state.azkarCategories[a.id]).length;
   done += AZKAR_TIMES.filter(a => state.azkarTimes[a.id]).length;
   document.getElementById('progressText').textContent = done + ' من ' + total + ' مكتملة اليوم';
+}
+
+function renderAzkarCatGrid(){
+  const container = document.getElementById('azkarCatGrid');
+  container.innerHTML = '';
+  AZKAR_CATEGORIES.forEach(item => {
+    const isDuringDay = item.id === 'during_day';
+    const done = isDuringDay ? isDuringDayDone() : state.azkarCategories[item.id];
+    const box = document.createElement('div');
+    box.className = 'box' + (done ? ' done' : '');
+    box.innerHTML = `
+      <span class="check-circle">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+      </span>
+      <span class="box-label">${item.label}</span>
+    `;
+    box.onclick = () => {
+      if(isDuringDay){
+        const newVal = !isDuringDayDone();
+        DURING_DAY_LINKED_IDS.forEach(id => state.azkarTimes[id] = newVal);
+      }else{
+        state.azkarCategories[item.id] = !state.azkarCategories[item.id];
+      }
+      saveState();
+      render();
+    };
+    container.appendChild(box);
+  });
 }
 
 function renderGrid(containerId, list, stateKey){
@@ -646,7 +681,7 @@ function render(){
   renderProgress();
   renderGrid('quranGrid', QURAN, 'quran');
   renderGrid('prayersGrid', PRAYERS, 'prayers');
-  renderGrid('azkarCatGrid', AZKAR_CATEGORIES, 'azkarCategories');
+  renderAzkarCatGrid();
   renderGrid('azkarTimesGrid', AZKAR_TIMES, 'azkarTimes');
 }
 
