@@ -363,7 +363,7 @@ mark.search-hit{
   border:2px solid var(--bg);
 }
 .timeline-done-dot.dot-prayer{ right:-2px; }
-.timeline-done-dot.dot-azkar{ top:-6px; left:50%; transform:translateX(-50%); }
+.timeline-done-dot.dot-azkar{ top:-9px; left:50%; transform:translateX(-50%); }
 .timeline-done-dot.dot-quran{ left:-2px; }
 .timeline-node.active .timeline-icon{
   background:var(--teal);
@@ -1090,7 +1090,7 @@ const CATEGORY_TO_TRACKER_ID = {waking:'waking', morning:'morning', noon:'noon',
 const TRACKER_QURAN_IDS = ['yaseen','rahman','juz','waqiah','mulk'];
 const TRACKER_PRAYER_IDS = ['fajr','dhuhr','asr','maghrib','isha'];
 const TRACKER_AZKAR_CAT_IDS = ['waking','morning','noon','evening','sleep'];
-const TRACKER_AZKAR_TIME_IDS = ['subhanallah','t1','t2','t3','lahawla'];
+const TRACKER_AZKAR_TIME_IDS = ['subhanallah','t1','t2','t3','lahawla','tawheed_a','tawheed_b','istighfar_a','istighfar_b'];
 
 function freshTrackerState(){
   const mk = ids => Object.fromEntries(ids.map(id => [id, false]));
@@ -1153,8 +1153,9 @@ function togglePrayerDone(catId){
 // كل تصنيف ممكن يكون إله أكتر من عنصر قرآني (متل "الاستيقاظ والصباح"
 // يلي دمجنا فيها يس + جزء اليوم مع بعض).
 const QURAN_ITEMS_BY_CATEGORY = {
-  waking: [{id:'yaseen', label:'يس'}, {id:'juz', label:'جزء اليوم'}],
+  waking: [{id:'yaseen', label:'يس'}],
   noon: [{id:'rahman', label:'الرحمن'}],
+  during_day: [{id:'juz', label:'جزء اليوم'}],
   evening: [{id:'waqiah', label:'الواقعة'}],
   before_sleep: [{id:'mulk', label:'الملك'}]
 };
@@ -1176,14 +1177,12 @@ const AZKAR_DONE_LABEL_BY_CATEGORY = {waking:'أتممت الأذكار', mornin
 // أزرار إضافية خاصة بتصنيفات معيّنة، بتستخدم مخزون azkarTimes المشترك
 // أصلاً مع tracker.html (subhanallah/t1/t2/t3/lahawla) بدل ما نضيف حقول جديدة.
 const CATEGORY_CUSTOM_TOGGLES = {
-  waking: [
-    {id:'t1', label:'أتممت التوحيد'},
-    {id:'t2', label:'أتممت الاستغفار'}
-  ],
   during_day: [
     {id:'subhanallah', label:'تسبيح'},
     {id:'t3', label:'×١٠٠ صلاة على النبي'},
-    {id:'lahawla', label:'لا حول ولا قوة إلا بالله'}
+    {id:'lahawla', label:'لا حول ولا قوة إلا بالله'},
+    {id:'t1', label:'أتممت التوحيد'},
+    {id:'t2', label:'أتممت الاستغفار'}
   ]
 };
 
@@ -1199,7 +1198,7 @@ function toggleAzkarTimeDone(id){
 }
 
 let items = [];
-let activeCategory = 'noon';
+let activeCategory = 'during_day';
 let isAdmin = false;
 let editingId = null;
 let searchQuery = '';
@@ -1694,7 +1693,7 @@ function render(){
     if(item.isQuran){
       const mark = document.createElement('div');
       mark.className = 'quran-mark';
-      mark.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H12v20H6.5A2.5 2.5 0 0 1 4 19.5v-15Z"/><path d="M20 4.5A2.5 2.5 0 0 0 17.5 2H12v20h5.5a2.5 2.5 0 0 0 2.5-2.5v-15Z"/></svg><span>آية قرآنية</span>';
+      mark.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H12v20H6.5A2.5 2.5 0 0 1 4 19.5v-15Z"/><path d="M20 4.5A2.5 2.5 0 0 0 17.5 2H12v20h5.5a2.5 2.5 0 0 0 2.5-2.5v-15Z"/></svg><span>سورة قرآنية</span>';
 
       if(item.imageUrls && item.imageUrls.length){
         const imgBtn = document.createElement('button');

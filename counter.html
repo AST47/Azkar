@@ -359,17 +359,17 @@ body{
       <option value="salawat">الصلاة على النبي</option>
       <option value="subhanallah-azeem">سبحان الله العظيم وبحمده</option>
       <option value="lahawla">لا حول ولا قوة إلا بالله</option>
-      <option value="la-ilaha-illa-allah">لا إله إلا الله وحده</option>
-      <option value="la-ilaha-illa-anta">لا إله إلا أنت سبحانك</option>
       <option value="istighfar1">استغفار</option>
       <option value="sayyid-istighfar">سيد الاستغفار</option>
-      <option value="kifaya">اللهم اكفنيهم بما شئت</option>
-      <option value="hawl-quwwa">اللهم أخرجني من حولي إلى حولك</option>
-      <option value="tawakkul">اللهم إني وكّلتك أمري</option>
+      <option value="la-ilaha-illa-anta">لا إله إلا أنت سبحانك</option>
+      <option value="la-ilaha-illa-allah">لا إله إلا الله وحده</option>
       <option value="taysir">اللهم لا سهل إلا ما جعلته سهلًا</option>
-      <option value="hirman-masiya">اللهم احرمني لذة معصيتك</option>
-      <option value="istighna">اللهم اكفني بحلالك عن حرامك</option>
+      <option value="tawakkul">اللهم إني وكّلتك أمري</option>
+      <option value="hawl-quwwa">اللهم أخرجني من حولي إلى حولك</option>
+      <option value="kifaya">اللهم اكفنيهم بما شئت</option>
       <option value="rizq">اللهم افتح لي أبواب رحمتك</option>
+      <option value="istighna">اللهم اكفني بحلالك عن حرامك</option>
+      <option value="hirman-masiya">اللهم احرمني لذة معصيتك</option>
       <option value="naariya">الصلاة النارية</option>
     </select>
     <p class="dhikr-text" id="dhikrText"></p>
@@ -494,21 +494,21 @@ body{
 
   const PRESETS = {
     '': { text: '' },
-    'salawat': { text: 'اللهم صلِّ وسلّم وبارك، على سيّدنا محمّد وصحبه وآله', target: 100 },
+    'salawat': { text: 'اللهم صلِّ وسلّم وبارك، على سيّدنا محمّد وصحبه وآله', target: 100, trackerKey: 't3' },
     'subhanallah-azeem': { text: 'سبحان الله العظيم وبحمده', target: 100 },
     'lahawla': { text: 'لا حول ولا قوة إلا بالله', target: 100, trackerKey: 'lahawla' },
-    'istighfar1': { text: 'أستغفر الله العظيم، من كل ذنب قد فعلت، يا ليتني ما فعلت، لم أعد أفعل', target: 10 },
-    'la-ilaha-illa-anta': { text: 'لا إله إلا أنت سبحانك، إني كنت من الظالمين، وأنت أرحم الراحمين', target: 10 },
-    'la-ilaha-illa-allah': { text: 'لا إله إلا الله وحده لا شريك له، له الملك، وله الحمد، وهو يُحيي ويُميت، وهو على كل شيء قدير', target: 10 },
+    'istighfar1': { text: 'أستغفر الله العظيم، من كل ذنب قد فعلت، يا ليتني ما فعلت، لم أعد أفعل', target: 10, trackerKey: 'istighfar_a' },
+    'la-ilaha-illa-anta': { text: 'لا إله إلا أنت سبحانك، إني كنت من الظالمين، وأنت أرحم الراحمين', target: 10, trackerKey: 'tawheed_a' },
+    'la-ilaha-illa-allah': { text: 'لا إله إلا الله وحده لا شريك له، له الملك، وله الحمد، وهو يُحيي ويُميت، وهو على كل شيء قدير', target: 10, trackerKey: 'tawheed_b' },
     'taysir': { text: 'اللهم لا سهل إلا ما جعلته سهلًا، وأنت تجعل الحزن إذا شئت سهلًا', target: 10 },
     'tawakkul': { text: 'اللهم إني وكّلتك أمري، واستودعتك همّي، فبشّرني بما يفتح مداخل السعادة إلى قلبي', target: 10 },
     'hawl-quwwa': { text: 'اللهم أخرجني من حولي إلى حولك، ومن عزمي إلى عزمك، ومن ضيق اختياري إلى براح إرادتك، ومن ضعفي إلى قوّتك، ومن انكساري إلى عزّتك، يا عزيز يا ذا القوّة المتين', target: 10 },
     'kifaya': { text: 'اللهمّ اكفتهيم بما شئت، وكيف شئت، إنّك على ما تشاء قدير', target: 10 },
-    'sayyid-istighfar': { text: 'اللّهمّ أنت ربّي، لا إله إلّا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شرّ ما صنعت، أبوء لك بنعمتك عليّ، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت', target: 10 },
+    'sayyid-istighfar': { text: 'اللّهمّ أنت ربّي، لا إله إلّا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شرّ ما صنعت، أبوء لك بنعمتك عليّ، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت', target: 10, trackerKey: 'istighfar_b' },
     'rizq': { text: 'اللّهمّ افتح لي أبواب رحمتك، وارزقني بفضلك، رزقًا حلالًا طيّبًا مباركًا يا رب العالمين', target: 10 },
     'istighna': { text: 'اللّهمّ اكفني بحلالك عن حرامك، واشغلني بطاعتك عن معصيتك، وأغنني بفضلك عمّن سواك', target: 10 },
     'hirman-masiya': { text: 'اللهم احرمني لذّة معصيتك، وارزقني لذّة طاعتك', target: 10 },
-    'naariya': { text: 'اللهم صلِّ صلاةً كاملةً وسلِّم سلاماً تاماً على سيدنا محمد الذي تنحل به العقد وتنفرج به الكرب وتقضى به الحوائج وتنال به الرغائب وحسن الخواتيم ويستسقى الغمام بوجهه الكريم وعلى آله وصحبه وسلم' }
+    'naariya': { text: 'اللهم صلِّ صلاةً كاملةً وسلِّم سلاماً تاماً على سيدنا محمد الذي تنحل به العقد وتنفرج به الكرب وتقضى به الحوائج وتنال به الرغائب وحسن الخواتيم ويستسقى الغمام بوجهه الكريم وعلى آله وصحبه وسلم', target: 33 }
   };
 
   const countEl = document.getElementById('count');
@@ -530,7 +530,7 @@ body{
   const TRACKER_QURAN_IDS = ['yaseen','rahman','juz','waqiah','mulk'];
   const TRACKER_PRAYER_IDS = ['fajr','dhuhr','asr','maghrib','isha'];
   const TRACKER_AZKAR_CAT_IDS = ['waking','morning','noon','evening','sleep'];
-  const TRACKER_AZKAR_TIME_IDS = ['subhanallah','t1','t2','t3','lahawla'];
+  const TRACKER_AZKAR_TIME_IDS = ['subhanallah','t1','t2','t3','lahawla','tawheed_a','tawheed_b','istighfar_a','istighfar_b'];
 
   function freshTrackerState(){
     const mk = ids => Object.fromEntries(ids.map(id => [id, false]));
@@ -590,6 +590,16 @@ body{
     }
   }
 
+  // بعض الأذكار (التوحيد والاستغفار) لازم ينكمل شغلتين لحتى يتحقق الزر
+  // المركّب بالتراكر (t1/t2) — كل واحد من الشغلتين إله مفتاح فرعي خاص،
+  // وما بيتحقق الزر المركّب إلا لما الشغلتين يصيروا تم بنفس اليوم.
+  const COMPOUND_PAIR = {
+    tawheed_a: {partner: 'tawheed_b', compound: 't1'},
+    tawheed_b: {partner: 'tawheed_a', compound: 't1'},
+    istighfar_a: {partner: 'istighfar_b', compound: 't2'},
+    istighfar_b: {partner: 'istighfar_a', compound: 't2'}
+  };
+
   function markTrackerDone(trackerKey){
     fetchFajrTime(() => {
       const key = trackerDayKey();
@@ -600,8 +610,20 @@ body{
       }catch(e){}
       if(!isCompleteTrackerState(st)) st = freshTrackerState();
       st.azkarTimes[trackerKey] = true;
+
+      const pair = COMPOUND_PAIR[trackerKey];
+      let compoundDone = false;
+      if(pair && st.azkarTimes[pair.partner]){
+        st.azkarTimes[pair.compound] = true;
+        compoundDone = true;
+      }
+
       localStorage.setItem(key, JSON.stringify(st));
-      if(trackedNoteEl){ trackedNoteEl.textContent = 'انحطّت صح بالمتابعة اليومية ✓'; }
+      if(trackedNoteEl){
+        trackedNoteEl.textContent = pair
+          ? (compoundDone ? 'اكتمل الزر بالتراكر ✓' : 'سجّلنا هاي، وبتكمل الزر لما توصل التانية معها')
+          : 'انحطّت صح بالمتابعة اليومية ✓';
+      }
     });
   }
 
@@ -666,7 +688,7 @@ body{
     const justReached = state.count % state.target === 0;
     render();
     save();
-    doVibrate(justReached ? [60, 120, 60] : 50);
+    doVibrate(justReached ? [30, 60, 30] : 25);
 
     const preset = activePreset();
     if(preset.trackerKey && state.count === state.target){
@@ -686,6 +708,7 @@ body{
     state.preset = presetSelectEl.value;
     const preset = activePreset();
     if(preset.target){ state.target = preset.target; }
+    state.count = 0;
     trackedNoteEl.textContent = '';
     render();
     save();
@@ -701,7 +724,7 @@ body{
     state.vibrate = !state.vibrate;
     render();
     save();
-    if(state.vibrate) doVibrate(50);
+    if(state.vibrate) doVibrate(25);
   });
 
   render();

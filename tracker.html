@@ -493,6 +493,9 @@ const AZKAR_TIMES = [
   {id:'t2', label:'أتممت الاستغفار'},
   {id:'lahawla', label:'×١٠٠ لاحول'}
 ];
+// مفاتيح فرعية داخلية (مش أزرار ظاهرة) — عدّادة الذكر بتستخدمها لتجميع
+// شغلتين قبل ما تفعّل t1 (التوحيد) أو t2 (الاستغفار) تلقائياً.
+const AZKAR_TIME_HIDDEN_IDS = ['tawheed_a','tawheed_b','istighfar_a','istighfar_b'];
 
 let fajrMinutesToday = null; // null until fetched — falls back to midnight boundary
 
@@ -521,14 +524,17 @@ function freshState(){
   PRAYERS.forEach(p => fresh.prayers[p.id] = false);
   AZKAR_CATEGORIES.forEach(a => fresh.azkarCategories[a.id] = false);
   AZKAR_TIMES.forEach(a => fresh.azkarTimes[a.id] = false);
+  AZKAR_TIME_HIDDEN_IDS.forEach(id => fresh.azkarTimes[id] = false);
   return fresh;
 }
 
 function isValidState(s){
   if(!s || typeof s !== 'object') return false;
   const hasAll = (obj, list) => obj && typeof obj === 'object' && list.every(i => i.id in obj);
+  const hasAllIds = (obj, ids) => obj && typeof obj === 'object' && ids.every(id => id in obj);
   return hasAll(s.quran, QURAN) && hasAll(s.prayers, PRAYERS)
-    && hasAll(s.azkarCategories, AZKAR_CATEGORIES) && hasAll(s.azkarTimes, AZKAR_TIMES);
+    && hasAll(s.azkarCategories, AZKAR_CATEGORIES) && hasAll(s.azkarTimes, AZKAR_TIMES)
+    && hasAllIds(s.azkarTimes, AZKAR_TIME_HIDDEN_IDS);
 }
 
 function readState(key){
