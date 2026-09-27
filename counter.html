@@ -744,7 +744,6 @@ document.getElementById('pagesBtn').addEventListener('click', (e) => {
 document.addEventListener('click', () => {
   document.getElementById('pagesDropdown').classList.remove('open');
 });
-document.getElementById('pagesDropdown').addEventListener('click', e => e.stopPropagation());
 
 function closeModal(id){
   document.getElementById(id).classList.remove('open');

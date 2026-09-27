@@ -867,7 +867,7 @@ mark.search-hit{
     <button class="all-btn" id="allBtn">كافّة الأدعية والأذكار</button>
     <div class="search-box" id="searchBox">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="searchInput" placeholder="دوّر بالأدعية والأذكار...">
+      <input type="text" id="searchInput" placeholder="دوّر بالأدعية والأذكار..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="dhikr-search">
       <button class="search-clear" id="searchClear" title="مسح" style="display:none;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
@@ -913,7 +913,7 @@ mark.search-hit{
   <div class="modal">
     <h3>الدخول لوضع التعديل</h3>
     <label>كلمة المرور</label>
-    <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور">
+    <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور" autocomplete="off" name="admin-gate-not-a-login">
     <div class="error-text" id="passwordError">كلمة المرور غير صحيحة</div>
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('passwordModal')">إلغاء</button>
@@ -1178,10 +1178,10 @@ const AZKAR_DONE_LABEL_BY_CATEGORY = {waking:'أتممت الأذكار', mornin
 // أصلاً مع tracker.html (subhanallah/t1/t2/t3/lahawla) بدل ما نضيف حقول جديدة.
 const CATEGORY_CUSTOM_TOGGLES = {
   during_day: [
-    {id:'subhanallah', label:'تسبيح'},
-    {id:'t3', label:'×١٠٠ صلاة على النبي'},
-    {id:'lahawla', label:'لا حول ولا قوة إلا بالله'},
-    {id:'t1', label:'أتممت التوحيد'},
+    {id:'subhanallah', label:'أتممت التسبيح'},
+    {id:'t3', label:'أتممت الصلاة على النبي'},
+    {id:'lahawla', label:'أتممت الحوقلة'},
+    {id:'t1', label:'أتممت التهليل'},
     {id:'t2', label:'أتممت الاستغفار'}
   ]
 };
@@ -1613,7 +1613,10 @@ function renderTimeline(){
     const node = document.createElement('button');
     node.className = 'timeline-node' + (activeCategory === catId ? ' active' : '');
     const prayerDot = isPrayerDone(catId) ? '<span class="timeline-done-dot dot-prayer"></span>' : '';
-    const azkarDot = isCategoryDone(catId) ? '<span class="timeline-done-dot dot-azkar"></span>' : '';
+    const azkarDone = AZKAR_DONE_LABEL_BY_CATEGORY[catId]
+      ? isCategoryDone(catId)
+      : (CATEGORY_CUSTOM_TOGGLES[catId] || []).length > 0 && CATEGORY_CUSTOM_TOGGLES[catId].every(t => isAzkarTimeDone(t.id));
+    const azkarDot = azkarDone ? '<span class="timeline-done-dot dot-azkar"></span>' : '';
     const quranItems = QURAN_ITEMS_BY_CATEGORY[catId] || [];
     const quranDot = (quranItems.length && quranItems.every(q => isQuranItemDone(q.id))) ? '<span class="timeline-done-dot dot-quran"></span>' : '';
     node.innerHTML = `<span class="timeline-icon">${TIMELINE_ICONS[catId]}${prayerDot}${azkarDot}${quranDot}</span><span class="timeline-label">${cat.label}</span>`;

@@ -487,11 +487,11 @@ const AZKAR_CATEGORIES = [
 ];
 
 const AZKAR_TIMES = [
-  {id:'subhanallah', label:'×١٠٠ سبحان'},
-  {id:'t1', label:'أتممت التوحيد'},
+  {id:'subhanallah', label:'×١٠٠ تسبيح'},
+  {id:'t1', label:'×١٠٠ التهليل'},
   {id:'t3', label:'×١٠٠ صلاة على النبي'},
-  {id:'t2', label:'أتممت الاستغفار'},
-  {id:'lahawla', label:'×١٠٠ لاحول'}
+  {id:'t2', label:'×١٠٠ الاستغفار'},
+  {id:'lahawla', label:'×١٠٠ حوقلة'}
 ];
 // مفاتيح فرعية داخلية (مش أزرار ظاهرة) — عدّادة الذكر بتستخدمها لتجميع
 // شغلتين قبل ما تفعّل t1 (التوحيد) أو t2 (الاستغفار) تلقائياً.
@@ -706,7 +706,6 @@ document.getElementById('pagesBtn').addEventListener('click', (e) => {
 document.addEventListener('click', () => {
   document.getElementById('pagesDropdown').classList.remove('open');
 });
-document.getElementById('pagesDropdown').addEventListener('click', e => e.stopPropagation());
 
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
