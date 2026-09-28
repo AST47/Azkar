@@ -649,6 +649,9 @@ mark.search-hit{
   position:absolute;
   top:10px;
   left:10px;
+  display:flex;
+  align-items:center;
+  gap:5px;
   font-size:11px;
   font-family:'Tajawal', sans-serif;
   color:var(--gold);
@@ -657,6 +660,19 @@ mark.search-hit{
   border-radius:6px;
   padding:2px 6px;
 }
+.order-tag input{
+  width:30px;
+  text-align:center;
+  font-family:'Tajawal', sans-serif;
+  font-size:12px;
+  color:var(--ink);
+  background:var(--bg-card);
+  border:1px solid var(--gold-line);
+  border-radius:4px;
+  padding:1px 2px;
+  outline:none;
+}
+.order-tag input:focus{border-color:var(--gold);}
 
 .add-card{
   border:1.5px dashed var(--gold-line);
@@ -1064,6 +1080,13 @@ const CATEGORIES = [
   {id:'means', label:'الأخذ بالأسباب'}
 ];
 // "الصباح" (morning) صار مدموج بصرياً مع "الاستيقاظ" (waking) تحت اسم
+// أسماء مختصرة (كلمة وحدة) لبادج التصنيف على الكروت بعرض "كافّة الأدعية
+// والأذكار"، لأنه ما في مساحة كبيرة تحت الكرت. غير المذكور بيرجع لاسمه الكامل.
+// (morning هون مشان العناصر القديمة يلي لسا متعلّمة فيه بقاعدة البيانات)
+const CATEGORY_BADGE_LABELS = {
+  waking:'الصباح', morning:'الصباح',
+  during_day:'يوم', weekend:'أسبوع', monthly:'شهر', yearly:'سنة', means:'أسباب'
+};
 // "الاستيقاظ والصباح" — أي عنصر قديم متعلّم بـ categoryId:'morning' لسا
 // موجود بقاعدة البيانات وبيظهر تلقائياً هون (شوف getFilteredItems).
 
@@ -1214,6 +1237,7 @@ async function loadData(){
   itemsRef.get({source: 'cache'}).then(snap => {
     if(!doneOnce && snap.exists){
       items = snap.data().items || [];
+      normalizeOrders();
       render();
       precacheImages();
     }
@@ -1222,6 +1246,7 @@ async function loadData(){
   itemsRef.onSnapshot(snap => {
     doneOnce = true;
     items = (snap.exists && snap.data().items) ? snap.data().items : [];
+    normalizeOrders();
     render();
     precacheImages();
   }, err => {
@@ -1254,6 +1279,7 @@ async function manualRefresh(){
   try{
     const snap = await itemsRef.get({source: 'server'});
     items = (snap.exists && snap.data().items) ? snap.data().items : [];
+    normalizeOrders();
     render();
     forceRefreshImages();
   }catch(e){
@@ -1689,7 +1715,25 @@ function render(){
     if(isAdmin){
       const tag = document.createElement('div');
       tag.className = 'order-tag';
-      tag.textContent = 'ترتيب ' + toArabicDigits(item.order);
+      if(activeCategory === 'all'){
+        // ترتيب كل تصنيف لحاله — بعرض الكل الرقم للقراءة بس
+        tag.textContent = 'ترتيب ' + toArabicDigits(item.order);
+      }else{
+        const lbl = document.createElement('span');
+        lbl.textContent = 'ترتيب';
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.inputMode = 'numeric';
+        inp.autocomplete = 'off';
+        inp.name = 'dhikr-order';
+        inp.value = toArabicDigits(item.order);
+        inp.title = 'اكتب رقم الترتيب الجديد واضغط Enter';
+        inp.onfocus = () => inp.select();
+        inp.onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); inp.blur(); } };
+        inp.onchange = () => setItemPosition(item.id, inp.value);
+        tag.appendChild(lbl);
+        tag.appendChild(inp);
+      }
       card.appendChild(tag);
     }
 
@@ -1754,10 +1798,11 @@ function render(){
 
     if(activeCategory === 'all'){
       const catLabel = CATEGORIES.find(c => c.id === item.categoryId);
-      if(catLabel){
+      const badgeText = CATEGORY_BADGE_LABELS[item.categoryId] || (catLabel && catLabel.label);
+      if(badgeText){
         const catBadge = document.createElement('span');
         catBadge.className = 'cat-badge';
-        catBadge.textContent = catLabel.label;
+        catBadge.textContent = badgeText;
         badgeGroup.appendChild(catBadge);
       }
     }
@@ -1860,8 +1905,72 @@ function renderCompleteToggle(){
   });
 }
 
+// ---- الترتيب: كل تصنيف إله ترقيم متسلسل 1، 2، 3... لحاله ----
+// "الصباح" القديم (morning) بيندمج مع "الاستيقاظ والصباح" (waking) بنفس المجموعة.
+function orderGroupOf(item){
+  return item.categoryId === 'morning' ? 'waking' : item.categoryId;
+}
+
+function fromArabicDigits(s){
+  return String(s)
+    .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+    .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+}
+
+// بيعيد ترقيم كل مجموعة 1..n بدون فجوات أو تكرار. لو المجموعة المدموجة
+// (الاستيقاظ + الصباح القديم) فيها أرقام مكررة، عناصر الاستيقاظ بتيجي أول
+// وبعدها الصباح القديمة (تنظيف لمرة وحدة). بيرجّع true إذا تغيّر أي رقم.
+function normalizeOrders(){
+  const groups = {};
+  items.forEach((it, idx) => {
+    const g = orderGroupOf(it);
+    (groups[g] = groups[g] || []).push({it, idx});
+  });
+  let changed = false;
+  Object.values(groups).forEach(list => {
+    const orders = list.map(x => x.it.order);
+    const hasDup = new Set(orders).size !== orders.length;
+    const hasBoth = list.some(x => x.it.categoryId === 'morning') && list.some(x => x.it.categoryId === 'waking');
+    list.sort((a, b) => {
+      if(hasDup && hasBoth){
+        const am = a.it.categoryId === 'morning' ? 1 : 0;
+        const bm = b.it.categoryId === 'morning' ? 1 : 0;
+        if(am !== bm) return am - bm;
+      }
+      return ((a.it.order || 0) - (b.it.order || 0)) || (a.idx - b.idx);
+    });
+    list.forEach((x, i) => {
+      if(x.it.order !== i + 1){ x.it.order = i + 1; changed = true; }
+    });
+  });
+  return changed;
+}
+
+function groupList(item){
+  const g = orderGroupOf(item);
+  return items.filter(i => orderGroupOf(i) === g).sort((a, b) => a.order - b.order);
+}
+
+// خانة الرقم: الذكر بينتقل للمكان المطلوب، وباقي التصنيف بينزاح تلقائياً
+function setItemPosition(id, newPos){
+  const item = items.find(i => i.id === id);
+  if(!item) return;
+  normalizeOrders();
+  const pos = parseInt(fromArabicDigits(newPos), 10);
+  if(isNaN(pos)){ render(); return; }
+  const rest = groupList(item).filter(i => i.id !== id);
+  const target = Math.max(1, Math.min(rest.length + 1, pos));
+  rest.splice(target - 1, 0, item);
+  rest.forEach((it, i) => { it.order = i + 1; });
+  saveData();
+  render();
+}
+
 function moveItem(id, direction){
-  const list = getFilteredItems();
+  const item = items.find(i => i.id === id);
+  if(!item) return;
+  normalizeOrders();
+  const list = groupList(item);
   const idx = list.findIndex(i => i.id === id);
   const swapIdx = idx + direction;
   if(swapIdx < 0 || swapIdx >= list.length) return;
@@ -1928,28 +2037,25 @@ function saveEdit(){
 
   if(editingId){
     const item = items.find(i => i.id === editingId);
-    const categoryChanged = item.categoryId !== categoryId;
+    const categoryChanged = orderGroupOf(item) !== orderGroupOf({categoryId});
     item.text = text;
     item.title = title;
     item.categoryId = categoryId;
     item.count = count;
     item.isQuran = isQuran;
     item.imageUrls = imageUrls;
-    if(categoryChanged){
-      const catItems = items.filter(i => i.categoryId === categoryId && i.id !== editingId);
-      const maxOrder = catItems.length ? Math.max(...catItems.map(i => i.order)) : 0;
-      item.order = maxOrder + 1;
-    }
+    // نقل لتصنيف تاني: بيروح لآخر التصنيف الجديد
+    if(categoryChanged) item.order = 1e9;
   }else{
-    const catItems = items.filter(i => i.categoryId === categoryId);
-    const maxOrder = catItems.length ? Math.max(...catItems.map(i => i.order)) : 0;
+    // ذكر جديد: بيجي آخر التصنيف
     items.push({
       id: 'item_' + Date.now(),
       text, title, categoryId, count, isQuran, imageUrls,
-      order: maxOrder + 1
+      order: 1e9
     });
   }
 
+  normalizeOrders();
   saveData();
   closeModal('editModal');
   render();
@@ -1958,6 +2064,7 @@ function saveEdit(){
 function deleteItem(id){
   if(!confirm('هل تريد حذف هذا الذكر؟')) return;
   items = items.filter(i => i.id !== id);
+  normalizeOrders();
   saveData();
   render();
 }
