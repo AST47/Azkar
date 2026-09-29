@@ -83,13 +83,20 @@ input[type=email], input[type=password]{width:100%; font-family:'Tajawal', sans-
 .switch input:checked + .switch-track::before{transform:translateX(20px);}
 
 .calendar-card{margin-top:16px;}
-.cal-grid{display:grid; grid-template-columns:repeat(7, 1fr); gap:5px; margin-top:14px;}
-.cal-cell{aspect-ratio:1; border-radius:4px; background:var(--gold-line); opacity:.35;}
-.cal-cell[data-level="1"]{background:var(--gold-soft); opacity:1;}
-.cal-cell[data-level="2"]{background:var(--gold); opacity:1;}
-.cal-cell[data-level="3"]{background:var(--teal); opacity:1;}
-.cal-legend{display:flex; align-items:center; gap:6px; margin-top:12px; font-size:11.5px; color:var(--ink-soft);}
-.cal-legend .cal-cell{width:12px; height:12px; flex:none;}
+.cal-nav{display:flex; align-items:center; justify-content:space-between; margin-top:4px;}
+.cal-nav-btn{width:30px; height:30px; border-radius:50%; border:1px solid var(--gold-line); background:var(--bg-card); color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center;}
+.cal-nav-btn:hover{background:rgba(173,138,62,0.1);}
+.cal-month-label{font-family:'Reem Kufi', sans-serif; font-size:15px; color:var(--teal-dark);}
+.cal-weekdays{display:grid; grid-template-columns:repeat(7, 1fr); gap:5px; margin-top:14px; font-size:11px; color:var(--ink-soft); text-align:center;}
+.cal-grid{display:grid; grid-template-columns:repeat(7, 1fr); gap:5px; margin-top:6px;}
+.cal-cell{aspect-ratio:1; border-radius:6px; background:var(--gold-line); opacity:.3; display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--ink-soft);}
+.cal-cell.empty{background:transparent; opacity:0;}
+.cal-cell[data-level="1"]{background:var(--gold-soft); opacity:1; color:var(--ink);}
+.cal-cell[data-level="2"]{background:var(--gold); opacity:1; color:#fff;}
+.cal-cell[data-level="3"]{background:var(--teal); opacity:1; color:#fff;}
+.cal-cell.today{box-shadow:0 0 0 1.5px var(--teal-dark) inset;}
+.cal-legend{display:flex; align-items:center; gap:6px; margin-top:14px; font-size:11.5px; color:var(--ink-soft);}
+.cal-legend .cal-cell{width:12px; height:12px; flex:none; font-size:0;}
 </style>
 </head>
 <body>
@@ -184,7 +191,15 @@ input[type=email], input[type=password]{width:100%; font-family:'Tajawal', sans-
   <!-- ---------- كالندر سجل الإنجاز (هيكل فاضي، رح يتربط ببيانات المتابعة لاحقاً) ---------- -->
   <div class="card calendar-card" id="calendarCard" style="display:none;">
     <h2>سجل المتابعة</h2>
-    <p class="lead">آخر ٣٥ يوم — كل مربع بيمثل يوم، وشدة اللون بتعكس نسبة الإنجاز.</p>
+    <p class="lead">كل يوم بيمثله مربع، وشدة اللون بتعكس نسبة إنجازك فيه.</p>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calShiftMonth(-1)" title="الشهر السابق">‹</button>
+      <span class="cal-month-label" id="calMonthLabel"></span>
+      <button class="cal-nav-btn" onclick="calShiftMonth(1)" title="الشهر التالي">›</button>
+    </div>
+    <div class="cal-weekdays">
+      <span>أحد</span><span>اثنين</span><span>ثلاثاء</span><span>أربعاء</span><span>خميس</span><span>جمعة</span><span>سبت</span>
+    </div>
     <div class="cal-grid" id="calGrid"></div>
     <div class="cal-legend">
       <span>أقل</span>
@@ -270,16 +285,49 @@ function renderAccountUI(){
   }
 }
 
-// هيكل فاضي بس — كل خانة data-level="0" لهلق. لما تجهز بيانات المتابعة
-// المزامنة (users/{uid}/days/{YYYY-MM-DD})، بيصير هون قراءتها وحساب
-// نسبة إنجاز كل يوم (0 لغاية 3) بدل التصفير الثابت.
+const ARABIC_MONTHS = ['كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول'];
+const ARABIC_DIGITS = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+function toArabicDigits(n){ return String(n).replace(/[0-9]/g, d => ARABIC_DIGITS[d]); }
+
+const today = new Date();
+let calViewYear = today.getFullYear();
+let calViewMonth = today.getMonth(); // 0-11
+
+function calShiftMonth(delta){
+  calViewMonth += delta;
+  if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+  if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+  renderCalendarPlaceholder();
+}
+
+// الشبكة كاملة لأي شهر/سنة، بس كل خانة data-level="0" لهلق (هيكل فاضي).
+// لما تجهز بيانات المزامنة (users/{uid}/days/{YYYY-MM-DD})، بيصير هون
+// قراءتها وحساب نسبة إنجاز كل يوم (0 لغاية 3) بدل التصفير الثابت.
 function renderCalendarPlaceholder(){
+  document.getElementById('calMonthLabel').textContent =
+    ARABIC_MONTHS[calViewMonth] + ' ' + toArabicDigits(calViewYear);
+
   const grid = document.getElementById('calGrid');
   grid.innerHTML = '';
-  for (let i = 0; i < 35; i++) {
+
+  const firstDay = new Date(calViewYear, calViewMonth, 1);
+  const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+  const leadingEmpty = firstDay.getDay(); // 0 = أحد
+
+  for (let i = 0; i < leadingEmpty; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'cal-cell empty';
+    grid.appendChild(empty);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
     const cell = document.createElement('div');
     cell.className = 'cal-cell';
     cell.setAttribute('data-level', '0');
+    cell.textContent = toArabicDigits(day);
+    if (day === today.getDate() && calViewMonth === today.getMonth() && calViewYear === today.getFullYear()) {
+      cell.classList.add('today');
+    }
     grid.appendChild(cell);
   }
 }
