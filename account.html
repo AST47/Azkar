@@ -261,12 +261,8 @@ function renderAccountUI(){
     document.getElementById('adminBadge').style.display = isAdmin ? 'inline-block' : 'none';
     document.getElementById('editModeRow').style.display = isAdmin ? 'flex' : 'none';
     document.getElementById('editModeToggle').checked = editMode;
-    if (!isAdmin) {
-      calendarCard.style.display = 'block';
-      renderCalendarPlaceholder();
-    } else {
-      calendarCard.style.display = 'none';
-    }
+    calendarCard.style.display = 'block';
+    renderCalendarPlaceholder();
   } else {
     guestCard.style.display = 'block';
     accountCard.style.display = 'none';
