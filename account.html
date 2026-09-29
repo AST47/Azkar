@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1F5C4E">
+<title>الحساب | أذكار وأدعية</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap');
+
+:root{
+  --bg:#F2E8D5;
+  --bg-card:#FBF5E8;
+  --ink:#2B2118;
+  --ink-soft:#6B5A45;
+  --teal:#1F5C4E;
+  --teal-dark:#123B31;
+  --gold:#AD8A3E;
+  --gold-soft:#DCC08A;
+  --gold-line: rgba(173,138,62,0.35);
+  --danger:#8C3B2E;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  background-image:radial-gradient(circle at 1px 1px, rgba(173,138,62,0.07) 1px, transparent 0);
+  background-size: 18px 18px;
+  color:var(--ink);
+  font-family:'Tajawal', sans-serif;
+  min-height:100vh;
+  padding:28px 20px 80px;
+  -webkit-tap-highlight-color: transparent;
+}
+.app{max-width:1120px; margin:0 auto;}
+.app-header{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:nowrap; max-width:480px; margin:0 auto 14px;}
+.brand{display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto; overflow:hidden;}
+.brand h1{font-family:'Reem Kufi', sans-serif; font-weight:700; font-size:clamp(11px, 5.5vw, 26px); margin:0; color:var(--teal-dark); letter-spacing:0.5px; white-space:nowrap; overflow:hidden; min-width:0;}
+.header-actions{display:flex; align-items:center; gap:8px; flex:0 0 auto;}
+.pages-menu{position:relative;}
+.pages-dropdown{position:absolute; top:calc(100% + 8px); left:0; background:var(--bg-card); border:1px solid var(--gold-line); border-radius:12px; padding:6px; min-width:190px; box-shadow:0 10px 26px rgba(43,33,24,0.18); display:none; flex-direction:column; gap:2px; z-index:70;}
+.pages-dropdown.open{display:flex;}
+.pages-divider{height:1px; background:var(--gold-line); margin:4px 6px;}
+.pages-item{width:100%; border:none; background:none; cursor:pointer; text-align:right; display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px; font-family:'Tajawal', sans-serif; font-size:13.5px; color:var(--ink); text-decoration:none; transition:background .15s;}
+.pages-item:hover{background:rgba(173,138,62,0.1);}
+.pages-item svg{flex-shrink:0; color:var(--ink-soft);}
+.pages-item.current{color:var(--teal); font-weight:600;}
+.pages-item.current svg{color:var(--teal);}
+.menu-trigger{width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; color:var(--gold); cursor:pointer; transition:opacity .15s;}
+.menu-trigger:hover{opacity:.75;}
+.header-btn{width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--bg-card); border:1px solid var(--gold-line); color:var(--ink-soft); cursor:pointer; text-decoration:none; transition:background .15s;}
+.header-btn.active{background:var(--teal); border-color:var(--teal); color:#F5EDD9;}
+.ornament{height:14px; max-width:480px; margin:6px auto 22px; background-image: repeating-linear-gradient(45deg, var(--gold-soft) 0 3px, transparent 3px 9px); opacity:0.55; mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);}
+.bottom-bar{display:flex; align-items:center; justify-content:center; gap:14px; max-width:480px; margin:36px auto 0; padding-top:16px; border-top:1px solid var(--gold-line);}
+.app-footer{max-width:480px; margin:16px auto 0; display:flex; align-items:center; justify-content:center; gap:10px; font-size:12.5px; color:var(--ink-soft);}
+.footer-name{font-family:'Tajawal', sans-serif; color:var(--ink-soft); text-decoration:none; border-bottom:1px solid var(--gold-line); padding-bottom:1px;}
+.footer-name:hover{color:var(--teal-dark); border-color:var(--teal);}
+
+.card{background:var(--bg-card); border:1px solid var(--gold-line); border-radius:12px; padding:24px; max-width:440px; margin:0 auto;}
+.card h2{font-family:'Reem Kufi', sans-serif; margin:0 0 10px; color:var(--teal-dark); font-size:19px;}
+.card p.lead{font-size:13.5px; color:var(--ink-soft); line-height:1.7; margin:0 0 18px;}
+.opt-list{display:flex; flex-direction:column; gap:10px;}
+.btn{font-family:'Tajawal', sans-serif; font-size:14px; padding:10px 18px; border-radius:8px; border:1px solid var(--gold-line); background:transparent; color:var(--ink-soft); cursor:pointer; width:100%;}
+.btn-primary{background:var(--teal); border-color:var(--teal); color:#F5EDD9;}
+.btn-google{display:flex; align-items:center; justify-content:center; gap:8px;}
+label{display:block; font-size:13px; color:var(--ink-soft); margin:14px 0 6px;}
+input[type=email], input[type=password]{width:100%; font-family:'Tajawal', sans-serif; font-size:14px; padding:9px 12px; border-radius:8px; border:1px solid var(--gold-line); background:#fff; color:var(--ink);}
+.error-text{color:var(--danger); font-size:13px; margin-top:8px; display:none;}
+.error-text.show{display:block;}
+.back-link{display:inline-flex; align-items:center; gap:4px; font-size:13px; color:var(--ink-soft); text-decoration:none; margin-bottom:6px;}
+.account-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid var(--gold-line);}
+.account-row:last-of-type{border-bottom:none;}
+.account-email{font-size:14px; color:var(--ink); word-break:break-all;}
+.badge-admin{display:inline-block; font-size:11px; background:var(--teal); color:#F5EDD9; padding:2px 8px; border-radius:20px; margin-inline-start:6px;}
+.switch{position:relative; width:44px; height:24px; flex-shrink:0;}
+.switch input{opacity:0; width:0; height:0;}
+.switch-track{position:absolute; inset:0; background:var(--gold-line); border-radius:24px; cursor:pointer; transition:background .15s;}
+.switch-track::before{content:""; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform .15s;}
+.switch input:checked + .switch-track{background:var(--teal);}
+.switch input:checked + .switch-track::before{transform:translateX(-20px);}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="app-header">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 34 34">
+        <circle cx="17" cy="17" r="15.5" fill="none" stroke="#AD8A3E" stroke-width="1.3"/>
+        <a href="index.html"><circle cx="17" cy="6" r="6" fill="transparent"/><circle cx="17" cy="6" r="2.4" fill="#AD8A3E"/></a>
+        <a href="tracker.html"><circle cx="27.5" cy="13.6" r="6" fill="transparent"/><circle cx="27.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="prayer-times.html"><circle cx="23.5" cy="25.9" r="6" fill="transparent"/><circle cx="23.5" cy="25.9" r="1.9" fill="#AD8A3E"/></a>
+        <a href="counter.html"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="qibla.html"><circle cx="10.5" cy="25.9" r="6" fill="transparent"/><circle cx="10.5" cy="25.9" r="1.9" fill="#AD8A3E"/></a>
+      </svg>
+      <h1>الحساب</h1>
+    </div>
+    <div class="header-actions">
+      <div class="pages-menu">
+        <button id="pagesBtn" class="menu-trigger" title="القائمة">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div class="pages-dropdown" id="pagesDropdown">
+          <a href="prayer-times.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M3 12h2.2M18.8 12H21M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke-linecap="round"/></svg>
+            أوقات الصلاة
+          </a>
+          <a href="tracker.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/><path d="M8.5 14.5l2 2 4-4"/></svg>
+            المتابعة اليومية
+          </a>
+          <a href="index.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.6-1.3-3.6-2-6-2v12c2.4 0 4.4.7 6 2 1.6-1.3 3.6-2 6-2v-12c-2.4 0-4.4.7-6 2z"/><path d="M12 6.5v12"/></svg>
+            الأذكار
+          </a>
+          <a href="counter.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            عدّادة الذكر
+          </a>
+          <a href="qibla.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="15.5,8.5 12.5,12.5 8.5,15.5 11.5,11.5" fill="currentColor" stroke="none"/></svg>
+            اتجاه القبلة
+          </a>
+          <div class="pages-divider"></div>
+          <a href="account.html" class="pages-item current">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+            الحساب
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="ornament"></div>
+
+  <!-- ---------- حالة: ضيف (غير مسجل) ---------- -->
+  <div class="card" id="guestCard" style="display:none;">
+    <h2>مزامنة بياناتك</h2>
+    <p class="lead">سجّل دخولك مشان تحتفظ بمتابعتك وإعداداتك وتوصل لها من أي جهاز.</p>
+    <div class="opt-list" id="syncOptions">
+      <button class="btn btn-primary" onclick="handleGoogle()">الدخول بحساب جوجل</button>
+      <button class="btn" onclick="showEmailForm('new')">إنشاء حساب بإيميل جديد</button>
+      <button class="btn" onclick="showEmailForm('existing')">الدخول بإيميل موجود</button>
+    </div>
+    <div id="emailForm" style="display:none;">
+      <a href="#" class="back-link" onclick="hideEmailForm(); return false;">→ رجوع</a>
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="acctEmail" placeholder="example@email.com" autocomplete="email">
+      <label>كلمة المرور</label>
+      <input type="password" id="acctPassword" placeholder="أدخل كلمة المرور" autocomplete="current-password">
+      <div class="error-text" id="acctError"></div>
+      <button class="btn btn-primary" style="margin-top:16px;" onclick="submitEmailAuth()" id="acctSubmitBtn">تأكيد</button>
+    </div>
+  </div>
+
+  <!-- ---------- حالة: مسجل دخول ---------- -->
+  <div class="card" id="accountCard" style="display:none;">
+    <h2>إعدادات الحساب</h2>
+    <div class="account-row">
+      <span class="account-email" id="acctEmailDisplay"></span>
+      <span class="badge-admin" id="adminBadge" style="display:none;">مشرف</span>
+    </div>
+    <div class="account-row" id="editModeRow" style="display:none;">
+      <span>نمط التعديل</span>
+      <label class="switch">
+        <input type="checkbox" id="editModeToggle" onchange="toggleEditMode(this.checked)">
+        <span class="switch-track"></span>
+      </label>
+    </div>
+    <button class="btn" style="margin-top:18px;" onclick="signOutAndClear().then(() => location.reload())">تسجيل الخروج</button>
+  </div>
+
+  <footer class="app-footer">
+    <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
+  </footer>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAH4UUe1XRXyTzAZcuuyg-kmBaX03NkK3Q",
+  authDomain: "azkar-10093.firebaseapp.com",
+  projectId: "azkar-10093",
+  storageBucket: "azkar-10093.firebasestorage.app",
+  messagingSenderId: "757288049988",
+  appId: "1:757288049988:web:12d68dac32567bad114b11"
+};
+firebase.initializeApp(firebaseConfig);
+</script>
+<script src="auth.js"></script>
+<script>
+document.getElementById('pagesBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('pagesDropdown').classList.toggle('open');
+});
+document.addEventListener('click', () => document.getElementById('pagesDropdown').classList.remove('open'));
+
+let emailMode = null;
+
+function showEmailForm(mode){
+  emailMode = mode;
+  document.getElementById('syncOptions').style.display = 'none';
+  document.getElementById('emailForm').style.display = 'block';
+  document.getElementById('acctError').classList.remove('show');
+}
+function hideEmailForm(){
+  document.getElementById('syncOptions').style.display = 'flex';
+  document.getElementById('emailForm').style.display = 'none';
+}
+function handleGoogle(){
+  signInWithGoogle().catch(err => showError(err.message));
+}
+function submitEmailAuth(){
+  const email = document.getElementById('acctEmail').value.trim();
+  const password = document.getElementById('acctPassword').value;
+  const action = emailMode === 'new' ? signUpWithEmail(email, password) : signInWithEmail(email, password);
+  action.catch(err => showError(err.message));
+}
+function showError(msg){
+  const el = document.getElementById('acctError');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function renderAccountUI(){
+  const guestCard = document.getElementById('guestCard');
+  const accountCard = document.getElementById('accountCard');
+  if (currentUser) {
+    guestCard.style.display = 'none';
+    accountCard.style.display = 'block';
+    document.getElementById('acctEmailDisplay').textContent = currentUser.email;
+    document.getElementById('adminBadge').style.display = isAdmin ? 'inline-block' : 'none';
+    document.getElementById('editModeRow').style.display = isAdmin ? 'flex' : 'none';
+    document.getElementById('editModeToggle').checked = editMode;
+  } else {
+    guestCard.style.display = 'block';
+    accountCard.style.display = 'none';
+  }
+}
+
+AZKAR_AUTH_READY.then(renderAccountUI);
+document.addEventListener('azkar-auth-changed', renderAccountUI);
+</script>
+</body>
+</html>
