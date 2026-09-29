@@ -933,24 +933,10 @@ mark.search-hit{
   </nav>
 
   <footer class="app-footer">
-    <span class="footer-trigger" id="footerTrigger">❖</span>
     <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
   </footer>
   <div style="text-align:center; margin-top:10px;">
     <button id="importExportBtn" class="import-export-btn" style="display:none;" onclick="openImportExport()">استيراد / تصدير المحتوى</button>
-  </div>
-</div>
-
-<div class="modal-overlay" id="passwordModal">
-  <div class="modal">
-    <h3>الدخول لوضع التعديل</h3>
-    <label>كلمة المرور</label>
-    <input type="password" id="passwordInput" placeholder="أدخل كلمة المرور" autocomplete="off" name="admin-gate-not-a-login">
-    <div class="error-text" id="passwordError">كلمة المرور غير صحيحة</div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeModal('passwordModal')">إلغاء</button>
-      <button class="btn btn-primary" onclick="checkPassword()">دخول</button>
-    </div>
   </div>
 </div>
 
@@ -1060,9 +1046,6 @@ https://raw.githubusercontent.com/AST47/Azkar/refs/heads/main/images/mulk-02.web
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script>
-// غيّر هاد الإيميل ليطابق حساب المشرف يلي أنشأته بـ Firebase Authentication
-const ADMIN_EMAIL = "salehzuh@gmail.com";
-
 const firebaseConfig = {
   apiKey: "AIzaSyAH4UUe1XRXyTzAZcuuyg-kmBaX03NkK3Q",
   authDomain: "azkar-10093.firebaseapp.com",
@@ -1072,8 +1055,9 @@ const firebaseConfig = {
   appId: "1:757288049988:web:12d68dac32567bad114b11"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+</script>
+<script src="auth.js"></script>
+<script>
 db.settings({
   experimentalAutoDetectLongPolling: true,
   useFetchStreams: false
@@ -1238,7 +1222,6 @@ function toggleAzkarTimeDone(id){
 
 let items = [];
 let activeCategory = 'during_day';
-let isAdmin = false;
 let editingId = null;
 let searchQuery = '';
 
@@ -1448,36 +1431,14 @@ if(showPrayerTimes){
   startPrayerStripTimer();
 }
 
-function toggleAdmin(){
-  if(isAdmin){
-    auth.signOut();
-    isAdmin = false;
-    document.getElementById('footerTrigger').classList.remove('active');
-    document.getElementById('importExportBtn').style.display = 'none';
-    render();
-  }else{
-    document.getElementById('passwordInput').value = '';
-    document.getElementById('passwordError').classList.remove('show');
-    document.getElementById('passwordModal').classList.add('open');
-  }
-}
-
-async function checkPassword(){
-  const val = document.getElementById('passwordInput').value;
-  const errorBox = document.getElementById('passwordError');
-  errorBox.classList.remove('show');
-
-  try{
-    await auth.signInWithEmailAndPassword(ADMIN_EMAIL, val);
-    isAdmin = true;
-    document.getElementById('footerTrigger').classList.add('active');
-    document.getElementById('importExportBtn').style.display = 'inline-block';
-    closeModal('passwordModal');
-    render();
-  }catch(e){
-    errorBox.classList.add('show');
-  }
-}
+// الدخول ونمط التعديل صاروا من صفحة الحساب (account.html) عبر auth.js.
+// هون بس منستمع لتغيّر الحالة ومنحدّث الواجهة.
+document.addEventListener('azkar-auth-changed', () => {
+  document.getElementById('importExportBtn').style.display = editMode ? 'inline-block' : 'none';
+  const accountLabel = document.getElementById('accountBtnLabel');
+  if(accountLabel) accountLabel.textContent = currentUser ? 'إعدادات الحساب' : 'تسجيل دخول';
+  render();
+});
 
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
@@ -1715,7 +1676,7 @@ function render(){
   grid.innerHTML = '';
   const list = getFilteredItems();
 
-  if(list.length === 0 && !isAdmin){
+  if(list.length === 0 && !editMode){
     const emptyMsg = (activeCategory === 'all' && searchQuery.trim())
       ? 'ما في نتائج مطابقة لبحثك'
       : 'لا يوجد أذكار في هذا القسم بعد';
@@ -1728,7 +1689,7 @@ function render(){
     const card = document.createElement('div');
     card.className = 'card' + ((item.isQuran || (item.imageUrls && item.imageUrls.length)) ? ' quran-card' : '');
 
-    if(isAdmin){
+    if(editMode){
       const tag = document.createElement('div');
       tag.className = 'order-tag';
       if(activeCategory === 'all'){
@@ -1828,7 +1789,7 @@ function render(){
     const actions = document.createElement('div');
     actions.className = 'card-actions';
 
-    if(isAdmin){
+    if(editMode){
       const upBtn = document.createElement('button');
       upBtn.className = 'icon-btn';
       upBtn.title = 'تحريك لأعلى';
@@ -1863,7 +1824,7 @@ function render(){
     grid.appendChild(card);
   });
 
-  if(isAdmin){
+  if(editMode){
     const addCard = document.createElement('div');
     addCard.className = 'add-card';
     addCard.textContent = '+ إضافة ذكر';
@@ -2085,7 +2046,6 @@ function deleteItem(id){
   render();
 }
 
-document.getElementById('footerTrigger').onclick = toggleAdmin;
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
@@ -2106,6 +2066,12 @@ function precacheImages(){
 }
 
 loadData();
+
+AZKAR_AUTH_READY.then(() => {
+  document.getElementById('importExportBtn').style.display = editMode ? 'inline-block' : 'none';
+  const accountLabel = document.getElementById('accountBtnLabel');
+  if(accountLabel) accountLabel.textContent = currentUser ? 'إعدادات الحساب' : 'تسجيل دخول';
+});
 </script>
 </body>
 </html>

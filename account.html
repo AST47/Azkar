@@ -80,7 +80,16 @@ input[type=email], input[type=password]{width:100%; font-family:'Tajawal', sans-
 .switch-track{position:absolute; inset:0; background:var(--gold-line); border-radius:24px; cursor:pointer; transition:background .15s;}
 .switch-track::before{content:""; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform .15s;}
 .switch input:checked + .switch-track{background:var(--teal);}
-.switch input:checked + .switch-track::before{transform:translateX(-20px);}
+.switch input:checked + .switch-track::before{transform:translateX(20px);}
+
+.calendar-card{margin-top:16px;}
+.cal-grid{display:grid; grid-template-columns:repeat(7, 1fr); gap:5px; margin-top:14px;}
+.cal-cell{aspect-ratio:1; border-radius:4px; background:var(--gold-line); opacity:.35;}
+.cal-cell[data-level="1"]{background:var(--gold-soft); opacity:1;}
+.cal-cell[data-level="2"]{background:var(--gold); opacity:1;}
+.cal-cell[data-level="3"]{background:var(--teal); opacity:1;}
+.cal-legend{display:flex; align-items:center; gap:6px; margin-top:12px; font-size:11.5px; color:var(--ink-soft);}
+.cal-legend .cal-cell{width:12px; height:12px; flex:none;}
 </style>
 </head>
 <body>
@@ -89,11 +98,11 @@ input[type=email], input[type=password]{width:100%; font-family:'Tajawal', sans-
     <div class="brand">
       <svg width="30" height="30" viewBox="0 0 34 34">
         <circle cx="17" cy="17" r="15.5" fill="none" stroke="#AD8A3E" stroke-width="1.3"/>
-        <a href="index.html"><circle cx="17" cy="6" r="6" fill="transparent"/><circle cx="17" cy="6" r="2.4" fill="#AD8A3E"/></a>
-        <a href="tracker.html"><circle cx="27.5" cy="13.6" r="6" fill="transparent"/><circle cx="27.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
-        <a href="prayer-times.html"><circle cx="23.5" cy="25.9" r="6" fill="transparent"/><circle cx="23.5" cy="25.9" r="1.9" fill="#AD8A3E"/></a>
-        <a href="counter.html"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
-        <a href="qibla.html"><circle cx="10.5" cy="25.9" r="6" fill="transparent"/><circle cx="10.5" cy="25.9" r="1.9" fill="#AD8A3E"/></a>
+        <a href="index.html"><circle cx="17" cy="6" r="6" fill="transparent"/><circle cx="17" cy="6" r="2.4" fill="#1F5C4E"/></a>
+        <a href="tracker.html"><circle cx="27.5" cy="13.6" r="6" fill="transparent"/><circle cx="27.5" cy="13.6" r="1.9" fill="#1F5C4E"/></a>
+        <a href="prayer-times.html"><circle cx="23.5" cy="25.9" r="6" fill="transparent"/><circle cx="23.5" cy="25.9" r="1.9" fill="#1F5C4E"/></a>
+        <a href="counter.html"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="1.9" fill="#1F5C4E"/></a>
+        <a href="qibla.html"><circle cx="10.5" cy="25.9" r="6" fill="transparent"/><circle cx="10.5" cy="25.9" r="1.9" fill="#1F5C4E"/></a>
       </svg>
       <h1>الحساب</h1>
     </div>
@@ -138,7 +147,7 @@ input[type=email], input[type=password]{width:100%; font-family:'Tajawal', sans-
   <!-- ---------- حالة: ضيف (غير مسجل) ---------- -->
   <div class="card" id="guestCard" style="display:none;">
     <h2>مزامنة بياناتك</h2>
-    <p class="lead">سجّل دخولك مشان تحتفظ بمتابعتك وإعداداتك وتوصل لها من أي جهاز.</p>
+    <p class="lead">سجّل دخولك مشان تحتفظ بسجل المتابعة اليومي وبإعداداتك وتوصلهم من أي جهاز.</p>
     <div class="opt-list" id="syncOptions">
       <button class="btn btn-primary" onclick="handleGoogle()">الدخول بحساب جوجل</button>
       <button class="btn" onclick="showEmailForm('new')">إنشاء حساب بإيميل جديد</button>
@@ -170,6 +179,21 @@ input[type=email], input[type=password]{width:100%; font-family:'Tajawal', sans-
       </label>
     </div>
     <button class="btn" style="margin-top:18px;" onclick="signOutAndClear().then(() => location.reload())">تسجيل الخروج</button>
+  </div>
+
+  <!-- ---------- كالندر سجل الإنجاز (هيكل فاضي، رح يتربط ببيانات المتابعة لاحقاً) ---------- -->
+  <div class="card calendar-card" id="calendarCard" style="display:none;">
+    <h2>سجل المتابعة</h2>
+    <p class="lead">آخر ٣٥ يوم — كل مربع بيمثل يوم، وشدة اللون بتعكس نسبة الإنجاز.</p>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <span>أقل</span>
+      <span class="cal-cell" data-level="0"></span>
+      <span class="cal-cell" data-level="1"></span>
+      <span class="cal-cell" data-level="2"></span>
+      <span class="cal-cell" data-level="3"></span>
+      <span>أكثر</span>
+    </div>
   </div>
 
   <footer class="app-footer">
@@ -229,6 +253,7 @@ function showError(msg){
 function renderAccountUI(){
   const guestCard = document.getElementById('guestCard');
   const accountCard = document.getElementById('accountCard');
+  const calendarCard = document.getElementById('calendarCard');
   if (currentUser) {
     guestCard.style.display = 'none';
     accountCard.style.display = 'block';
@@ -236,9 +261,30 @@ function renderAccountUI(){
     document.getElementById('adminBadge').style.display = isAdmin ? 'inline-block' : 'none';
     document.getElementById('editModeRow').style.display = isAdmin ? 'flex' : 'none';
     document.getElementById('editModeToggle').checked = editMode;
+    if (!isAdmin) {
+      calendarCard.style.display = 'block';
+      renderCalendarPlaceholder();
+    } else {
+      calendarCard.style.display = 'none';
+    }
   } else {
     guestCard.style.display = 'block';
     accountCard.style.display = 'none';
+    calendarCard.style.display = 'none';
+  }
+}
+
+// هيكل فاضي بس — كل خانة data-level="0" لهلق. لما تجهز بيانات المتابعة
+// المزامنة (users/{uid}/days/{YYYY-MM-DD})، بيصير هون قراءتها وحساب
+// نسبة إنجاز كل يوم (0 لغاية 3) بدل التصفير الثابت.
+function renderCalendarPlaceholder(){
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 35; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell';
+    cell.setAttribute('data-level', '0');
+    grid.appendChild(cell);
   }
 }
 
