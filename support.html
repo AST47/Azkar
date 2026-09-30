@@ -7,7 +7,7 @@
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1F5C4E">
-<title>الحساب | أذكار وأدعية</title>
+<title>ادعم المطوّر | أذكار وأدعية</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap');
 
@@ -111,7 +111,7 @@ input[type=email], input[type=password]{width:100%; font-family:'Tajawal', sans-
         <a href="counter.html"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="1.9" fill="#1F5C4E"/></a>
         <a href="qibla.html"><circle cx="10.5" cy="25.9" r="6" fill="transparent"/><circle cx="10.5" cy="25.9" r="1.9" fill="#1F5C4E"/></a>
       </svg>
-      <h1>الحساب</h1>
+      <h1>ادعم المطوّر</h1>
     </div>
     <div class="header-actions">
       <div class="pages-menu">
@@ -140,11 +140,11 @@ input[type=email], input[type=password]{width:100%; font-family:'Tajawal', sans-
             اتجاه القبلة
           </a>
           <div class="pages-divider"></div>
-          <a href="account.html" class="pages-item current">
+          <a href="account.html" class="pages-item">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
             الحساب
           </a>
-          <a href="support.html" class="pages-item">
+          <a href="support.html" class="pages-item current">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
             ادعم المطوّر
           </a>
@@ -156,63 +156,44 @@ input[type=email], input[type=password]{width:100%; font-family:'Tajawal', sans-
   <div class="ornament"></div>
 
   <!-- ---------- حالة: ضيف (غير مسجل) ---------- -->
-  <div class="card" id="guestCard" style="display:none;">
-    <h2>مزامنة بياناتك</h2>
-    <p class="lead">سجّل دخولك مشان تحتفظ بسجل المتابعة اليومي وبإعداداتك وتوصلهم من أي جهاز.</p>
-    <div class="opt-list" id="syncOptions">
-      <button class="btn btn-primary" onclick="handleGoogle()">الدخول بحساب جوجل</button>
-      <button class="btn" onclick="showEmailForm('new')">إنشاء حساب بإيميل جديد</button>
-      <button class="btn" onclick="showEmailForm('existing')">الدخول بإيميل موجود</button>
-    </div>
-    <div id="emailForm" style="display:none;">
-      <a href="#" class="back-link" onclick="hideEmailForm(); return false;">→ رجوع</a>
-      <label>البريد الإلكتروني</label>
-      <input type="email" id="acctEmail" placeholder="example@email.com" autocomplete="email">
-      <label>كلمة المرور</label>
-      <input type="password" id="acctPassword" placeholder="أدخل كلمة المرور" autocomplete="current-password">
-      <div class="error-text" id="acctError"></div>
-      <button class="btn btn-primary" style="margin-top:16px;" onclick="submitEmailAuth()" id="acctSubmitBtn">تأكيد</button>
-    </div>
+  <div class="card">
+    <h2>ادعم استمرارية التطبيق</h2>
+    <p class="lead">التطبيق مجاني بالكامل وأكيد رح بيضل هيك.<br>إذا حسيته فادك وحابب تدعم المطور، في أكتر من طريقة، شكراً!</p>
   </div>
 
-  <!-- ---------- حالة: مسجل دخول ---------- -->
-  <div class="card" id="accountCard" style="display:none;">
-    <h2>إعدادات الحساب</h2>
-    <div class="account-row">
-      <span class="account-email" id="acctEmailDisplay"></span>
-      <span class="badge-admin" id="adminBadge" style="display:none;">مشرف</span>
+  <!-- ---------- إعلانات (مكان محجوز — بينفعّل بعد موافقة Google AdSense) ---------- -->
+  <div class="card" id="adsCard">
+    <h2>ادعمني بمشاهدة إعلان</h2>
+    <p class="lead">كلما تشاهد أكتر بتدعمني أكتر.</p>
+    <div id="adSlotContainer" style="min-height:90px; display:flex; align-items:center; justify-content:center; border:1px dashed var(--gold-line); border-radius:8px; color:var(--ink-soft); font-size:12.5px;">
+      مكان الإعلان — بيتفعّل بعد اعتماد الحساب على Google AdSense
     </div>
-    <div class="account-row" id="editModeRow" style="display:none;">
-      <span>نمط التعديل</span>
-      <label class="switch">
-        <input type="checkbox" id="editModeToggle" onchange="toggleEditMode(this.checked)">
-        <span class="switch-track"></span>
-      </label>
-    </div>
-    <button class="btn" style="margin-top:18px;" onclick="signOutAndClear().then(() => location.reload())">تسجيل الخروج</button>
+    <!-- TODO: بعد اعتماد AdSense، ضيف هون سكربت الوحدة الإعلانية (ins.adsbygoogle) بدل هاد الـ placeholder -->
   </div>
 
-  <!-- ---------- كالندر سجل الإنجاز (هيكل فاضي، رح يتربط ببيانات المتابعة لاحقاً) ---------- -->
-  <div class="card calendar-card" id="calendarCard" style="display:none;">
-    <h2>سجل المتابعة</h2>
-    <p class="lead">كل يوم بيمثله مربع، وشدة اللون بتعكس نسبة إنجازك فيه.</p>
-    <div class="cal-nav">
-      <button class="cal-nav-btn" onclick="calShiftMonth(-1)" title="الشهر السابق">‹</button>
-      <span class="cal-month-label" id="calMonthLabel"></span>
-      <button class="cal-nav-btn" onclick="calShiftMonth(1)" title="الشهر التالي">›</button>
+  <!-- ---------- دعم لمرة وحدة (رح يستضيف أكتر من منصة لاحقاً — Buy Me a Coffee، Patreon، إلخ) ---------- -->
+  <div class="card">
+    <h2>ادعمني بفنجان قهوة</h2>
+    <p class="lead">دعم بسيط عن طريق أحد هذه المنصات.</p>
+    <div style="display:flex; justify-content:center;">
+      <a href="https://www.buymeacoffee.com/ahmadsalehtuffaha" target="_blank" rel="noopener"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" style="height: 60px !important;width: 217px !important;"></a>
     </div>
-    <div class="cal-weekdays">
-      <span>أحد</span><span>اثنين</span><span>ثلاثاء</span><span>أربعاء</span><span>خميس</span><span>جمعة</span><span>سبت</span>
-    </div>
-    <div class="cal-grid" id="calGrid"></div>
-    <div class="cal-legend">
-      <span>أقل</span>
-      <span class="cal-cell" data-level="0"></span>
-      <span class="cal-cell" data-level="1"></span>
-      <span class="cal-cell" data-level="2"></span>
-      <span class="cal-cell" data-level="3"></span>
-      <span>أكثر</span>
-    </div>
+    <!-- TODO: لاحقاً منضيف أزرار/ودجات مستقلة لمنصات تانية (Patreon، Ko-fi، إلخ) هون تحت بعض -->
+  </div>
+
+  <!-- ---------- دعم شهري رسمي — مخفية مؤقتاً لحد ما نحدد المنصة ونجهز طريقة نظهرها ---------- -->
+  <div class="card" id="monthlyCard" style="display:none;">
+    <h2>دعم شهري</h2>
+    <p class="lead">طرق استلام شهرية رسمية ودولية — قريباً.</p>
+    <!-- TODO: تحديد المنصة (GitHub Sponsors / PayPal Subscriptions / إلخ)، تعبئتها، وبعدين شيل display:none -->
+  </div>
+
+  <!-- ---------- مساهمة أكبر ---------- -->
+  <div class="card">
+    <h2>حابب تساهم بشي أكبر؟</h2>
+    <p class="lead">إذا حابب تدعم بمبلغ أكبر أو بطريقة مختلفة، تواصل معي مباشرة وبنشوف أفضل طريقة.</p>
+    <a class="btn" style="display:block; text-align:center; text-decoration:none;" href="mailto:ahmadsalehtuffaha@gmail.com?subject=دعم%20تطبيق%20أذكار">تواصل معي</a>
+    <!-- TODO: إضافة واتساب كخيار تواصل إضافي لاحقاً -->
   </div>
 
   <footer class="app-footer">
@@ -242,102 +223,11 @@ document.getElementById('pagesBtn').addEventListener('click', (e) => {
 });
 document.addEventListener('click', () => document.getElementById('pagesDropdown').classList.remove('open'));
 
-let emailMode = null;
 
-function showEmailForm(mode){
-  emailMode = mode;
-  document.getElementById('syncOptions').style.display = 'none';
-  document.getElementById('emailForm').style.display = 'block';
-  document.getElementById('acctError').classList.remove('show');
-}
-function hideEmailForm(){
-  document.getElementById('syncOptions').style.display = 'flex';
-  document.getElementById('emailForm').style.display = 'none';
-}
-function handleGoogle(){
-  signInWithGoogle().catch(err => showError(err.message));
-}
-function submitEmailAuth(){
-  const email = document.getElementById('acctEmail').value.trim();
-  const password = document.getElementById('acctPassword').value;
-  const action = emailMode === 'new' ? signUpWithEmail(email, password) : signInWithEmail(email, password);
-  action.catch(err => showError(err.message));
-}
-function showError(msg){
-  const el = document.getElementById('acctError');
-  el.textContent = msg;
-  el.classList.add('show');
-}
 
-function renderAccountUI(){
-  const guestCard = document.getElementById('guestCard');
-  const accountCard = document.getElementById('accountCard');
-  const calendarCard = document.getElementById('calendarCard');
-  if (currentUser) {
-    guestCard.style.display = 'none';
-    accountCard.style.display = 'block';
-    document.getElementById('acctEmailDisplay').textContent = currentUser.email;
-    document.getElementById('adminBadge').style.display = isAdmin ? 'inline-block' : 'none';
-    document.getElementById('editModeRow').style.display = isAdmin ? 'flex' : 'none';
-    document.getElementById('editModeToggle').checked = editMode;
-    calendarCard.style.display = 'block';
-    renderCalendarPlaceholder();
-  } else {
-    guestCard.style.display = 'block';
-    accountCard.style.display = 'none';
-    calendarCard.style.display = 'none';
-  }
-}
-
-const ARABIC_MONTHS = ['كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول'];
-const ARABIC_DIGITS = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-function toArabicDigits(n){ return String(n).replace(/[0-9]/g, d => ARABIC_DIGITS[d]); }
-
-const today = new Date();
-let calViewYear = today.getFullYear();
-let calViewMonth = today.getMonth(); // 0-11
-
-function calShiftMonth(delta){
-  calViewMonth += delta;
-  if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
-  if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
-  renderCalendarPlaceholder();
-}
-
-// الشبكة كاملة لأي شهر/سنة، بس كل خانة data-level="0" لهلق (هيكل فاضي).
-// لما تجهز بيانات المزامنة (users/{uid}/days/{YYYY-MM-DD})، بيصير هون
-// قراءتها وحساب نسبة إنجاز كل يوم (0 لغاية 3) بدل التصفير الثابت.
-function renderCalendarPlaceholder(){
-  document.getElementById('calMonthLabel').textContent =
-    ARABIC_MONTHS[calViewMonth] + ' ' + toArabicDigits(calViewYear);
-
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = '';
-
-  const firstDay = new Date(calViewYear, calViewMonth, 1);
-  const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
-  const leadingEmpty = firstDay.getDay(); // 0 = أحد
-
-  for (let i = 0; i < leadingEmpty; i++) {
-    const empty = document.createElement('div');
-    empty.className = 'cal-cell empty';
-    grid.appendChild(empty);
-  }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const cell = document.createElement('div');
-    cell.className = 'cal-cell';
-    cell.setAttribute('data-level', '0');
-    cell.textContent = toArabicDigits(day);
-    if (day === today.getDate() && calViewMonth === today.getMonth() && calViewYear === today.getFullYear()) {
-      cell.classList.add('today');
-    }
-    grid.appendChild(cell);
-  }
-}
-
-AZKAR_AUTH_READY.then(renderAccountUI);
-document.addEventListener('azkar-auth-changed', renderAccountUI);
+// TODO: بعد اعتماد Google AdSense، بدّل placeholder #adSlotContainer
+// بكود <ins class="adsbygoogle">...</ins> الرسمي من لوحة AdSense
+// وضيف سكربت adsbygoogle.js بالـ <head>.
 </script>
 </body>
 </html>
