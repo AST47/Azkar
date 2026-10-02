@@ -663,6 +663,9 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
       }
 
       localStorage.setItem(key, JSON.stringify(st));
+      if(typeof syncDayToCloud === 'function'){
+        syncDayToCloud(localTrackerKeyToDayId(key), st);
+      }
       if(trackedNoteEl){
         trackedNoteEl.textContent = pair
           ? (compoundDone ? 'اكتمل الزر بصفحة المتابعة اليومية ✓' : 'سجّلنا هاي، وبيكتمل الزر بصفحة المتابعة اليومية لما تكمّل الذكر التاني المرتبط بيه')

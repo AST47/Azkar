@@ -531,14 +531,6 @@ const AZKAR_CATEGORIES = [
   {id:'evening', label:'المساء'},
   {id:'sleep', label:'قبل النوم'}
 ];
-// نفس الخمسة أزرار يلي بالسطر التاني من ورد الأذكار اليومي (AZKAR_TIMES) —
-// "أثناء اليوم" مو قيمة مخزّنة لحالها، هي محسوبة منهم مباشرة، ونفس الفكرة
-// متل النقطة النصانية لزر "أثناء اليوم" بالتايم لاين بالصفحة الرئيسية.
-const DURING_DAY_LINKED_IDS = ['subhanallah','t1','t3','t2','lahawla'];
-function isDuringDayDone(){
-  return DURING_DAY_LINKED_IDS.every(id => state.azkarTimes[id]);
-}
-
 const AZKAR_TIMES = [
   {id:'subhanallah', label:'×١٠٠ تسبيح'},
   {id:'t1', label:'×٢٠ التهليل'},
@@ -601,14 +593,12 @@ function readState(key){
   return freshState();
 }
 
-function cleanupOtherKeys(keepKey){
-  Object.keys(localStorage)
-    .filter(k => k.startsWith('tracker-') && k !== keepKey)
-    .forEach(k => localStorage.removeItem(k));
-}
 
 function saveState(){
   localStorage.setItem(currentKey, JSON.stringify(state));
+  if(typeof syncDayToCloud === 'function'){
+    syncDayToCloud(localTrackerKeyToDayId(currentKey), state);
+  }
 }
 
 // Start with a calendar-day fallback so the page is usable immediately,
@@ -669,7 +659,7 @@ function renderProgress(){
   const total = QURAN.length + PRAYERS.length + AZKAR_CATEGORIES.length + AZKAR_TIMES.length;
   let done = QURAN.filter(q => state.quran[q.id]).length;
   done += PRAYERS.filter(p => state.prayers[p.id]).length;
-  done += AZKAR_CATEGORIES.filter(a => a.id === 'during_day' ? isDuringDayDone() : state.azkarCategories[a.id]).length;
+  done += AZKAR_CATEGORIES.filter(a => state.azkarCategories[a.id]).length;
   done += AZKAR_TIMES.filter(a => state.azkarTimes[a.id]).length;
   document.getElementById('progressText').textContent = done + ' من ' + total + ' مكتملة اليوم';
 }
@@ -678,8 +668,7 @@ function renderAzkarCatGrid(){
   const container = document.getElementById('azkarCatGrid');
   container.innerHTML = '';
   AZKAR_CATEGORIES.forEach(item => {
-    const isDuringDay = item.id === 'during_day';
-    const done = isDuringDay ? isDuringDayDone() : state.azkarCategories[item.id];
+    const done = state.azkarCategories[item.id];
     const box = document.createElement('div');
     box.className = 'box' + (done ? ' done' : '');
     box.innerHTML = `
@@ -689,12 +678,7 @@ function renderAzkarCatGrid(){
       <span class="box-label">${item.label}</span>
     `;
     box.onclick = () => {
-      if(isDuringDay){
-        const newVal = !isDuringDayDone();
-        DURING_DAY_LINKED_IDS.forEach(id => state.azkarTimes[id] = newVal);
-      }else{
-        state.azkarCategories[item.id] = !state.azkarCategories[item.id];
-      }
+      state.azkarCategories[item.id] = !state.azkarCategories[item.id];
       saveState();
       render();
     };
@@ -741,7 +725,8 @@ fetchFajrTime(() => {
     state = readState(currentKey);
     render();
   }
-  cleanupOtherKeys(currentKey);
+  // ملاحظة: ما عاد عنا مسح لأيام التراكر القديمة محلياً — صارت تنحفظ
+  // بالجهاز مشان الكالندر وترفع لاحقاً على الحساب عند تسجيل الدخول.
 });
 
 let resetArmed = false;
@@ -774,6 +759,9 @@ resetBtn.onclick = () => {
   localStorage.removeItem(currentKey);
   state = freshState();
   render();
+  if(typeof syncDayToCloud === 'function'){
+    syncDayToCloud(localTrackerKeyToDayId(currentKey), state);
+  }
 };
 
 document.getElementById('infoBtn').addEventListener('click', () => {

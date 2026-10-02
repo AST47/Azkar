@@ -1062,13 +1062,6 @@ firebase.initializeApp(firebaseConfig);
 </script>
 <script src="auth.js"></script>
 <script>
-db.settings({
-  experimentalAutoDetectLongPolling: true,
-  useFetchStreams: false
-});
-db.enablePersistence({synchronizeTabs:true}).catch(err => {
-  console.warn('تعذّر تفعيل التخزين المحلي:', err.code);
-});
 const itemsRef = db.collection('azkar').doc('items');
 
 const CATEGORIES = [
@@ -1113,7 +1106,7 @@ let showPrayerTimes = localStorage.getItem('show_prayer_times') === '1';
 let prayerTimings = null;
 
 // ---------- Tracker sync (shared with tracker.html) ----------
-const CATEGORY_TO_TRACKER_ID = {waking:'waking', morning:'morning', noon:'noon', evening:'evening', before_sleep:'sleep'};
+const CATEGORY_TO_TRACKER_ID = {waking:'waking', morning:'morning', noon:'noon', during_day:'during_day', evening:'evening', before_sleep:'sleep'};
 const TRACKER_QURAN_IDS = ['yaseen','rahman','juz','waqiah','mulk'];
 const TRACKER_PRAYER_IDS = ['fajr','dhuhr','asr','maghrib','isha'];
 const TRACKER_AZKAR_CAT_IDS = ['waking','morning','noon','evening','sleep'];
@@ -1199,14 +1192,14 @@ function toggleQuranItemDone(quranId){
 }
 
 // تسمية زر "أتممت..." تختلف حسب التصنيف (بعد الظهر عمداً بدون هالزر إطلاقاً)
-const AZKAR_DONE_LABEL_BY_CATEGORY = {waking:'أتممت الأذكار', morning:'أتممت الأذكار', noon:'أتممت الأدعية', evening:'أتممت الأذكار', before_sleep:'أتممت الأذكار'};
+const AZKAR_DONE_LABEL_BY_CATEGORY = {waking:'أتممت الأذكار', morning:'أتممت الأذكار', noon:'أتممت الأدعية', during_day:'اتممت باقي الأذكار', evening:'أتممت الأذكار', before_sleep:'أتممت الأذكار'};
 
 // أزرار إضافية خاصة بتصنيفات معيّنة، بتستخدم مخزون azkarTimes المشترك
 // أصلاً مع tracker.html (subhanallah/t1/t2/t3/lahawla) بدل ما نضيف حقول جديدة.
 const CATEGORY_CUSTOM_TOGGLES = {
   during_day: [
-    {id:'subhanallah', label:'أتممت التسبيح'},
     {id:'t3', label:'أتممت الصلاة على النبي'},
+    {id:'subhanallah', label:'أتممت التسبيح'},
     {id:'lahawla', label:'أتممت الحوقلة'},
     {id:'t1', label:'أتممت التهليل'},
     {id:'t2', label:'أتممت الاستغفار'}
@@ -1855,12 +1848,12 @@ function renderCompleteToggle(){
   if(prayerName){
     rows.push({done: isPrayerDone(activeCategory), label: `صليت ${prayerName}`, doneLabel: `صليت ${prayerName}`, onToggle: () => togglePrayerDone(activeCategory)});
   }
-  if(azkarLabel){
-    rows.push({done: isCategoryDone(activeCategory), label: azkarLabel, doneLabel: azkarLabel, onToggle: () => toggleCategoryDone(activeCategory)});
-  }
   (CATEGORY_CUSTOM_TOGGLES[activeCategory] || []).forEach(t => {
     rows.push({done: isAzkarTimeDone(t.id), label: t.label, doneLabel: t.label, onToggle: () => toggleAzkarTimeDone(t.id)});
   });
+  if(azkarLabel){
+    rows.push({done: isCategoryDone(activeCategory), label: azkarLabel, doneLabel: azkarLabel, onToggle: () => toggleCategoryDone(activeCategory)});
+  }
   (QURAN_ITEMS_BY_CATEGORY[activeCategory] || []).forEach(q => {
     rows.push({done: isQuranItemDone(q.id), label: `قرأت ${q.label}`, doneLabel: `قرأت ${q.label}`, onToggle: () => toggleQuranItemDone(q.id)});
   });
