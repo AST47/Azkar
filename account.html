@@ -89,7 +89,9 @@ input[type=email], input[type=password]{width:100%; font-family:'Tajawal', sans-
 .cal-month-label{font-family:'Reem Kufi', sans-serif; font-size:15px; color:var(--teal-dark);}
 .cal-weekdays{display:grid; grid-template-columns:repeat(7, 1fr); gap:5px; margin-top:14px; font-size:11px; color:var(--ink-soft); text-align:center;}
 .cal-grid{display:grid; grid-template-columns:repeat(7, 1fr); gap:5px; margin-top:6px;}
-.cal-cell{aspect-ratio:1; border-radius:6px; background:rgba(173,138,62,0.14); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--ink);}
+.cal-cell{aspect-ratio:1; border-radius:6px; background:rgba(173,138,62,0.14); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--ink); text-decoration:none;}
+a.cal-cell{cursor:pointer; transition:transform .1s;}
+a.cal-cell:hover{transform:scale(1.08);}
 .cal-cell.empty{background:transparent; color:transparent;}
 .cal-cell[data-level="1"]{background:var(--gold-soft); color:var(--ink);}
 .cal-cell[data-level="2"]{background:var(--gold); color:#fff;}
@@ -281,7 +283,7 @@ function renderAccountUI(){
     document.getElementById('editModeRow').style.display = isAdmin ? 'flex' : 'none';
     document.getElementById('editModeToggle').checked = editMode;
     calendarCard.style.display = 'block';
-    renderCalendarPlaceholder();
+    renderCalendar();
   } else {
     guestCard.style.display = 'block';
     accountCard.style.display = 'none';
@@ -301,13 +303,28 @@ function calShiftMonth(delta){
   calViewMonth += delta;
   if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
   if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
-  renderCalendarPlaceholder();
+  renderCalendar();
 }
 
-// الشبكة كاملة لأي شهر/سنة، بس كل خانة data-level="0" لهلق (هيكل فاضي).
-// لما تجهز بيانات المزامنة (users/{uid}/days/{YYYY-MM-DD})، بيصير هون
-// قراءتها وحساب نسبة إنجاز كل يوم (0 لغاية 3) بدل التصفير الثابت.
-function renderCalendarPlaceholder(){
+// بيحسب شدة اللون (٠ لغاية ٣) حسب نسبة الإنجاز بكل أقسام اليوم
+// (قرآن، صلوات، تصنيفات أذكار، أذكار أوقات).
+function dayCompletionLevel(dayState){
+  let total = 0, done = 0;
+  ['quran','prayers','azkarCategories','azkarTimes'].forEach(section => {
+    const obj = dayState && dayState[section];
+    if(!obj) return;
+    Object.values(obj).forEach(v => { total++; if(v) done++; });
+  });
+  if(total === 0 || done === 0) return 0;
+  const ratio = done / total;
+  if(ratio >= 0.9) return 3;
+  if(ratio >= 0.5) return 2;
+  return 1;
+}
+
+// يرسم شبكة الشهر فاضية الأول (تحميل سريع)، وبعدين يعبّيها بالمستويات
+// الحقيقية من users/{uid}/days بفايرستور.
+async function renderCalendar(){
   document.getElementById('calMonthLabel').textContent =
     ARABIC_MONTHS[calViewMonth] + ' ' + toArabicDigits(calViewYear);
 
@@ -324,15 +341,45 @@ function renderCalendarPlaceholder(){
     grid.appendChild(empty);
   }
 
+  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const threeDaysAgo = new Date(startOfToday);
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+  const cellsByDay = {};
   for (let day = 1; day <= daysInMonth; day++) {
-    const cell = document.createElement('div');
+    const dayId = `${calViewYear}-${String(calViewMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const dayDate = new Date(calViewYear, calViewMonth, day);
+    const editable = dayDate >= threeDaysAgo && dayDate <= startOfToday;
+
+    const cell = document.createElement(editable ? 'a' : 'div');
     cell.className = 'cal-cell';
     cell.setAttribute('data-level', '0');
     cell.textContent = toArabicDigits(day);
+    if (editable) {
+      cell.href = `tracker.html?date=${dayId}`;
+      cell.title = 'عدّل سجل هاد اليوم';
+    }
     if (day === today.getDate() && calViewMonth === today.getMonth() && calViewYear === today.getFullYear()) {
       cell.classList.add('today');
     }
     grid.appendChild(cell);
+    cellsByDay[dayId] = cell;
+  }
+
+  if (!currentUser) return;
+
+  const monthPrefix = `${calViewYear}-${String(calViewMonth+1).padStart(2,'0')}`;
+  try{
+    const snap = await db.collection('users').doc(currentUser.uid).collection('days')
+      .where(firebase.firestore.FieldPath.documentId(), '>=', monthPrefix + '-00')
+      .where(firebase.firestore.FieldPath.documentId(), '<=', monthPrefix + '-99')
+      .get();
+    snap.forEach(doc => {
+      const cell = cellsByDay[doc.id];
+      if (cell) cell.setAttribute('data-level', String(dayCompletionLevel(doc.data())));
+    });
+  }catch(e){
+    console.warn('تعذّر تحميل سجل المتابعة:', e);
   }
 }
 

@@ -214,7 +214,19 @@ body{
   color:var(--ink-soft);
   text-align:center;
   margin-bottom:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
 }
+.day-nav-btn{
+  width:26px; height:26px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--bg-card); border:1px solid var(--gold-line);
+  color:var(--ink-soft); text-decoration:none; flex-shrink:0;
+}
+.day-nav-btn:hover{background:rgba(173,138,62,0.1);}
+.day-nav-btn.disabled{opacity:.3; pointer-events:none;}
 
 .progress{
   text-align:center;
@@ -388,7 +400,11 @@ section{margin-bottom:26px;}
 
   <div class="ornament"></div>
 
-  <div class="today-date" id="todayDate"></div>
+  <div class="today-date">
+    <a class="day-nav-btn" id="dayNavPrev" title="اليوم السابق">‹</a>
+    <span id="todayDate"></span>
+    <a class="day-nav-btn" id="dayNavNext" title="اليوم التالي">›</a>
+  </div>
 
   <div class="progress" id="progressText"></div>
 
@@ -601,10 +617,50 @@ function saveState(){
   }
 }
 
+// تعديل يوم سابق من الكالندر: ?date=YYYY-MM-DD بالرابط. لو موجود وضمن
+// نافذة الـ٣ أيام المسموحة، منفتح هاد اليوم بدل اليوم الحالي ومنعطّل
+// تصحيح الفجر التلقائي (لأنه هون منحدد يوم ثابت بالقصد).
+const EDIT_DATE_PARAM = new URLSearchParams(location.search).get('date');
+let editingPastDay = false;
+let editingDateObj = null;
+
+function isDateWithinEditWindow(d){
+  const startOfToday = new Date();
+  startOfToday.setHours(0,0,0,0);
+  const threeDaysAgo = new Date(startOfToday);
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+  return d >= threeDaysAgo && d <= startOfToday;
+}
+
+if(EDIT_DATE_PARAM && /^\d{4}-\d{2}-\d{2}$/.test(EDIT_DATE_PARAM)){
+  const [y, m, d] = EDIT_DATE_PARAM.split('-').map(Number);
+  const parsedDate = new Date(y, m - 1, d);
+  if(isDateWithinEditWindow(parsedDate)){
+    editingPastDay = true;
+    editingDateObj = parsedDate;
+  }
+}
+
 // Start with a calendar-day fallback so the page is usable immediately,
 // then correct to the real Fajr-based day once prayer times load.
-let currentKey = todayKey();
+let currentKey = editingPastDay ? dayKeyFor(editingDateObj) : todayKey();
 let state = readState(currentKey);
+
+// لو بيوم سابق وعندنا حساب، نجيب نسخة السحابة (ممكن تكون أحدث من
+// النسخة المحلية لو الإنجاز صار من جهاز تاني) ونعرضها بدل المحلية.
+if(editingPastDay){
+  AZKAR_AUTH_READY.then(() => {
+    if(!currentUser) return;
+    const dayId = localTrackerKeyToDayId(currentKey);
+    db.collection('users').doc(currentUser.uid).collection('days').doc(dayId).get()
+      .then(snap => {
+        if(snap.exists && isValidState(snap.data())){
+          state = snap.data();
+          render();
+        }
+      }).catch(() => {});
+  });
+}
 
 function fetchFajrTime(onDone){
   const method = Number(localStorage.getItem('pt_method')) || 13;
@@ -650,9 +706,49 @@ function fetchFajrTime(onDone){
 }
 
 function renderDate(){
-  const d = new Date();
+  const d = editingPastDay ? editingDateObj : new Date();
   const formatted = new Intl.DateTimeFormat('ar', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).format(d);
   document.getElementById('todayDate').textContent = formatted;
+  renderDayNav(d);
+}
+
+// أسهم التنقل يوم لورا / يوم لقدام، بنفس مفهوم أسهم الشهر بالكالندر.
+// ما بتتعدى نافذة الـ٣ أيام لورا، ولا بتروح لأبعد من اليوم الحقيقي لقدام.
+function renderDayNav(displayedDate){
+  const startOfToday = new Date();
+  startOfToday.setHours(0,0,0,0);
+  const threeDaysAgo = new Date(startOfToday);
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+  function dateToParam(d){
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  function linkFor(d){
+    const sameAsToday = d.getTime() === startOfToday.getTime();
+    return sameAsToday ? 'tracker.html' : `tracker.html?date=${dateToParam(d)}`;
+  }
+
+  const prevDate = new Date(displayedDate); prevDate.setDate(prevDate.getDate() - 1); prevDate.setHours(0,0,0,0);
+  const nextDate = new Date(displayedDate); nextDate.setDate(nextDate.getDate() + 1); nextDate.setHours(0,0,0,0);
+
+  const prevBtn = document.getElementById('dayNavPrev');
+  const nextBtn = document.getElementById('dayNavNext');
+
+  if(prevDate >= threeDaysAgo){
+    prevBtn.href = linkFor(prevDate);
+    prevBtn.classList.remove('disabled');
+  }else{
+    prevBtn.removeAttribute('href');
+    prevBtn.classList.add('disabled');
+  }
+
+  if(nextDate <= startOfToday){
+    nextBtn.href = linkFor(nextDate);
+    nextBtn.classList.remove('disabled');
+  }else{
+    nextBtn.removeAttribute('href');
+    nextBtn.classList.add('disabled');
+  }
 }
 
 function renderProgress(){
@@ -718,16 +814,24 @@ function render(){
 renderDate();
 render();
 
-fetchFajrTime(() => {
-  const correctedKey = todayKey();
-  if(correctedKey !== currentKey){
-    currentKey = correctedKey;
-    state = readState(currentKey);
-    render();
-  }
-  // ملاحظة: ما عاد عنا مسح لأيام التراكر القديمة محلياً — صارت تنحفظ
-  // بالجهاز مشان الكالندر وترفع لاحقاً على الحساب عند تسجيل الدخول.
-});
+if(editingPastDay){
+  const banner = document.createElement('div');
+  banner.style.cssText = 'max-width:480px; margin:0 auto 14px; padding:10px 14px; background:var(--bg-card); border:1px solid var(--gold-line); border-radius:10px; font-size:13px; color:var(--ink-soft); display:flex; align-items:center; justify-content:space-between; gap:10px;';
+  const formatted = new Intl.DateTimeFormat('ar', {weekday:'long', day:'numeric', month:'long'}).format(editingDateObj);
+  banner.innerHTML = `<span>بتعدّل سجل: <strong style="color:var(--teal-dark);">${formatted}</strong></span><a href="tracker.html" style="color:var(--teal); text-decoration:none; font-weight:600;">رجوع لليوم الحالي ←</a>`;
+  document.querySelector('.ornament').insertAdjacentElement('afterend', banner);
+} else {
+  fetchFajrTime(() => {
+    const correctedKey = todayKey();
+    if(correctedKey !== currentKey){
+      currentKey = correctedKey;
+      state = readState(currentKey);
+      render();
+    }
+    // ملاحظة: ما عاد عنا مسح لأيام التراكر القديمة محلياً — صارت تنحفظ
+    // بالجهاز مشان الكالندر وترفع لاحقاً على الحساب عند تسجيل الدخول.
+  });
+}
 
 let resetArmed = false;
 let resetTimer = null;
