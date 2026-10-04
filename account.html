@@ -308,12 +308,21 @@ function calShiftMonth(delta){
 
 // بيحسب شدة اللون (٠ لغاية ٣) حسب نسبة الإنجاز بكل أقسام اليوم
 // (قرآن، صلوات، تصنيفات أذكار، أذكار أوقات).
+// المفاتيح المخفية (tawheed_a/b، istighfar_a/b) بس مكوّنات فرعية للتهليل/
+// الاستغفار المركّب (t1/t2) — ما لازم تنعدّ لحالها، وإلا نفس الإنجاز
+// بيتكرر بالحساب وبتنخفض النسبة صناعياً.
+const HIDDEN_AZKAR_TIME_IDS = ['tawheed_a','tawheed_b','istighfar_a','istighfar_b'];
+
 function dayCompletionLevel(dayState){
   let total = 0, done = 0;
   ['quran','prayers','azkarCategories','azkarTimes'].forEach(section => {
     const obj = dayState && dayState[section];
     if(!obj) return;
-    Object.values(obj).forEach(v => { total++; if(v) done++; });
+    Object.entries(obj).forEach(([key, v]) => {
+      if(section === 'azkarTimes' && HIDDEN_AZKAR_TIME_IDS.includes(key)) return;
+      total++;
+      if(v) done++;
+    });
   });
   if(total === 0 || done === 0) return 0;
   const ratio = done / total;
@@ -349,15 +358,16 @@ async function renderCalendar(){
   for (let day = 1; day <= daysInMonth; day++) {
     const dayId = `${calViewYear}-${String(calViewMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const dayDate = new Date(calViewYear, calViewMonth, day);
+    const isPastOrToday = dayDate <= startOfToday; // أي يوم صار ممكن نشوف تفاصيله
     const editable = dayDate >= threeDaysAgo && dayDate <= startOfToday;
 
-    const cell = document.createElement(editable ? 'a' : 'div');
+    const cell = document.createElement(isPastOrToday ? 'a' : 'div');
     cell.className = 'cal-cell';
     cell.setAttribute('data-level', '0');
     cell.textContent = toArabicDigits(day);
-    if (editable) {
+    if (isPastOrToday) {
       cell.href = `tracker.html?date=${dayId}`;
-      cell.title = 'عدّل سجل هاد اليوم';
+      cell.title = editable ? 'عدّل سجل هاد اليوم' : 'شوف تفاصيل هاد اليوم (عرض فقط)';
     }
     if (day === today.getDate() && calViewMonth === today.getMonth() && calViewYear === today.getFullYear()) {
       cell.classList.add('today');

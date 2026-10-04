@@ -272,6 +272,8 @@ section{margin-bottom:26px;}
 .box:active{transform:scale(0.96);}
 .box.done{background:var(--teal); border-color:var(--teal);}
 .box.done .box-label{color:#F5EDD9;}
+.box.read-only{cursor:default;}
+.box.read-only:active{transform:none;}
 .check-circle{
   width:26px;
   height:26px;
@@ -621,7 +623,8 @@ function saveState(){
 // نافذة الـ٣ أيام المسموحة، منفتح هاد اليوم بدل اليوم الحالي ومنعطّل
 // تصحيح الفجر التلقائي (لأنه هون منحدد يوم ثابت بالقصد).
 const EDIT_DATE_PARAM = new URLSearchParams(location.search).get('date');
-let editingPastDay = false;
+let editingPastDay = false; // بنشوف يوم مش "اليوم الحالي" (تعديل أو عرض فقط)
+let isReadOnlyDay = false;  // أقدم من نافذة الـ٣ أيام — عرض بس، بدون تعديل
 let editingDateObj = null;
 
 function isDateWithinEditWindow(d){
@@ -635,9 +638,11 @@ function isDateWithinEditWindow(d){
 if(EDIT_DATE_PARAM && /^\d{4}-\d{2}-\d{2}$/.test(EDIT_DATE_PARAM)){
   const [y, m, d] = EDIT_DATE_PARAM.split('-').map(Number);
   const parsedDate = new Date(y, m - 1, d);
-  if(isDateWithinEditWindow(parsedDate)){
+  const startOfToday = new Date(); startOfToday.setHours(0,0,0,0);
+  if(parsedDate <= startOfToday){ // ما منسمح نشوف يوم لسا ما صار
     editingPastDay = true;
     editingDateObj = parsedDate;
+    isReadOnlyDay = !isDateWithinEditWindow(parsedDate);
   }
 }
 
@@ -773,7 +778,9 @@ function renderAzkarCatGrid(){
       </span>
       <span class="box-label">${item.label}</span>
     `;
+    if(isReadOnlyDay) box.classList.add('read-only');
     box.onclick = () => {
+      if(isReadOnlyDay) return;
       state.azkarCategories[item.id] = !state.azkarCategories[item.id];
       saveState();
       render();
@@ -794,7 +801,9 @@ function renderGrid(containerId, list, stateKey){
       </span>
       <span class="box-label">${item.label}</span>
     `;
+    if(isReadOnlyDay) box.classList.add('read-only');
     box.onclick = () => {
+      if(isReadOnlyDay) return;
       state[stateKey][item.id] = !state[stateKey][item.id];
       saveState();
       render();
@@ -818,8 +827,13 @@ if(editingPastDay){
   const banner = document.createElement('div');
   banner.style.cssText = 'max-width:480px; margin:0 auto 14px; padding:10px 14px; background:var(--bg-card); border:1px solid var(--gold-line); border-radius:10px; font-size:13px; color:var(--ink-soft); display:flex; align-items:center; justify-content:space-between; gap:10px;';
   const formatted = new Intl.DateTimeFormat('ar', {weekday:'long', day:'numeric', month:'long'}).format(editingDateObj);
-  banner.innerHTML = `<span>بتعدّل سجل: <strong style="color:var(--teal-dark);">${formatted}</strong></span><a href="tracker.html" style="color:var(--teal); text-decoration:none; font-weight:600;">رجوع لليوم الحالي ←</a>`;
+  const label = isReadOnlyDay ? 'عرض سجل (بدون تعديل)' : 'بتعدّل سجل';
+  banner.innerHTML = `<span>${label}: <strong style="color:var(--teal-dark);">${formatted}</strong></span><a href="tracker.html" style="color:var(--teal); text-decoration:none; font-weight:600;">رجوع لليوم الحالي ←</a>`;
   document.querySelector('.ornament').insertAdjacentElement('afterend', banner);
+  if(isReadOnlyDay){
+    const resetBtnEl = document.getElementById('resetBtn');
+    if(resetBtnEl) resetBtnEl.style.display = 'none';
+  }
 } else {
   fetchFajrTime(() => {
     const correctedKey = todayKey();
