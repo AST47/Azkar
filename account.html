@@ -313,22 +313,23 @@ function calShiftMonth(delta){
 // بيتكرر بالحساب وبتنخفض النسبة صناعياً.
 const HIDDEN_AZKAR_TIME_IDS = ['tawheed_a','tawheed_b','istighfar_a','istighfar_b'];
 
+// مقياس ثابت من ٢٠ وحدة (٥ صلوات + ٥ قرآن + ٥ تصنيفات أذكار + ٥ أذكار
+// أوقات) — مو نسبة، عدد فعلي: ٢٠=أخضر (مكتمل)، ١٥-١٩=ذهبي، ١٠-١٤=ذهبي
+// فاتح، أقل من ١٠=أفتح لون.
 function dayCompletionLevel(dayState){
-  let total = 0, done = 0;
+  let done = 0;
   ['quran','prayers','azkarCategories','azkarTimes'].forEach(section => {
     const obj = dayState && dayState[section];
     if(!obj) return;
     Object.entries(obj).forEach(([key, v]) => {
       if(section === 'azkarTimes' && HIDDEN_AZKAR_TIME_IDS.includes(key)) return;
-      total++;
       if(v) done++;
     });
   });
-  if(total === 0 || done === 0) return 0;
-  const ratio = done / total;
-  if(ratio >= 0.9) return 3;
-  if(ratio >= 0.5) return 2;
-  return 1;
+  if(done >= 20) return 3;
+  if(done >= 15) return 2;
+  if(done >= 10) return 1;
+  return 0;
 }
 
 // يرسم شبكة الشهر فاضية الأول (تحميل سريع)، وبعدين يعبّيها بالمستويات
