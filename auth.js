@@ -199,3 +199,26 @@ async function flushPendingWrites(){
     console.warn('تعذّر حفظ آخر التحديثات قبل الخروج:', e);
   }
 }
+
+// حذف نهائي للحساب: كل أيام التراكر، مستند الإعدادات، وحساب الدخول
+// نفسه. ما في تراجع بعد هاد. مطلوب من سياسة Google Play لحذف الحساب.
+async function deleteAccountPermanently(){
+  if(!currentUser) throw new Error('لازم تكون مسجل دخول');
+  const uid = currentUser.uid;
+  const col = db.collection('users').doc(uid).collection('days');
+
+  const snap = await col.get();
+  const docs = snap.docs;
+  for(let i = 0; i < docs.length; i += 400){
+    const batch = db.batch();
+    docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
+    await batch.commit();
+  }
+
+  await db.collection('users').doc(uid).delete();
+  await currentUser.delete(); // ممكن يرمي auth/requires-recent-login
+
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('tracker-') || k.startsWith('pt_') || k === 'editMode' || k === 'show_prayer_times')
+    .forEach(k => localStorage.removeItem(k));
+}

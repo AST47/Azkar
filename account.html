@@ -217,6 +217,14 @@ a.cal-cell:hover{transform:scale(1.08);}
     </div>
   </div>
 
+  <!-- ---------- حذف الحساب (نهائي) ---------- -->
+  <div class="card" id="deleteAccountCard" style="display:none;">
+    <h2 style="color:var(--danger);">حذف الحساب</h2>
+    <p class="lead" id="deleteWarningText">حذف حسابك بيمسح نهائياً كل بياناتك — سجل المتابعة، الإعدادات، وحساب الدخول نفسه. ما في تراجع بعد هاد.</p>
+    <button class="btn" id="deleteAccountBtn" style="border-color:var(--danger); color:var(--danger);" onclick="handleDeleteAccountClick()">حذف الحساب نهائياً</button>
+    <div class="error-text" id="deleteError"></div>
+  </div>
+
   <footer class="app-footer">
     <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
   </footer>
@@ -275,6 +283,7 @@ function renderAccountUI(){
   const guestCard = document.getElementById('guestCard');
   const accountCard = document.getElementById('accountCard');
   const calendarCard = document.getElementById('calendarCard');
+  const deleteAccountCard = document.getElementById('deleteAccountCard');
   if (currentUser) {
     guestCard.style.display = 'none';
     accountCard.style.display = 'block';
@@ -283,11 +292,13 @@ function renderAccountUI(){
     document.getElementById('editModeRow').style.display = isAdmin ? 'flex' : 'none';
     document.getElementById('editModeToggle').checked = editMode;
     calendarCard.style.display = 'block';
+    deleteAccountCard.style.display = 'block';
     renderCalendar();
   } else {
     guestCard.style.display = 'block';
     accountCard.style.display = 'none';
     calendarCard.style.display = 'none';
+    deleteAccountCard.style.display = 'none';
   }
 }
 
@@ -392,6 +403,49 @@ async function renderCalendar(){
   }catch(e){
     console.warn('تعذّر تحميل سجل المتابعة:', e);
   }
+}
+
+// حذف الحساب: كبسة أولى بتسلّح التحذير (3 ثواني)، كبسة تانية بالفترة هاي
+// بتنفّذ الحذف فعلياً — نفس نمط التأكيد المستخدم بزر تصفير اليوم.
+let deleteArmed = false;
+let deleteArmTimer = null;
+
+function handleDeleteAccountClick(){
+  const btn = document.getElementById('deleteAccountBtn');
+  const warning = document.getElementById('deleteWarningText');
+  const errEl = document.getElementById('deleteError');
+  errEl.classList.remove('show');
+
+  if(!deleteArmed){
+    deleteArmed = true;
+    btn.textContent = 'متأكد؟ اضغط تاني للتأكيد النهائي';
+    warning.innerHTML = '<strong style="color:var(--danger);">تحذير أخير:</strong> هاد الإجراء نهائي ولا يمكن التراجع عنه — كل بياناتك (سجل المتابعة، الإعدادات، وحساب الدخول) رح تنمسح للأبد.';
+    clearTimeout(deleteArmTimer);
+    deleteArmTimer = setTimeout(() => {
+      deleteArmed = false;
+      btn.textContent = 'حذف الحساب نهائياً';
+      warning.textContent = 'حذف حسابك بيمسح نهائياً كل بياناتك — سجل المتابعة، الإعدادات، وحساب الدخول نفسه. ما في تراجع بعد هاد.';
+    }, 5000);
+    return;
+  }
+
+  clearTimeout(deleteArmTimer);
+  btn.disabled = true;
+  btn.textContent = 'عم نحذف...';
+
+  deleteAccountPermanently().then(() => {
+    location.href = 'index.html';
+  }).catch(err => {
+    btn.disabled = false;
+    deleteArmed = false;
+    btn.textContent = 'حذف الحساب نهائياً';
+    if(err.code === 'auth/requires-recent-login'){
+      errEl.textContent = 'لأسباب أمان، لازم تسجّل خروج وترجع تسجّل دخول، وبعدين جرّب الحذف فوراً.';
+    }else{
+      errEl.textContent = 'صار خطأ أثناء الحذف. جرّب مرة ثانية.';
+    }
+    errEl.classList.add('show');
+  });
 }
 
 AZKAR_AUTH_READY.then(renderAccountUI);
