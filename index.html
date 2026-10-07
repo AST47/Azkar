@@ -409,6 +409,17 @@ mark.search-hit{
   transition:background .15s, border-color .15s;
 }
 .complete-toggle:hover{background:rgba(173,138,62,0.1);}
+.complete-toggle:disabled{opacity:.45; cursor:default;}
+.complete-toggle:disabled:hover{background:var(--bg-card);}
+.item-check{
+  width:26px; height:26px; border-radius:50%;
+  border:1.5px solid var(--gold-line); background:var(--bg-card);
+  color:transparent; display:inline-flex; align-items:center; justify-content:center;
+  cursor:pointer; padding:0; flex-shrink:0; margin-inline-end:10px;
+  transition:all .15s;
+}
+.item-check:hover{background:rgba(173,138,62,0.1);}
+.item-check.done{background:var(--teal); border-color:var(--teal); color:#F5EDD9;}
 .complete-toggle.done{background:var(--teal); border-color:var(--teal); color:#F5EDD9;}
 .complete-circle{
   width:20px;
@@ -951,6 +962,10 @@ mark.search-hit{
     <input type="text" id="editTitle" placeholder="مثال: عند الخروج من المسجد">
     <label>التصنيف</label>
     <select id="editCategory"></select>
+    <div id="editTrackerKeyWrap" style="display:none;">
+      <label>ربط الصح بالمتابعة والعدّادة</label>
+      <select id="editTrackerKey"></select>
+    </div>
     <label>نص الذكر</label>
     <textarea id="editText" placeholder="اكتب نص الذكر هنا"></textarea>
     <label>عدد التكرار</label>
@@ -972,60 +987,21 @@ https://raw.githubusercontent.com/AST47/Azkar/refs/heads/main/images/mulk-02.web
 
 <div class="modal-overlay" id="infoModal">
   <div class="modal info-modal">
-    <h3>عن التطبيق</h3>
-    <div class="info-section">
-      <p class="info-about">
-        صمّم هذا التطبيق <a class="info-link" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">أحمد صالح تفاحة</a>، كمشروع شخصي لتجميع الأذكار والأدعية بشكل سهل وسريع الوصول ثم تطور ليكون تطبيق يشمل بعض الخدمات الأخرى، وتم الربط بينها من أجل الحصول على الفائدة العظمى.
-      </p>
-    </div>
+    <div id="infoAbout"></div>
 
     <h3 style="margin-top:22px;">عن هذه الصفحة</h3>
     <div class="info-section">
       <p class="info-about">الصفحة التي بدأ منها المشروع، تحوي أذكار وأدعية تم تجميعها في مكان واحد من أجل سهولة الوصول. ومن ثم تقسيمها إلى مجموعات من أجل سهولة متابعتها بحسب هدفها وتوقيتها، وإضافة صندوق للبحث في حال الرغبة بقراءة ذكر أو دعاء معين.</p>
     </div>
 
-    <h3 style="margin-top:22px;">سجل الإصدارات</h3>
-    <div class="changelog">
-      <div class="changelog-row"><span class="changelog-version">١.٩.٣</span><span>إمكانية حذف الحساب نهائياً من صفحة الحساب، وإضافة صفحة سياسة الخصوصية</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٩.٢</span><span>كالندر صفحة الحساب صار يلوّن كل يوم حسب عدد فعلي من ٢٠ (مو نسبة): ٢٠=أخضر، ١٥-١٩=ذهبي، ١٠-١٤=ذهبي فاتح، أقل من ١٠=أفتح لون</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٩.١</span><span>تحسينات وتصليحات عامة استعداداً لرفع التطبيق على جوجل بلاي</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٩.٠</span><span>إضافة صفحة "ادعم المطوّر" لمن حاب يدعم استمرارية التطبيق</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٨.٣</span><span>تحسينات وتصليحات عامة (ترتيب عدّادة الذكر، تصحيح عدد تكرار التهليل والاستغفار)</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٨.٢</span><span>"أثناء اليوم" صارت بند مستقل بصفحة المتابعة، وزر "اتممت باقي الأذكار" الجديد بصفحة الأذكار</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٨.١</span><span>صفحة "الحساب": كالندر يعرض سجل الإنجاز اليومي، مع إمكانية عرض وتعديل أيام سابقة (حتى ٣ أيام للخلف)</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٨.٠</span><span>تسجيل دخول اختياري (جوجل أو إيميل) لمزامنة المتابعة والإعدادات بين الأجهزة</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٧.١</span><span>تحديثات وتعديلات عامة تجهيزاً للمراحل القادمة</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٧.٠</span><span>تعديل التنقّل ليصبح موحّد بكل الصفحات: قائمة واحدة وبار تنقّل سفلي وشعار تفاعلي بنفس الشكل في كل مكان</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٦.١</span><span>تحسينات على الشكل العام والبرمجية</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٦.٠</span><span>إضافة صفحة "اتجاه القبلة": بوصلة تفاعلية تحسب اتجاه الكعبة ومسافتها من موقعك</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٥.١</span><span>إضافة قائمة تحوي مجموعة أذكار جاهزة ومزامنة تلقائية مع المتابعة اليومية</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٥.٠</span><span>إضافة صفحة "عدّادة الذكر": عدّاد تفاعلي بأهداف قابلة للتخصيص</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٤.٢</span><span>إمكانية إظهار أوقات الصلاة ضمن صفحة الأذكار، مع إضافة خيار تفعيل الخاصية وإلغائها</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٤.١</span><span>إضافة طرق حساب إضافية من أجل بعض الدول</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٤.٠</span><span>إضافة صفحة "أوقات الصلاة": حساب المواقيت حسب موقعك، مع اختيار طريقة الحساب وتصحيح يدوي</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٣.٢</span><span>تحديث على الشكل العام وتعديل على المسميات</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٣.١</span><span>ربط وإضافة بوكسات إتمام ضمن صفحة الأذكار مرتبط بشكل مباشر مع صفحة المتابعة، مع مؤشرات إتمام على الأيقونات في الأعلى</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٣.٠</span><span>إضافة صفحة "المتابعة اليومية" لتتبع الصلوات والأذكار وورد القرآن اليومي</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٢.٧</span><span>إمكانية عرض صور للأدعية الطويلة من أجل سهولة القراءة</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٢.٦</span><span>إضافة "أذكار يومية"، "أذكار اسبوعية"، "أذكار شهرية"، "الأخذ بالأسباب" إلى التصنيفات</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٢.٥</span><span>تحميل مسبق لصفحات القرآن التالية أثناء القراءة (بدون تأخير محسوس)</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٢.٤</span><span>الصفحة تفتح افتراضياً على "الظهيرة" (منتصف اليوم)</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٢.٣</span><span>خط زمني بأيقونات (شروق ← شمس ← غيوم ← غروب ← هلال) بدل التبويبات العادية للتصنيفات الوقتية</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٢.٢</span><span>زر "كافة الأدعية والأذكار" مستقل بالأعلى</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٢.١</span><span>دعم العمل بدون إنترنت بعد أول تحميل</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.٢.٠</span><span>الانتقال من تخزين محلي لقاعدة بيانات (مزامنة حقيقية بين كل الأجهزة)</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.١.٤</span><span>إمكانية عرض صور الرسم العثماني الأصلية لكل مقطع قرآني، بمتصفح صور بين الصفحات</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.١.٣</span><span>إضافة خمس سور قرآنية كاملة (يس، الرحمن، الواقعة، الملك، الكهف) بتنسيق مميز</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.١.٢</span><span>إضافة ميزة العناوين لاستخدامها في بعض الأذكار والأدعية</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.١.١</span><span>بادج تصنيف مميز لكل ذكر بصفحة "كل الأذكار"</span></div>
-      <div class="changelog-row"><span class="changelog-version">١.١.٠</span><span>إطلاق الموقع: كل الأذكار عبر سبع فئات، مع نظام ترتيب ثابت ووضع تعديل للمشرفين</span></div>
-    </div>
+    <div id="infoChangelog"></div>
 
     <div class="modal-actions">
       <button class="btn" onclick="closeModal('infoModal')">إغلاق</button>
     </div>
   </div>
 </div>
+<script src="info.js"></script>
 
 <div class="modal-overlay" id="lightboxModal" onclick="closeModal('lightboxModal')">
   <button class="lightbox-close" onclick="event.stopPropagation(); closeModal('lightboxModal')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -1146,6 +1122,14 @@ function readTrackerState(){
   return {key, state: freshTrackerState()};
 }
 
+// كتابة حالة اليوم محلياً + مزامنة فورية مع الحساب (نفس طريقة tracker.html)
+function saveTrackerState(key, state){
+  localStorage.setItem(key, JSON.stringify(state));
+  if(typeof syncDayToCloud === 'function' && typeof localTrackerKeyToDayId === 'function'){
+    syncDayToCloud(localTrackerKeyToDayId(key), state);
+  }
+}
+
 function isCategoryDone(catId){
   const trackerId = CATEGORY_TO_TRACKER_ID[catId];
   if(!trackerId) return false;
@@ -1158,7 +1142,7 @@ function toggleCategoryDone(catId){
   if(!trackerId) return;
   const {key, state} = readTrackerState();
   state.azkarCategories[trackerId] = !state.azkarCategories[trackerId];
-  localStorage.setItem(key, JSON.stringify(state));
+  saveTrackerState(key, state);
 }
 
 const CATEGORY_TO_TRACKER_PRAYER_ID = {waking:'fajr', noon:'dhuhr', during_day:'asr', evening:'maghrib', before_sleep:'isha'};
@@ -1175,7 +1159,7 @@ function togglePrayerDone(catId){
   if(!prayerId) return;
   const {key, state} = readTrackerState();
   state.prayers[prayerId] = !state.prayers[prayerId];
-  localStorage.setItem(key, JSON.stringify(state));
+  saveTrackerState(key, state);
 }
 
 // كل تصنيف ممكن يكون إله أكتر من عنصر قرآني (متل "الاستيقاظ والصباح"
@@ -1196,23 +1180,15 @@ function isQuranItemDone(quranId){
 function toggleQuranItemDone(quranId){
   const {key, state} = readTrackerState();
   state.quran[quranId] = !state.quran[quranId];
-  localStorage.setItem(key, JSON.stringify(state));
+  saveTrackerState(key, state);
 }
 
 // تسمية زر "أتممت..." تختلف حسب التصنيف (بعد الظهر عمداً بدون هالزر إطلاقاً)
-const AZKAR_DONE_LABEL_BY_CATEGORY = {waking:'أتممت الأذكار', morning:'أتممت الأذكار', noon:'أتممت الأدعية', during_day:'اتممت باقي الأذكار', evening:'أتممت الأذكار', before_sleep:'أتممت الأذكار'};
+const AZKAR_DONE_LABEL_BY_CATEGORY = {waking:'أتممت الأذكار', morning:'أتممت الأذكار', noon:'أتممت الأدعية', during_day:'أتممت الأدعية والأذكار', evening:'أتممت الأذكار', before_sleep:'أتممت الأذكار'};
 
 // أزرار إضافية خاصة بتصنيفات معيّنة، بتستخدم مخزون azkarTimes المشترك
 // أصلاً مع tracker.html (subhanallah/t1/t2/t3/lahawla) بدل ما نضيف حقول جديدة.
-const CATEGORY_CUSTOM_TOGGLES = {
-  during_day: [
-    {id:'t3', label:'أتممت الصلاة على النبي'},
-    {id:'subhanallah', label:'أتممت التسبيح'},
-    {id:'lahawla', label:'أتممت الحوقلة'},
-    {id:'t1', label:'أتممت التهليل'},
-    {id:'t2', label:'أتممت الاستغفار'}
-  ]
-};
+const CATEGORY_CUSTOM_TOGGLES = {};
 
 function isAzkarTimeDone(id){
   const {state} = readTrackerState();
@@ -1222,7 +1198,77 @@ function isAzkarTimeDone(id){
 function toggleAzkarTimeDone(id){
   const {key, state} = readTrackerState();
   state.azkarTimes[id] = !state.azkarTimes[id];
-  localStorage.setItem(key, JSON.stringify(state));
+  saveTrackerState(key, state);
+}
+
+// ---------- صح على كل ذكر (تصنيف "أثناء اليوم" فقط) ----------
+// الذكر المربوط (trackerKey) بيكتب على نفس مفتاح azkarTimes اللي بتكتب عليه
+// العدّادة والمتابعة. الذكر غير المربوط بيتخزن بقسم azkarItems بحالة اليوم.
+const TRACKER_KEY_OPTIONS = [
+  {id:'', label:'تلقائي (حسب نص الذكر)'},
+  {id:'none', label:'بدون ربط بالمتابعة'},
+  {id:'t3', label:'الصلاة على النبي'},
+  {id:'subhanallah', label:'التسبيح'},
+  {id:'lahawla', label:'الحوقلة'},
+  {id:'tawheed_a', label:'التهليل — لا إله إلا أنت سبحانك'},
+  {id:'tawheed_b', label:'التهليل — لا إله إلا الله وحده'},
+  {id:'istighfar_a', label:'الاستغفار — أستغفر الله العظيم'},
+  {id:'istighfar_b', label:'الاستغفار — سيد الاستغفار'}
+];
+const COMPOUND_OF = {tawheed_a:'t1', tawheed_b:'t1', istighfar_a:'t2', istighfar_b:'t2'};
+const COMPOUND_PARTS = {t1:['tawheed_a','tawheed_b'], t2:['istighfar_a','istighfar_b']};
+
+// تخمين الربط من أول النص (نفس نصوص العدّادة) — الحقل الصريح بالذكر بيتفوّق عليه
+const TRACKER_TEXT_PREFIXES = [
+  ['اللهم صل وسلم وبارك', 't3'],
+  ['سبحان الله العظيم وبحمده', 'subhanallah'],
+  ['لا حول ولا قوه الا بالله', 'lahawla'],
+  ['لا اله الا انت سبحانك', 'tawheed_a'],
+  ['لا اله الا الله وحده', 'tawheed_b'],
+  ['استغفر الله العظيم', 'istighfar_a'],
+  ['اللهم انت ربي', 'istighfar_b']
+];
+function normalizeArabic(t){
+  return String(t || '')
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+    .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
+    .replace(/[،,.؛:!؟?]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function trackerKeyOf(item){
+  if(item.trackerKey === 'none') return null;
+  if(item.trackerKey) return item.trackerKey;
+  const t = normalizeArabic(item.text);
+  const hit = TRACKER_TEXT_PREFIXES.find(([p]) => t.startsWith(p));
+  return hit ? hit[1] : null;
+}
+
+function dhikrCheckItems(){
+  return items.filter(i => i.categoryId === 'during_day' && !i.isQuran);
+}
+function isItemChecked(item, state){
+  const k = trackerKeyOf(item);
+  if(k) return !!state.azkarTimes[k];
+  return !!(state.azkarItems && state.azkarItems[item.id]);
+}
+function toggleItemChecked(item){
+  const {key, state} = readTrackerState();
+  const on = !isItemChecked(item, state);
+  const k = trackerKeyOf(item);
+  if(k){
+    state.azkarTimes[k] = on;
+    const comp = COMPOUND_OF[k];
+    if(comp) state.azkarTimes[comp] = COMPOUND_PARTS[comp].every(p => !!state.azkarTimes[p]);
+  }else{
+    state.azkarItems = state.azkarItems || {};
+    state.azkarItems[item.id] = on;
+  }
+  // لو انشال صح، الزر النهائي "أتممت الأدعية والأذكار" بيرجع غير مكتمل
+  if(!on) state.azkarCategories.during_day = false;
+  saveTrackerState(key, state);
+}
+function allDhikrChecked(){
+  const {state} = readTrackerState();
+  return dhikrCheckItems().every(i => isItemChecked(i, state));
 }
 
 let items = [];
@@ -1690,6 +1736,7 @@ function render(){
     return;
   }
 
+  const dayState = readTrackerState().state;
   list.forEach((item, idx) => {
     const card = document.createElement('div');
     card.className = 'card' + ((item.isQuran || (item.imageUrls && item.imageUrls.length)) ? ' quran-card' : '');
@@ -1789,6 +1836,16 @@ function render(){
       }
     }
 
+    if(activeCategory === 'during_day' && !item.isQuran){
+      const done = isItemChecked(item, dayState);
+      const chk = document.createElement('button');
+      chk.className = 'item-check' + (done ? ' done' : '');
+      chk.title = done ? 'إلغاء الإتمام' : 'تم';
+      chk.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+      chk.onclick = () => { toggleItemChecked(item); render(); };
+      badgeGroup.insertBefore(chk, badgeGroup.firstChild);
+    }
+
     footer.appendChild(badgeGroup);
 
     const actions = document.createElement('div');
@@ -1860,7 +1917,10 @@ function renderCompleteToggle(){
     rows.push({done: isAzkarTimeDone(t.id), label: t.label, doneLabel: t.label, onToggle: () => toggleAzkarTimeDone(t.id)});
   });
   if(azkarLabel){
-    rows.push({done: isCategoryDone(activeCategory), label: azkarLabel, doneLabel: azkarLabel, onToggle: () => toggleCategoryDone(activeCategory)});
+    const catDone = isCategoryDone(activeCategory);
+    // "أثناء اليوم": الزر النهائي ما بيشتغل إلا لما تكتمل كل صحات الأذكار
+    const locked = activeCategory === 'during_day' && !catDone && !allDhikrChecked();
+    rows.push({done: catDone, disabled: locked, label: azkarLabel, doneLabel: azkarLabel, onToggle: () => toggleCategoryDone(activeCategory)});
   }
   (QURAN_ITEMS_BY_CATEGORY[activeCategory] || []).forEach(q => {
     rows.push({done: isQuranItemDone(q.id), label: `قرأت ${q.label}`, doneLabel: `قرأت ${q.label}`, onToggle: () => toggleQuranItemDone(q.id)});
@@ -1870,7 +1930,7 @@ function renderCompleteToggle(){
   wrap.id = 'completeToggleWrap';
   wrap.className = 'complete-toggle-wrap';
   wrap.innerHTML = rows.map((r, i) => `
-    <button class="complete-toggle${r.done ? ' done' : ''}" data-idx="${i}">
+    <button class="complete-toggle${r.done ? ' done' : ''}" data-idx="${i}"${r.disabled ? ' disabled title="كمّل صحات الأذكار أولاً"' : ''}>
       <span class="complete-circle">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
       </span>
@@ -1977,6 +2037,18 @@ function openEdit(id){
 
   document.getElementById('editError').classList.remove('show');
 
+  const tkSel = document.getElementById('editTrackerKey');
+  tkSel.innerHTML = '';
+  TRACKER_KEY_OPTIONS.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o.id; opt.textContent = o.label;
+    tkSel.appendChild(opt);
+  });
+  const syncTkVisibility = () => {
+    document.getElementById('editTrackerKeyWrap').style.display = select.value === 'during_day' ? 'block' : 'none';
+  };
+  select.onchange = syncTkVisibility;
+
   if(id){
     const item = items.find(i => i.id === id);
     document.getElementById('editModalTitle').textContent = 'تعديل الذكر';
@@ -1988,6 +2060,7 @@ function openEdit(id){
     document.getElementById('editCount').value = item.count;
     document.getElementById('editIsQuran').checked = !!item.isQuran;
     document.getElementById('editImageUrls').value = (item.imageUrls || []).join('\n');
+    tkSel.value = item.trackerKey || '';
   }else{
     document.getElementById('editModalTitle').textContent = 'إضافة ذكر';
     document.getElementById('editTitle').value = '';
@@ -1996,7 +2069,9 @@ function openEdit(id){
     document.getElementById('editCount').value = 1;
     document.getElementById('editIsQuran').checked = false;
     document.getElementById('editImageUrls').value = '';
+    tkSel.value = '';
   }
+  syncTkVisibility();
 
   document.getElementById('editModal').classList.add('open');
 }
@@ -2007,6 +2082,7 @@ function saveEdit(){
   const categoryId = document.getElementById('editCategory').value;
   const count = parseInt(document.getElementById('editCount').value) || 1;
   const isQuran = document.getElementById('editIsQuran').checked;
+  const trackerKey = categoryId === 'during_day' ? document.getElementById('editTrackerKey').value : '';
   const imageUrls = document.getElementById('editImageUrls').value
     .split('\n')
     .map(s => s.trim())
@@ -2026,15 +2102,18 @@ function saveEdit(){
     item.count = count;
     item.isQuran = isQuran;
     item.imageUrls = imageUrls;
+    if(trackerKey) item.trackerKey = trackerKey; else delete item.trackerKey;
     // نقل لتصنيف تاني: بيروح لآخر التصنيف الجديد
     if(categoryChanged) item.order = 1e9;
   }else{
     // ذكر جديد: بيجي آخر التصنيف
-    items.push({
+    const newItem = {
       id: 'item_' + Date.now(),
       text, title, categoryId, count, isQuran, imageUrls,
       order: 1e9
-    });
+    };
+    if(trackerKey) newItem.trackerKey = trackerKey;
+    items.push(newItem);
   }
 
   normalizeOrders();

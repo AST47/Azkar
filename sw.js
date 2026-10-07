@@ -1,4 +1,4 @@
-const CACHE_NAME = 'azkar-cache-v7';
+const CACHE_NAME = 'azkar-cache-v8';
 
 // نخزن كل صفحات التطبيق فوراً وقت التثبيت، عشان التطبيقات المثبّتة على
 // الشاشة الرئيسية (خصوصاً آيفون) يكون عندها نسخة محفوظة من أول لحظة،
@@ -25,6 +25,7 @@ const STATIC_ASSETS = [
   'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js',
   'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js',
   './auth.js',
+  './info.js',
   'icon.png'
 ];
 
@@ -73,8 +74,8 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 2) الملفات الثابتة المعروفة بس (خطوط + مكتبة Firebase + auth.js): cache-first
-  if (STATIC_ASSETS.includes(url) || url.endsWith('/auth.js')) {
+  // 2) الملفات الثابتة المعروفة بس (خطوط + مكتبة Firebase + auth.js + info.js): cache-first
+  if (STATIC_ASSETS.includes(url) || url.endsWith('/auth.js') || url.endsWith('/info.js')) {
     event.respondWith(
       caches.match(event.request).then(cached => {
         const networkFetch = fetch(event.request)

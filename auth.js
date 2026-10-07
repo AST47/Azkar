@@ -32,6 +32,7 @@ const AZKAR_AUTH_READY = new Promise(resolve => {
       editMode = false;
       localStorage.removeItem('editMode');
     }
+    if (user) startSettingsSync(user.uid); else stopSettingsSync();
     document.dispatchEvent(new CustomEvent('azkar-auth-changed', {
       detail: { user, isAdmin, editMode }
     }));
@@ -84,7 +85,7 @@ async function signOutAndClear() {
     // تنظيف بيانات المستخدم من الجهاز (تراكر + إعدادات + نمط التعديل)
     // مشان ما تنتقل لمستخدم تاني على نفس الجهاز
     Object.keys(localStorage)
-      .filter(k => k.startsWith('tracker-') || k.startsWith('pt_') || k === 'editMode')
+      .filter(k => k.startsWith('tracker-') || k.startsWith('pt_') || k === 'editMode' || k === 'show_prayer_times')
       .forEach(k => localStorage.removeItem(k));
   });
 }
@@ -112,7 +113,7 @@ function getAllLocalTrackerDays(){
 // دمج "الصح يفوز": أي true من أي مصدر بيضل true بالنتيجة.
 function mergeDayStatesTrueWins(cloudState, localState){
   const merged = {};
-  ['quran','prayers','azkarCategories','azkarTimes'].forEach(section => {
+  ['quran','prayers','azkarCategories','azkarTimes','azkarItems'].forEach(section => {
     merged[section] = {};
     const a = (cloudState && cloudState[section]) || {};
     const b = (localState && localState[section]) || {};
@@ -145,13 +146,72 @@ function syncDayToCloud(dayId, data){
 // رفع الإعدادات المحلية (مدينة، طريقة حساب، تصحيح يدوي، عرض الأوقات
 // بالأذكار) لأول مرة. ما بتلمس GPS (pt_lat/pt_lon) ولا تبقى محلية بقصد.
 async function uploadLocalSettings(uid){
-  const settings = {
+  const settings = readLocalSettings();
+  const json = JSON.stringify(settings);
+  if(json === _lastSettingsJSON) return; // ما تغيّر شي، لا تكتب
+  _lastSettingsJSON = json;
+  await db.collection('users').doc(uid).set({ settings }, { merge: true });
+}
+
+// ---------- مزامنة الإعدادات الحيّة (مثل التراكر) ----------
+// city = null يعني "استخدم GPS" (الإحداثيات نفسها بتضل محلية بالجهاز).
+let _settingsUnsub = null;
+let _lastSettingsJSON = null;
+
+function readLocalSettings(){
+  return {
     city: localStorage.getItem('pt_city') || null,
     method: localStorage.getItem('pt_method') || null,
     tune: localStorage.getItem('pt_tune') || null,
     showPrayerTimes: localStorage.getItem('show_prayer_times') === '1'
   };
-  await db.collection('users').doc(uid).set({ settings }, { merge: true });
+}
+
+// تُستدعى من أي صفحة بعد أي تغيير بإعدادات الصلاة/العرض.
+function syncSettingsToCloud(){
+  if(!currentUser) return;
+  uploadLocalSettings(currentUser.uid)
+    .catch(err => console.warn('تعذّرت مزامنة الإعدادات:', err.message));
+}
+
+function applyCloudSettings(s){
+  const before = JSON.stringify(readLocalSettings());
+  if(s.city){
+    localStorage.setItem('pt_city', s.city);
+    localStorage.removeItem('pt_lat');
+    localStorage.removeItem('pt_lon');
+  } else {
+    localStorage.removeItem('pt_city');
+  }
+  if(s.method != null) localStorage.setItem('pt_method', String(s.method));
+  else localStorage.removeItem('pt_method');
+  if(s.tune != null) localStorage.setItem('pt_tune', s.tune);
+  else localStorage.removeItem('pt_tune');
+  localStorage.setItem('show_prayer_times', s.showPrayerTimes ? '1' : '0');
+
+  const after = JSON.stringify(readLocalSettings());
+  _lastSettingsJSON = after;
+  if(before !== after){
+    document.dispatchEvent(new CustomEvent('azkar-settings-changed'));
+  }
+}
+
+function startSettingsSync(uid){
+  stopSettingsSync();
+  _settingsUnsub = db.collection('users').doc(uid).onSnapshot(snap => {
+    if(snap.metadata.hasPendingWrites) return; // صدى لكتابتنا نحن
+    const s = snap.exists ? snap.data().settings : null;
+    if(s){
+      applyCloudSettings(s);
+    } else if(!snap.metadata.fromCache){
+      uploadLocalSettings(uid).catch(() => {}); // حساب جديد: ارفع إعدادات الجهاز
+    }
+  }, err => console.warn('تعذّر الاستماع للإعدادات:', err.code));
+}
+
+function stopSettingsSync(){
+  if(_settingsUnsub){ _settingsUnsub(); _settingsUnsub = null; }
+  _lastSettingsJSON = null;
 }
 
 // رفع كل أيام التراكر المحلية كما هي — استثناء لمرة وحدة بيشمل تاريخ

@@ -184,6 +184,13 @@ a.cal-cell:hover{transform:scale(1.08);}
       <span class="account-email" id="acctEmailDisplay"></span>
       <span class="badge-admin" id="adminBadge" style="display:none;">مشرف</span>
     </div>
+    <div class="account-row">
+      <span>عرض أوقات الصلاة في الأذكار</span>
+      <label class="switch">
+        <input type="checkbox" id="showPrayerToggle" onchange="toggleShowPrayer(this.checked)">
+        <span class="switch-track"></span>
+      </label>
+    </div>
     <div class="account-row" id="editModeRow" style="display:none;">
       <span>نمط التعديل</span>
       <label class="switch">
@@ -279,6 +286,11 @@ function showError(msg){
   el.classList.add('show');
 }
 
+function toggleShowPrayer(on){
+  localStorage.setItem('show_prayer_times', on ? '1' : '0');
+  syncSettingsToCloud();
+}
+
 function renderAccountUI(){
   const guestCard = document.getElementById('guestCard');
   const accountCard = document.getElementById('accountCard');
@@ -291,9 +303,14 @@ function renderAccountUI(){
     document.getElementById('adminBadge').style.display = isAdmin ? 'inline-block' : 'none';
     document.getElementById('editModeRow').style.display = isAdmin ? 'flex' : 'none';
     document.getElementById('editModeToggle').checked = editMode;
+    document.getElementById('showPrayerToggle').checked = localStorage.getItem('show_prayer_times') === '1';
     calendarCard.style.display = 'block';
     deleteAccountCard.style.display = 'block';
     renderCalendar();
+    if (location.hash === '#calendar' && !window._calScrolled) {
+      window._calScrolled = true;
+      setTimeout(() => calendarCard.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+    }
   } else {
     guestCard.style.display = 'block';
     accountCard.style.display = 'none';
@@ -450,6 +467,10 @@ function handleDeleteAccountClick(){
 
 AZKAR_AUTH_READY.then(renderAccountUI);
 document.addEventListener('azkar-auth-changed', renderAccountUI);
+document.addEventListener('azkar-settings-changed', () => {
+  const t = document.getElementById('showPrayerToggle');
+  if (t) t.checked = localStorage.getItem('show_prayer_times') === '1';
+});
 </script>
 </body>
 </html>
