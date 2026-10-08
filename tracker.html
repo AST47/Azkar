@@ -819,6 +819,13 @@ if(editingPastDay){
   });
 }
 
+// وصل تحديث ليوم من جهاز تاني: أعد قراءة اليوم الحالي وحدّث الشاشة
+document.addEventListener('azkar-days-changed', () => {
+  if(editingPastDay) return;
+  state = readState(currentKey);
+  render();
+});
+
 let resetArmed = false;
 let resetTimer = null;
 const resetBtn = document.getElementById('resetBtn');

@@ -1091,14 +1091,8 @@ let prayerTimings = null;
 
 // ---------- Tracker sync (shared with tracker.html) ----------
 const CATEGORY_TO_TRACKER_ID = {waking:'waking', morning:'morning', noon:'noon', during_day:'during_day', evening:'evening', before_sleep:'sleep'};
-const TRACKER_QURAN_IDS = ['yaseen','rahman','juz','waqiah','mulk'];
-const TRACKER_PRAYER_IDS = ['fajr','dhuhr','asr','maghrib','isha'];
-const TRACKER_AZKAR_CAT_IDS = ['waking','morning','noon','evening','sleep'];
-const TRACKER_AZKAR_TIME_IDS = ['subhanallah','t1','t2','t3','lahawla','tawheed_a','tawheed_b','istighfar_a','istighfar_b'];
-
 function freshTrackerState(){
-  const mk = ids => Object.fromEntries(ids.map(id => [id, false]));
-  return {quran: mk(TRACKER_QURAN_IDS), prayers: mk(TRACKER_PRAYER_IDS), azkarCategories: mk(TRACKER_AZKAR_CAT_IDS), azkarTimes: mk(TRACKER_AZKAR_TIME_IDS)};
+  return normalizeDayState({}); // الشكل الموحّد من auth.js
 }
 
 function trackerDayKey(){
@@ -1116,7 +1110,7 @@ function readTrackerState(){
     const raw = localStorage.getItem(key);
     if(raw){
       const parsed = JSON.parse(raw);
-      if(parsed && typeof parsed.azkarCategories === 'object') return {key, state: parsed};
+      if(parsed && typeof parsed.azkarCategories === 'object') return {key, state: normalizeDayState(parsed)};
     }
   }catch(e){}
   return {key, state: freshTrackerState()};
@@ -1266,9 +1260,30 @@ function toggleItemChecked(item){
   if(!on) state.azkarCategories.during_day = false;
   saveTrackerState(key, state);
 }
-function allDhikrChecked(){
-  const {state} = readTrackerState();
-  return dhikrCheckItems().every(i => isItemChecked(i, state));
+// زر "أتممت الأدعية والأذكار": بيعلّم كل أذكار "أثناء اليوم" (المربوطة وغير المربوطة)
+// مرة وحدة — لمين خلّصهم برّا التطبيق وبدو يسجّل إنجازه بدون ما يكبس كرت كرت.
+// لو كان مكتمل وانكبس تاني: بيشيل علامة الزر بس (الصحات بتضل).
+function toggleAllDhikr(){
+  const {key, state} = readTrackerState();
+  if(state.azkarCategories.during_day){
+    state.azkarCategories.during_day = false;
+    saveTrackerState(key, state);
+    return;
+  }
+  dhikrCheckItems().forEach(item => {
+    const k = trackerKeyOf(item);
+    if(k){
+      state.azkarTimes[k] = true;
+    }else{
+      state.azkarItems = state.azkarItems || {};
+      state.azkarItems[item.id] = true;
+    }
+  });
+  Object.entries(COMPOUND_PARTS).forEach(([comp, parts]) => {
+    if(parts.every(p => !!state.azkarTimes[p])) state.azkarTimes[comp] = true;
+  });
+  state.azkarCategories.during_day = true;
+  saveTrackerState(key, state);
 }
 
 let items = [];
@@ -1451,7 +1466,7 @@ function fetchPrayerTimings(){
   fetch(url).then(r => r.json()).then(d => {
     if(d.code === 200){
       prayerTimings = d.data.timings;
-      renderPrayerStrip();
+      render(); // حدود اليوم (الفجر) تغيّرت، فاقرأ حالة اليوم الصحيح
     }
   }).catch(() => {});
 }
@@ -1477,13 +1492,16 @@ function startPrayerStripTimer(){
   }, 30000);
 }
 
+// نجيب أوقات الصلاة دايماً (مو بس لما الشريط مفعّل) لأن حدّ اليوم بالمتابعة
+// هو الفجر — نفس اللي بتستخدمه صفحة المتابعة والعدّادة.
+fetchPrayerTimings();
 if(showPrayerTimes){
-  fetchPrayerTimings();
   startPrayerStripTimer();
 }
 
 // الدخول ونمط التعديل صاروا من صفحة الحساب (account.html) عبر auth.js.
 // هون بس منستمع لتغيّر الحالة ومنحدّث الواجهة.
+document.addEventListener('azkar-days-changed', () => render());
 document.addEventListener('azkar-auth-changed', () => {
   document.getElementById('importExportBtn').style.display = editMode ? 'inline-block' : 'none';
   const accountLabel = document.getElementById('accountBtnLabel');
@@ -1836,6 +1854,15 @@ function render(){
       }
     }
 
+    if(editMode && activeCategory === 'during_day' && !item.isQuran){
+      const tk = trackerKeyOf(item);
+      const opt = TRACKER_KEY_OPTIONS.find(o => o.id === tk);
+      const linkBadge = document.createElement('span');
+      linkBadge.className = 'cat-badge';
+      linkBadge.textContent = tk ? ('🔗 ' + (opt ? opt.label : tk)) : 'غير مربوط بالمتابعة';
+      badgeGroup.appendChild(linkBadge);
+    }
+
     if(activeCategory === 'during_day' && !item.isQuran){
       const done = isItemChecked(item, dayState);
       const chk = document.createElement('button');
@@ -1918,9 +1945,8 @@ function renderCompleteToggle(){
   });
   if(azkarLabel){
     const catDone = isCategoryDone(activeCategory);
-    // "أثناء اليوم": الزر النهائي ما بيشتغل إلا لما تكتمل كل صحات الأذكار
-    const locked = activeCategory === 'during_day' && !catDone && !allDhikrChecked();
-    rows.push({done: catDone, disabled: locked, label: azkarLabel, doneLabel: azkarLabel, onToggle: () => toggleCategoryDone(activeCategory)});
+    rows.push({done: catDone, label: azkarLabel, doneLabel: azkarLabel,
+      onToggle: () => activeCategory === 'during_day' ? toggleAllDhikr() : toggleCategoryDone(activeCategory)});
   }
   (QURAN_ITEMS_BY_CATEGORY[activeCategory] || []).forEach(q => {
     rows.push({done: isQuranItemDone(q.id), label: `قرأت ${q.label}`, doneLabel: `قرأت ${q.label}`, onToggle: () => toggleQuranItemDone(q.id)});

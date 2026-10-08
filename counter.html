@@ -621,7 +621,7 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
         const raw = localStorage.getItem(key);
         if(raw) st = JSON.parse(raw);
       }catch(e){}
-      if(!isCompleteTrackerState(st)) st = freshTrackerState();
+      st = normalizeDayState(st); // يكمّل أي مفتاح ناقص بدل ما يمسح اليوم
       st.azkarTimes[trackerKey] = true;
 
       const pair = COMPOUND_PAIR[trackerKey];

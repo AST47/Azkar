@@ -32,7 +32,8 @@ const AZKAR_AUTH_READY = new Promise(resolve => {
       editMode = false;
       localStorage.removeItem('editMode');
     }
-    if (user) startSettingsSync(user.uid); else stopSettingsSync();
+    if (user) { startSettingsSync(user.uid); startDaysSync(user.uid); }
+    else { stopSettingsSync(); stopDaysSync(); }
     document.dispatchEvent(new CustomEvent('azkar-auth-changed', {
       detail: { user, isAdmin, editMode }
     }));
@@ -134,11 +135,76 @@ function localTrackerKeyToDayId(key){
 // مزامنة حيّة: بتترفع فوراً مع كل تغيير بالتراكر (من tracker.html أو
 // counter.html). بفضل التخزين الأوفلاين فوق، لو ما في اتصال، فايرستور
 // بيأجلها تلقائياً وبيرفعها أول ما يرجع الاتصال — بدون أي كود إضافي.
+// شكل حالة اليوم الموحّد — مصدر واحد لكل الصفحات. أي مفتاح ناقص بيتضاف false
+// (مهم: tracker.html بيعتبر الحالة "غير صالحة" لو ناقصها مفتاح، وبيعرض يوم فاضي).
+const DAY_SCHEMA = {
+  quran: ['yaseen','rahman','juz','waqiah','mulk'],
+  prayers: ['fajr','dhuhr','asr','maghrib','isha'],
+  azkarCategories: ['waking','noon','during_day','evening','sleep'],
+  azkarTimes: ['subhanallah','t1','t2','t3','lahawla','tawheed_a','tawheed_b','istighfar_a','istighfar_b']
+};
+
+function normalizeDayState(s){
+  const out = (s && typeof s === 'object') ? s : {};
+  Object.entries(DAY_SCHEMA).forEach(([section, ids]) => {
+    if(!out[section] || typeof out[section] !== 'object') out[section] = {};
+    ids.forEach(id => { if(!(id in out[section])) out[section][id] = false; });
+  });
+  return out;
+}
+
+// 'YYYY-MM-DD' (بأصفار) → مفتاح localStorage 'tracker-Y-M-D' (بدون أصفار)
+function dayIdToLocalKey(dayId){
+  const [y, m, d] = dayId.split('-');
+  return `tracker-${y}-${Number(m)}-${Number(d)}`;
+}
+
+// مزامنة حيّة: بتترفع فوراً مع كل تغيير بالتراكر (من tracker.html أو
+// counter.html أو index.html). بفضل التخزين الأوفلاين فوق، لو ما في اتصال،
+// فايرستور بيأجلها تلقائياً وبيرفعها أول ما يرجع الاتصال.
+// كل كتابة بتنختم بـ _updatedAt (محلياً وبالسحابة) مشان الجهاز التاني يعرف
+// أي نسخة أحدث (بيوم كامل: الأحدث بيفوز).
 function syncDayToCloud(dayId, data){
   if(!currentUser || !dayId) return;
+  data._updatedAt = Date.now();
+  try{ localStorage.setItem(dayIdToLocalKey(dayId), JSON.stringify(data)); }catch(e){}
   db.collection('users').doc(currentUser.uid).collection('days').doc(dayId)
     .set(data, { merge: true })
     .catch(err => console.warn('تعذّرت مزامنة اليوم:', err.message));
+}
+
+// ---------- استقبال أيام التراكر من الأجهزة الأخرى (آخر ٤ أيام) ----------
+let _daysUnsub = null;
+
+function startDaysSync(uid){
+  stopDaysSync();
+  const c = new Date(); c.setDate(c.getDate() - 4);
+  const cutoff = `${c.getFullYear()}-${String(c.getMonth()+1).padStart(2,'0')}-${String(c.getDate()).padStart(2,'0')}`;
+  _daysUnsub = db.collection('users').doc(uid).collection('days')
+    .where(firebase.firestore.FieldPath.documentId(), '>=', cutoff)
+    .onSnapshot(snap => {
+      let changed = false;
+      snap.docChanges().forEach(ch => {
+        if(ch.type === 'removed') return;
+        if(ch.doc.metadata.hasPendingWrites) return; // صدى لكتابتنا نحن
+        const cloud = ch.doc.data();
+        const key = dayIdToLocalKey(ch.doc.id);
+        let local = null;
+        try{ local = JSON.parse(localStorage.getItem(key) || 'null'); }catch(e){}
+        const cloudTime = cloud._updatedAt || 0;
+        const localTime = (local && local._updatedAt) || 0;
+        // بنستبدل المحلي فقط لو ما في نسخة محلية، أو نسخة السحابة أحدث بختمها
+        if(!local || cloudTime > localTime){
+          localStorage.setItem(key, JSON.stringify(normalizeDayState(cloud)));
+          changed = true;
+        }
+      });
+      if(changed) document.dispatchEvent(new CustomEvent('azkar-days-changed'));
+    }, err => console.warn('تعذّر الاستماع لأيام التراكر:', err.code));
+}
+
+function stopDaysSync(){
+  if(_daysUnsub){ _daysUnsub(); _daysUnsub = null; }
 }
 
 // ---------- دوال الرفع/الدمج ----------
