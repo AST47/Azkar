@@ -1212,15 +1212,16 @@ const TRACKER_KEY_OPTIONS = [
 const COMPOUND_OF = {tawheed_a:'t1', tawheed_b:'t1', istighfar_a:'t2', istighfar_b:'t2'};
 const COMPOUND_PARTS = {t1:['tawheed_a','tawheed_b'], t2:['istighfar_a','istighfar_b']};
 
-// تخمين الربط من أول النص (نفس نصوص العدّادة) — الحقل الصريح بالذكر بيتفوّق عليه
-const TRACKER_TEXT_PREFIXES = [
-  ['اللهم صل وسلم وبارك', 't3'],
-  ['سبحان الله العظيم وبحمده', 'subhanallah'],
-  ['لا حول ولا قوه الا بالله', 'lahawla'],
-  ['لا اله الا انت سبحانك', 'tawheed_a'],
-  ['لا اله الا الله وحده', 'tawheed_b'],
-  ['استغفر الله العظيم', 'istighfar_a'],
-  ['اللهم انت ربي', 'istighfar_b']
+// تخمين الربط من عنوان الذكر ونصّه (بعد إزالة التشكيل) — الحقل الصريح بالذكر بيتفوّق عليه.
+// الترتيب مهم: الأخص أولاً. النص الطويل (أكثر من ٢٠٠ حرف) بيتجاهل نصّه وبيعتمد على العنوان.
+const TRACKER_TEXT_RULES = [
+  ['istighfar_b', ['سيد الاستغفار', 'اللهم انت ربي']],
+  ['tawheed_a',   ['لا اله الا انت سبحانك']],
+  ['tawheed_b',   ['لا اله الا الله وحده']],
+  ['lahawla',     ['لا حول ولا قوه', 'حوقله']],
+  ['istighfar_a', ['استغفر الله', 'استغفار']],
+  ['subhanallah', ['سبحان الله العظيم', 'سبحان الله وبحمده', 'تسبيح']],
+  ['t3',          ['اللهم صل', 'صل وسلم', 'صلي علي', 'صلاه علي النبي', 'الصلاه علي النبي', 'صلي الله عليه وسلم']]
 ];
 function normalizeArabic(t){
   return String(t || '')
@@ -1231,9 +1232,11 @@ function normalizeArabic(t){
 function trackerKeyOf(item){
   if(item.trackerKey === 'none') return null;
   if(item.trackerKey) return item.trackerKey;
-  const t = normalizeArabic(item.text);
-  const hit = TRACKER_TEXT_PREFIXES.find(([p]) => t.startsWith(p));
-  return hit ? hit[1] : null;
+  const title = normalizeArabic(item.title);
+  const text = normalizeArabic(item.text);
+  const hay = text.length <= 200 ? (title + ' | ' + text) : title;
+  const hit = TRACKER_TEXT_RULES.find(([, phrases]) => phrases.some(p => hay.includes(p)));
+  return hit ? hit[0] : null;
 }
 
 function dhikrCheckItems(){
