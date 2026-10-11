@@ -251,6 +251,18 @@ body{
 }
 .preset-select:focus{ outline:1.5px solid var(--teal-soft); }
 .dhikr-text{ font-size:clamp(15px, 4vw, 19px); color:var(--ink-soft); margin:0; font-family:'Amiri', serif; }
+.edit-list-btn{ font-family:'Tajawal', sans-serif; font-size:12px; color:var(--teal-dark); background:transparent; border:1px dashed var(--gold-line); border-radius:999px; padding:4px 12px; cursor:pointer; }
+.presets-modal{ max-width:520px; max-height:88vh; overflow-y:auto; }
+.pl-row{ display:flex; align-items:center; gap:6px; padding:8px 0; border-bottom:1px solid var(--gold-line); font-size:14px; color:var(--ink-soft); }
+.pl-title{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pl-badge{ font-size:11px; color:var(--teal-dark); background:rgba(31,92,78,0.1); border-radius:10px; padding:1px 8px; flex-shrink:0; }
+.pl-btn{ border:1px solid var(--gold-line); background:transparent; color:var(--ink-soft); border-radius:6px; width:28px; height:28px; cursor:pointer; font-size:14px; padding:0; flex-shrink:0; }
+.pl-btn:disabled{ opacity:0.35; cursor:default; }
+.pl-form label{ display:block; font-size:12.5px; color:var(--ink-soft); margin:12px 0 4px; }
+.pl-form input, .pl-form textarea, .pl-form select{ width:100%; box-sizing:border-box; font-family:'Tajawal', sans-serif; font-size:14px; padding:8px 10px; border:1px solid var(--gold-line); border-radius:8px; background:var(--parchment-deep); color:var(--ink-soft); }
+.pl-form textarea{ min-height:90px; resize:vertical; }
+.pl-error{ color:#B03A2E; font-size:12.5px; min-height:16px; margin-top:8px; }
+.btn.primary{ background:var(--teal); color:#F5EDD9; border-color:var(--teal); }
 .tracked-note{ margin:0; min-height:22px; display:flex; align-items:center; justify-content:center; }
 .tracked-note .tick{ width:22px; height:22px; border-radius:50%; background:var(--teal); color:#F5EDD9; display:inline-flex; align-items:center; justify-content:center; }
 
@@ -375,24 +387,8 @@ body{
   <div class="ornament"></div>
 
   <header class="counter-header">
-    <select class="preset-select" id="presetSelect">
-      <option value="">عدّاد حر</option>
-      <option value="salawat">الصلاة على النبي</option>
-      <option value="subhanallah-azeem">سبحان الله العظيم وبحمده</option>
-      <option value="lahawla">لا حول ولا قوة إلا بالله</option>
-      <option value="la-ilaha-illa-allah">لا إله إلا الله وحده</option>
-      <option value="la-ilaha-illa-anta">لا إله إلا أنت سبحانك</option>
-      <option value="istighfar1">استغفار</option>
-      <option value="sayyid-istighfar">سيد الاستغفار</option>
-      <option value="taysir">اللهم لا سهل إلا ما جعلته سهلًا</option>
-      <option value="tawakkul">اللهم إني وكّلتك أمري</option>
-      <option value="hawl-quwwa">اللهم أخرجني من حولي إلى حولك</option>
-      <option value="kifaya">اللهم اكفنيهم بما شئت</option>
-      <option value="rizq">اللهم افتح لي أبواب رحمتك</option>
-      <option value="istighna">اللهم اكفني بحلالك عن حرامك</option>
-      <option value="hirman-masiya">اللهم احرمني لذة معصيتك</option>
-      <option value="naariya">الصلاة النارية</option>
-    </select>
+    <select class="preset-select" id="presetSelect"></select>
+    <button class="edit-list-btn" id="editPresetsBtn" style="display:none;">✎ تعديل قائمة الأذكار</button>
     <p class="dhikr-text" id="dhikrText"></p>
     <p class="tracked-note" id="trackedNote"></p>
   </header>
@@ -467,6 +463,38 @@ body{
   </div>
 </div>
 <script src="info.js"></script>
+<div class="modal-overlay" id="presetsModal">
+  <div class="modal presets-modal">
+    <div id="plListView">
+      <h3>قائمة الأذكار</h3>
+      <div id="plRows"></div>
+      <div class="pl-error" id="plListError"></div>
+      <div class="modal-actions" style="justify-content:space-between; gap:8px; flex-wrap:wrap;">
+        <button class="btn" id="plAddBtn">+ إضافة ذكر</button>
+        <span style="display:flex; gap:8px;">
+          <button class="btn" id="plCancelBtn">إلغاء</button>
+          <button class="btn primary" id="plSaveBtn">حفظ</button>
+        </span>
+      </div>
+    </div>
+    <div id="plFormView" class="pl-form" style="display:none;">
+      <h3 id="plFormTitle">ذكر</h3>
+      <label>العنوان (بيظهر بالقائمة)</label>
+      <input id="plTitle" type="text">
+      <label>النص</label>
+      <textarea id="plText"></textarea>
+      <label>التكرار الافتراضي</label>
+      <input id="plTarget" type="number" min="1" value="33">
+      <label>الربط بالمتابعة</label>
+      <select id="plLink"></select>
+      <div class="pl-error" id="plFormError"></div>
+      <div class="modal-actions" style="gap:8px;">
+        <button class="btn" id="plFormCancel">رجوع</button>
+        <button class="btn primary" id="plFormOk">تم</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -510,24 +538,36 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
   // trackerKey = مفتاح ربط الذكر بالمتابعة (المكان المشترك tracker.js).
   // لذكر جديد مربوط: أضف trackerKey: 'اسم_فريد' هون، وحط نفس المفتاح بحقل "ربط"
   // بذكر صفحة الأذكار — بيشتغل الربط تلقائياً بدون أي تعديل تاني.
-  const PRESETS = {
-    '': { text: '' },
-    'salawat': { text: 'اللهم صلِّ وسلّم وبارك، على سيّدنا محمّد وصحبه وآله', target: 100, trackerKey: 't3' },
-    'subhanallah-azeem': { text: 'سبحان الله العظيم وبحمده', target: 100, trackerKey: 'subhanallah' },
-    'lahawla': { text: 'لا حول ولا قوة إلا بالله', target: 100, trackerKey: 'lahawla' },
-    'istighfar1': { text: 'أستغفر الله العظيم، من كل ذنب قد فعلت، يا ليتني ما فعلت، لم أعد أفعل', target: 10, trackerKey: 'istighfar_a' },
-    'la-ilaha-illa-anta': { text: 'لا إله إلا أنت سبحانك، إني كنت من الظالمين، وأنت أرحم الراحمين', target: 10, trackerKey: 'tawheed_a' },
-    'la-ilaha-illa-allah': { text: 'لا إله إلا الله وحده لا شريك له، له الملك، وله الحمد، وهو يُحيي ويُميت، وهو على كل شيء قدير', target: 10, trackerKey: 'tawheed_b' },
-    'taysir': { text: 'اللهم لا سهل إلا ما جعلته سهلًا، وأنت تجعل الحزن إذا شئت سهلًا', target: 10 },
-    'tawakkul': { text: 'اللهم إني وكّلتك أمري، واستودعتك همّي، فبشّرني بما يفتح مداخل السعادة إلى قلبي', target: 10 },
-    'hawl-quwwa': { text: 'اللهم أخرجني من حولي إلى حولك، ومن عزمي إلى عزمك، ومن ضيق اختياري إلى براح إرادتك، ومن ضعفي إلى قوّتك، ومن انكساري إلى عزّتك، يا عزيز يا ذا القوّة المتين', target: 10 },
-    'kifaya': { text: 'اللهمّ اكفتهيم بما شئت، وكيف شئت، إنّك على ما تشاء قدير', target: 10 },
-    'sayyid-istighfar': { text: 'اللّهمّ أنت ربّي، لا إله إلّا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شرّ ما صنعت، أبوء لك بنعمتك عليّ، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت', target: 10, trackerKey: 'istighfar_b' },
-    'rizq': { text: 'اللّهمّ افتح لي أبواب رحمتك، وارزقني بفضلك، رزقًا حلالًا طيّبًا مباركًا يا رب العالمين', target: 10 },
-    'istighna': { text: 'اللّهمّ اكفني بحلالك عن حرامك، واشغلني بطاعتك عن معصيتك، وأغنني بفضلك عمّن سواك', target: 10 },
-    'hirman-masiya': { text: 'اللهم احرمني لذّة معصيتك، وارزقني لذّة طاعتك', target: 10 },
-    'naariya': { text: 'اللهم صلِّ صلاةً كاملةً وسلِّم سلاماً تاماً على سيدنا محمد الذي تنحل به العقد وتنفرج به الكرب وتقضى به الحوائج وتنال به الرغائب وحسن الخواتيم ويستسقى الغمام بوجهه الكريم وعلى آله وصحبه وسلم', target: 33 }
-  };
+  // قائمة الأذكار الافتراضية. الأدمن بيعدّلها من نمط التعديل (بتتخزن بفايرستور azkar/counter).
+  // trackerKey = ذكر مربوط بمربع بصفحة المتابعة. بدونه = ذكر غير مربوط (متل الصلاة النارية).
+  const DEFAULT_PRESETS = [
+    {"id": "salawat", "title": "الصلاة على النبي", "text": "اللهم صلِّ وسلّم وبارك، على سيّدنا محمّد وصحبه وآله", "target": 100, "trackerKey": "t3"},
+    {"id": "subhanallah-azeem", "title": "سبحان الله العظيم وبحمده", "text": "سبحان الله العظيم وبحمده", "target": 100, "trackerKey": "subhanallah"},
+    {"id": "lahawla", "title": "لا حول ولا قوة إلا بالله", "text": "لا حول ولا قوة إلا بالله", "target": 100, "trackerKey": "lahawla"},
+    {"id": "la-ilaha-illa-allah", "title": "لا إله إلا الله وحده", "text": "لا إله إلا الله وحده لا شريك له، له الملك، وله الحمد، وهو يُحيي ويُميت، وهو على كل شيء قدير", "target": 10, "trackerKey": "tawheed_b"},
+    {"id": "la-ilaha-illa-anta", "title": "لا إله إلا أنت سبحانك", "text": "لا إله إلا أنت سبحانك، إني كنت من الظالمين، وأنت أرحم الراحمين", "target": 10, "trackerKey": "tawheed_a"},
+    {"id": "istighfar1", "title": "استغفار", "text": "أستغفر الله العظيم، من كل ذنب قد فعلت، يا ليتني ما فعلت، لم أعد أفعل", "target": 10, "trackerKey": "istighfar_a"},
+    {"id": "sayyid-istighfar", "title": "سيد الاستغفار", "text": "اللّهمّ أنت ربّي، لا إله إلّا أنت، خلقتني وأنا عبدك، وأنا على عهدك ووعدك ما استطعت، أعوذ بك من شرّ ما صنعت، أبوء لك بنعمتك عليّ، وأبوء بذنبي فاغفر لي، فإنه لا يغفر الذنوب إلا أنت", "target": 10, "trackerKey": "istighfar_b"},
+    {"id": "taysir", "title": "اللهم لا سهل إلا ما جعلته سهلًا", "text": "اللهم لا سهل إلا ما جعلته سهلًا، وأنت تجعل الحزن إذا شئت سهلًا", "target": 10},
+    {"id": "tawakkul", "title": "اللهم إني وكّلتك أمري", "text": "اللهم إني وكّلتك أمري، واستودعتك همّي، فبشّرني بما يفتح مداخل السعادة إلى قلبي", "target": 10},
+    {"id": "hawl-quwwa", "title": "اللهم أخرجني من حولي إلى حولك", "text": "اللهم أخرجني من حولي إلى حولك، ومن عزمي إلى عزمك، ومن ضيق اختياري إلى براح إرادتك، ومن ضعفي إلى قوّتك، ومن انكساري إلى عزّتك، يا عزيز يا ذا القوّة المتين", "target": 10},
+    {"id": "kifaya", "title": "اللهم اكفنيهم بما شئت", "text": "اللهمّ اكفنيهم بما شئت، وكيف شئت، إنّك على ما تشاء قدير", "target": 10},
+    {"id": "rizq", "title": "اللهم افتح لي أبواب رحمتك", "text": "اللّهمّ افتح لي أبواب رحمتك، وارزقني بفضلك، رزقًا حلالًا طيّبًا مباركًا يا رب العالمين", "target": 10},
+    {"id": "istighna", "title": "اللهم اكفني بحلالك عن حرامك", "text": "اللّهمّ اكفني بحلالك عن حرامك، واشغلني بطاعتك عن معصيتك، وأغنني بفضلك عمّن سواك", "target": 10},
+    {"id": "hirman-masiya", "title": "اللهم احرمني لذة معصيتك", "text": "اللهم احرمني لذّة معصيتك، وارزقني لذّة طاعتك", "target": 10},
+    {"id": "naariya", "title": "الصلاة النارية", "text": "اللهم صلِّ صلاةً كاملةً وسلِّم سلاماً تاماً على سيدنا محمد الذي تنحل به العقد وتنفرج به الكرب وتقضى به الحوائج وتنال به الرغائب وحسن الخواتيم ويستسقى الغمام بوجهه الكريم وعلى آله وصحبه وسلم", "target": 33}
+  ];
+  const PRESETS_CACHE_KEY = 'counter_presets_cache';
+  const presetsRef = db.collection('azkar').doc('counter');
+
+  function readPresetsCache(){
+    try{
+      const l = JSON.parse(localStorage.getItem(PRESETS_CACHE_KEY) || 'null');
+      if(Array.isArray(l) && l.length) return l;
+    }catch(e){}
+    return null;
+  }
+  let presetList = readPresetsCache() || DEFAULT_PRESETS.map(p => Object.assign({}, p));
 
   const countEl = document.getElementById('count');
   const ofTargetEl = document.getElementById('ofTarget');
@@ -563,7 +603,22 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
     return (n % 2 === 1) ? 'var(--gold)' : 'var(--leaf)';
   }
 
-  function activePreset(){ return PRESETS[state.preset] || PRESETS['']; }
+  function presetById(id){ return presetList.find(p => p.id === id); }
+  function activePreset(){ return presetById(state.preset) || { text: '' }; }
+
+  function buildPresetSelect(){
+    presetSelectEl.innerHTML = '';
+    const free = document.createElement('option');
+    free.value = ''; free.textContent = 'عدّاد حر';
+    presetSelectEl.appendChild(free);
+    presetList.forEach(p => {
+      const o = document.createElement('option');
+      o.value = p.id; o.textContent = p.title;
+      presetSelectEl.appendChild(o);
+    });
+    if(state.preset && !presetById(state.preset)) state.preset = '';
+    presetSelectEl.value = state.preset;
+  }
 
   function render(){
     countEl.textContent = toArabicNumber(state.count);
@@ -658,6 +713,151 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
     if(state.vibrate) doVibrate(25);
   });
 
+  // ---------- قائمة الأذكار: تحميل من فايرستور + محرّر الأدمن ----------
+  function afterListChange(){
+    buildPresetSelect();
+    if(!presetById(state.preset)){ state.preset = ''; save(); }
+    render();
+  }
+
+  presetsRef.onSnapshot(snap => {
+    const data = snap.exists ? snap.data() : null;
+    if(data && Array.isArray(data.presets) && data.presets.length){
+      presetList = data.presets;
+      try{ localStorage.setItem(PRESETS_CACHE_KEY, JSON.stringify(presetList)); }catch(e){}
+      afterListChange();
+    }
+  }, err => console.warn('تعذّر تحميل قائمة الأذكار:', err.code));
+
+  const editBtn = document.getElementById('editPresetsBtn');
+  const plModal = document.getElementById('presetsModal');
+  const plListView = document.getElementById('plListView');
+  const plFormView = document.getElementById('plFormView');
+  const plRows = document.getElementById('plRows');
+  let working = [];       // نسخة العمل أثناء التعديل
+  let editingIdx = -1;    // -1 = ذكر جديد
+  let linkOptions = [];
+
+  function syncEditBtn(){
+    editBtn.style.display = (typeof editMode !== 'undefined' && editMode) ? '' : 'none';
+  }
+  AZKAR_AUTH_READY.then(syncEditBtn);
+  document.addEventListener('azkar-auth-changed', syncEditBtn);
+
+  function linkLabel(key){
+    const o = linkOptions.find(x => x.id === key);
+    return o ? o.label : null;
+  }
+
+  function renderRows(){
+    plRows.innerHTML = '';
+    working.forEach((p, i) => {
+      const row = document.createElement('div');
+      row.className = 'pl-row';
+      const title = document.createElement('span');
+      title.className = 'pl-title';
+      title.textContent = p.title;
+      row.appendChild(title);
+      if(p.trackerKey){
+        const b = document.createElement('span');
+        b.className = 'pl-badge';
+        b.textContent = '🔗 مربوط';
+        row.appendChild(b);
+      }
+      const mk = (txt, fn, disabled, tip) => {
+        const btn = document.createElement('button');
+        btn.className = 'pl-btn'; btn.textContent = txt; btn.title = tip;
+        btn.disabled = !!disabled; btn.onclick = fn;
+        row.appendChild(btn);
+      };
+      mk('↑', () => { [working[i-1], working[i]] = [working[i], working[i-1]]; renderRows(); }, i === 0, 'فوق');
+      mk('↓', () => { [working[i+1], working[i]] = [working[i], working[i+1]]; renderRows(); }, i === working.length - 1, 'تحت');
+      mk('✎', () => openForm(i), false, 'تعديل');
+      mk('🗑', () => { if(confirm('حذف "' + p.title + '"؟')){ working.splice(i, 1); renderRows(); } }, false, 'حذف');
+      plRows.appendChild(row);
+    });
+  }
+
+  // خيارات الربط: مربعات المتابعة الأساسية + أذكار "أثناء اليوم" غير المربوطة (بمفتاحها التلقائي)
+  async function loadLinkOptions(){
+    linkOptions = [{ id: '', label: 'بدون ربط' }, ...Tracker.KEY_OPTIONS];
+    try{
+      const snap = await db.collection('azkar').doc('items').get();
+      const its = snap.exists ? (snap.data().items || []) : [];
+      its.filter(it => it.categoryId === 'during_day' && !it.isQuran && !Tracker.linkKeyOf(it))
+        .forEach(it => linkOptions.push({ id: it.id, label: 'صفحة الأذكار: ' + (it.title || String(it.text || '').slice(0, 30)) }));
+    }catch(e){ console.warn('تعذّر تحميل أذكار الصفحة الرئيسية للربط:', e.code); }
+  }
+
+  function openForm(i){
+    editingIdx = i;
+    const p = i >= 0 ? working[i] : { title: '', text: '', target: 33 };
+    document.getElementById('plFormTitle').textContent = i >= 0 ? 'تعديل الذكر' : 'ذكر جديد';
+    document.getElementById('plTitle').value = p.title;
+    document.getElementById('plText').value = p.text;
+    document.getElementById('plTarget').value = p.target || 33;
+    const link = document.getElementById('plLink');
+    link.innerHTML = '';
+    const opts = linkOptions.slice();
+    if(p.trackerKey && !linkLabel(p.trackerKey)) opts.push({ id: p.trackerKey, label: p.trackerKey + ' (مفتاح غير موجود حالياً)' });
+    opts.forEach(o => {
+      const el = document.createElement('option');
+      el.value = o.id; el.textContent = o.label; link.appendChild(el);
+    });
+    link.value = p.trackerKey || '';
+    document.getElementById('plFormError').textContent = '';
+    plListView.style.display = 'none';
+    plFormView.style.display = '';
+  }
+
+  function backToList(){
+    plFormView.style.display = 'none';
+    plListView.style.display = '';
+    renderRows();
+  }
+
+  editBtn.addEventListener('click', async () => {
+    if(typeof isAdmin === 'undefined' || !isAdmin) return;
+    working = presetList.map(p => Object.assign({}, p));
+    document.getElementById('plListError').textContent = '';
+    plFormView.style.display = 'none';
+    plListView.style.display = '';
+    await loadLinkOptions();
+    renderRows();
+    plModal.classList.add('open');
+  });
+  document.getElementById('plAddBtn').addEventListener('click', () => openForm(-1));
+  document.getElementById('plCancelBtn').addEventListener('click', () => plModal.classList.remove('open'));
+  document.getElementById('plFormCancel').addEventListener('click', backToList);
+
+  document.getElementById('plFormOk').addEventListener('click', () => {
+    const title = document.getElementById('plTitle').value.trim();
+    const text = document.getElementById('plText').value.trim();
+    const target = parseInt(document.getElementById('plTarget').value, 10);
+    const link = document.getElementById('plLink').value;
+    const err = document.getElementById('plFormError');
+    if(!title || !text){ err.textContent = 'العنوان والنص مطلوبين'; return; }
+    if(!(target >= 1)){ err.textContent = 'التكرار لازم يكون ١ أو أكتر'; return; }
+    const item = editingIdx >= 0 ? working[editingIdx] : { id: 'p_' + Date.now() };
+    item.title = title; item.text = text; item.target = target;
+    if(link) item.trackerKey = link; else delete item.trackerKey;
+    if(editingIdx < 0) working.push(item);
+    backToList();
+  });
+
+  document.getElementById('plSaveBtn').addEventListener('click', async () => {
+    if(typeof isAdmin === 'undefined' || !isAdmin) return;
+    const err = document.getElementById('plListError');
+    if(!working.length){ err.textContent = 'القائمة فاضية'; return; }
+    try{
+      await presetsRef.set({ presets: working });
+      plModal.classList.remove('open');
+    }catch(e){
+      err.textContent = 'تعذّر الحفظ (' + (e.code || 'خطأ') + ') — تأكد من قواعد فايرستور للمستند azkar/counter';
+    }
+  });
+
+  buildPresetSelect();
   render();
   Tracker.refreshBoundary(null);
   Tracker.onChange(renderTrackedCheck);

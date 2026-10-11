@@ -22,6 +22,48 @@ const Tracker = (() => {
 
   function emit(){ document.dispatchEvent(new CustomEvent(EVENT)); }
 
+  // ---------- مفاتيح الربط ----------
+  // الأذكار اللي إلها مربع بصفحة المتابعة (القائمة الثابتة اللي بتظهر بخيارات الربط).
+  const KEY_OPTIONS = [
+    {id:'t3', label:'الصلاة على النبي'},
+    {id:'subhanallah', label:'التسبيح'},
+    {id:'lahawla', label:'الحوقلة'},
+    {id:'tawheed_a', label:'التهليل — لا إله إلا أنت سبحانك'},
+    {id:'tawheed_b', label:'التهليل — لا إله إلا الله وحده'},
+    {id:'istighfar_a', label:'الاستغفار — أستغفر الله العظيم'},
+    {id:'istighfar_b', label:'الاستغفار — سيد الاستغفار'}
+  ];
+
+  // تخمين الربط للأذكار القديمة اللي ما انحدد إلها ربط صريح (من العنوان والنص بعد
+  // إزالة التشكيل). الأخص أولاً. النص الطويل (> ٢٠٠ حرف) بيعتمد على العنوان بس.
+  const TEXT_RULES = [
+    ['istighfar_b', ['سيد الاستغفار', 'اللهم انت ربي']],
+    ['tawheed_a',   ['لا اله الا انت سبحانك']],
+    ['tawheed_b',   ['لا اله الا الله وحده']],
+    ['lahawla',     ['لا حول ولا قوه', 'حوقله']],
+    ['istighfar_a', ['استغفر الله', 'استغفار']],
+    ['subhanallah', ['سبحان الله العظيم', 'سبحان الله وبحمده', 'تسبيح']],
+    ['t3',          ['اللهم صل', 'صل وسلم', 'صلي علي', 'صلاه علي النبي', 'الصلاه علي النبي', 'صلي الله عليه وسلم']]
+  ];
+  function normalizeArabic(t){
+    return String(t || '')
+      .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+      .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
+      .replace(/[،,.؛:!؟?]/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+  // مفتاح المتابعة الأساسي المربوط بالذكر، أو null لو ما إله
+  function linkKeyOf(item){
+    if(item.trackerKey === 'none') return null;
+    if(item.trackerKey) return item.trackerKey;
+    const title = normalizeArabic(item.title);
+    const text = normalizeArabic(item.text);
+    const hay = text.length <= 200 ? (title + ' | ' + text) : title;
+    const hit = TEXT_RULES.find(([, phrases]) => phrases.some(p => hay.includes(p)));
+    return hit ? hit[0] : null;
+  }
+  // مفتاح الذكر الفعلي: المربوط، أو معرّف الذكر نفسه (كل ذكر إله مفتاح دايماً)
+  function itemKey(item){ return linkKeyOf(item) || item.id; }
+
   // ---------- حد اليوم ----------
   function dayKey(d){
     return 'tracker-' + d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
@@ -224,6 +266,6 @@ const Tracker = (() => {
     dayKey, todayKey, todayDate, boundaryMinutes, refreshBoundary,
     read, write, update, reset, normalize,
     isDone, isDoneIn, setDone, toggle, apply, onChange,
-    COMPOUND_PARTS, COMPOUND_OF
+    COMPOUND_PARTS, COMPOUND_OF, KEY_OPTIONS, linkKeyOf, itemKey, normalizeArabic
   };
 })();

@@ -964,8 +964,7 @@ mark.search-hit{
     <select id="editCategory"></select>
     <div id="editTrackerKeyWrap" style="display:none;">
       <label>ربط الصح بالمتابعة والعدّادة</label>
-      <input type="text" id="editTrackerKey" list="trackerKeyList" placeholder="تلقائي (حسب نص الذكر)" autocomplete="off">
-      <datalist id="trackerKeyList"></datalist>
+      <select id="editTrackerKey"></select>
     </div>
     <label>نص الذكر</label>
     <textarea id="editText" placeholder="اكتب نص الذكر هنا"></textarea>
@@ -1173,54 +1172,22 @@ function toggleAzkarTimeDone(id){
 }
 
 // ---------- صح على كل ذكر (تصنيف "أثناء اليوم" فقط) ----------
-// الربط عبر المكان المشترك (tracker.js): الذكر المربوط (trackerKey) بيكتب على
-// نفس المفتاح اللي بتكتب عليه العدّادة والمتابعة. المفاتيح الأساسية بتروح لـ
-// azkarTimes، وأي مفتاح جديد (أو الكرت غير المربوط) بيروح لـ azkarItems.
-// لذكر جديد: حط نفس المفتاح بحقل "ربط" هون وبـ trackerKey بذكر العدّادة.
+// الربط عبر المكان المشترك (tracker.js): كل ذكر بـ"أثناء اليوم" إله مفتاح دايماً.
+// المربوط بمربع من المتابعة بياخد مفتاحه (azkarTimes)، وغير المربوط بياخد معرّف
+// الكرت (azkarItems). كل الأذكار بتنحسب بزر "أتممت الأدعية والأذكار".
 const TRACKER_KEY_OPTIONS = [
   {id:'', label:'تلقائي (حسب نص الذكر)'},
-  {id:'none', label:'بدون ربط بالمتابعة'},
-  {id:'t3', label:'الصلاة على النبي'},
-  {id:'subhanallah', label:'التسبيح'},
-  {id:'lahawla', label:'الحوقلة'},
-  {id:'tawheed_a', label:'التهليل — لا إله إلا أنت سبحانك'},
-  {id:'tawheed_b', label:'التهليل — لا إله إلا الله وحده'},
-  {id:'istighfar_a', label:'الاستغفار — أستغفر الله العظيم'},
-  {id:'istighfar_b', label:'الاستغفار — سيد الاستغفار'}
+  {id:'none', label:'بدون ربط (مفتاح تلقائي للذكر)'},
+  ...Tracker.KEY_OPTIONS
 ];
-// تخمين الربط من عنوان الذكر ونصّه (بعد إزالة التشكيل) — الحقل الصريح بالذكر بيتفوّق عليه.
-// الترتيب مهم: الأخص أولاً. النص الطويل (أكثر من ٢٠٠ حرف) بيتجاهل نصّه وبيعتمد على العنوان.
-const TRACKER_TEXT_RULES = [
-  ['istighfar_b', ['سيد الاستغفار', 'اللهم انت ربي']],
-  ['tawheed_a',   ['لا اله الا انت سبحانك']],
-  ['tawheed_b',   ['لا اله الا الله وحده']],
-  ['lahawla',     ['لا حول ولا قوه', 'حوقله']],
-  ['istighfar_a', ['استغفر الله', 'استغفار']],
-  ['subhanallah', ['سبحان الله العظيم', 'سبحان الله وبحمده', 'تسبيح']],
-  ['t3',          ['اللهم صل', 'صل وسلم', 'صلي علي', 'صلاه علي النبي', 'الصلاه علي النبي', 'صلي الله عليه وسلم']]
-];
-function normalizeArabic(t){
-  return String(t || '')
-    .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
-    .replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه')
-    .replace(/[،,.؛:!؟?]/g, ' ').replace(/\s+/g, ' ').trim();
-}
-function trackerKeyOf(item){
-  if(item.trackerKey === 'none') return null;
-  if(item.trackerKey) return item.trackerKey;
-  const title = normalizeArabic(item.title);
-  const text = normalizeArabic(item.text);
-  const hay = text.length <= 200 ? (title + ' | ' + text) : title;
-  const hit = TRACKER_TEXT_RULES.find(([, phrases]) => phrases.some(p => hay.includes(p)));
-  return hit ? hit[0] : null;
-}
+function trackerKeyOf(item){ return Tracker.linkKeyOf(item); }
 
 function dhikrCheckItems(){
   return items.filter(i => i.categoryId === 'during_day' && !i.isQuran);
 }
 // مفتاح ربط الذكر بالحالة المشتركة: المفتاح المربوط، أو معرّف الكرت نفسه لو غير مربوط
 function itemLinkKey(item){
-  return trackerKeyOf(item) || item.id;
+  return Tracker.itemKey(item);
 }
 function isItemChecked(item, state){
   return Tracker.isDoneIn(state, itemLinkKey(item));
@@ -2023,12 +1990,11 @@ function openEdit(id){
   document.getElementById('editError').classList.remove('show');
 
   const tkInput = document.getElementById('editTrackerKey');
-  const tkList = document.getElementById('trackerKeyList');
-  tkList.innerHTML = '';
-  TRACKER_KEY_OPTIONS.filter(o => o.id).forEach(o => {
+  tkInput.innerHTML = '';
+  TRACKER_KEY_OPTIONS.forEach(o => {
     const opt = document.createElement('option');
-    opt.value = o.id; opt.label = o.label;
-    tkList.appendChild(opt);
+    opt.value = o.id; opt.textContent = o.label;
+    tkInput.appendChild(opt);
   });
   const syncTkVisibility = () => {
     document.getElementById('editTrackerKeyWrap').style.display = select.value === 'during_day' ? 'block' : 'none';
@@ -2055,7 +2021,7 @@ function openEdit(id){
     document.getElementById('editCount').value = 1;
     document.getElementById('editIsQuran').checked = false;
     document.getElementById('editImageUrls').value = '';
-    tkInput.value = '';
+    tkInput.value = 'none'; // ذكر جديد: بدون ربط (بياخد مفتاح تلقائي ويدخل بزر "أتممت الأدعية والأذكار")
   }
   syncTkVisibility();
 
@@ -2068,9 +2034,7 @@ function saveEdit(){
   const categoryId = document.getElementById('editCategory').value;
   const count = parseInt(document.getElementById('editCount').value) || 1;
   const isQuran = document.getElementById('editIsQuran').checked;
-  const trackerKey = categoryId === 'during_day'
-    ? document.getElementById('editTrackerKey').value.trim().replace(/[\s./\\]+/g, '_')
-    : '';
+  const trackerKey = categoryId === 'during_day' ? document.getElementById('editTrackerKey').value : '';
   const imageUrls = document.getElementById('editImageUrls').value
     .split('\n')
     .map(s => s.trim())
