@@ -661,8 +661,7 @@ function renderAzkarCatGrid(){
     if(isReadOnlyDay) box.classList.add('read-only');
     box.onclick = () => {
       if(isReadOnlyDay) return;
-      state.azkarCategories[item.id] = !state.azkarCategories[item.id];
-      saveState();
+      state = Tracker.toggle('azkarCategories', item.id, currentKey);
       render();
     };
     container.appendChild(box);
