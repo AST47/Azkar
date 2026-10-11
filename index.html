@@ -964,7 +964,8 @@ mark.search-hit{
     <select id="editCategory"></select>
     <div id="editTrackerKeyWrap" style="display:none;">
       <label>ربط الصح بالمتابعة والعدّادة</label>
-      <select id="editTrackerKey"></select>
+      <input type="text" id="editTrackerKey" list="trackerKeyList" placeholder="تلقائي (حسب نص الذكر)" autocomplete="off">
+      <datalist id="trackerKeyList"></datalist>
     </div>
     <label>نص الذكر</label>
     <textarea id="editText" placeholder="اكتب نص الذكر هنا"></textarea>
@@ -1045,6 +1046,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 </script>
 <script src="auth.js"></script>
+<script src="tracker.js"></script>
 <script>
 const itemsRef = db.collection('azkar').doc('items');
 
@@ -1091,37 +1093,12 @@ let prayerTimings = null;
 
 // ---------- Tracker sync (shared with tracker.html) ----------
 const CATEGORY_TO_TRACKER_ID = {waking:'waking', morning:'morning', noon:'noon', during_day:'during_day', evening:'evening', before_sleep:'sleep'};
-function freshTrackerState(){
-  return normalizeDayState({}); // الشكل الموحّد من auth.js
-}
-
-function trackerDayKey(){
-  const now = new Date();
-  const nowMin = now.getHours()*60 + now.getMinutes();
-  const boundary = (prayerTimings && prayerTimings.Fajr) ? minutesSinceMidnight(prayerTimings.Fajr) : 180; // fallback: 3:00 AM
-  const d = new Date(now);
-  if(nowMin < boundary) d.setDate(d.getDate() - 1);
-  return 'tracker-' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
-}
-
+// كل قراءة/كتابة لحالة اليوم بتمر من tracker.js (المكان المشترك)
 function readTrackerState(){
-  const key = trackerDayKey();
-  try{
-    const raw = localStorage.getItem(key);
-    if(raw){
-      const parsed = JSON.parse(raw);
-      if(parsed && typeof parsed.azkarCategories === 'object') return {key, state: normalizeDayState(parsed)};
-    }
-  }catch(e){}
-  return {key, state: freshTrackerState()};
+  return {key: Tracker.todayKey(), state: Tracker.read()};
 }
-
-// كتابة حالة اليوم محلياً + مزامنة فورية مع الحساب (نفس طريقة tracker.html)
 function saveTrackerState(key, state){
-  localStorage.setItem(key, JSON.stringify(state));
-  if(typeof syncDayToCloud === 'function' && typeof localTrackerKeyToDayId === 'function'){
-    syncDayToCloud(localTrackerKeyToDayId(key), state);
-  }
+  Tracker.write(key, state);
 }
 
 function isCategoryDone(catId){
@@ -1196,8 +1173,10 @@ function toggleAzkarTimeDone(id){
 }
 
 // ---------- صح على كل ذكر (تصنيف "أثناء اليوم" فقط) ----------
-// الذكر المربوط (trackerKey) بيكتب على نفس مفتاح azkarTimes اللي بتكتب عليه
-// العدّادة والمتابعة. الذكر غير المربوط بيتخزن بقسم azkarItems بحالة اليوم.
+// الربط عبر المكان المشترك (tracker.js): الذكر المربوط (trackerKey) بيكتب على
+// نفس المفتاح اللي بتكتب عليه العدّادة والمتابعة. المفاتيح الأساسية بتروح لـ
+// azkarTimes، وأي مفتاح جديد (أو الكرت غير المربوط) بيروح لـ azkarItems.
+// لذكر جديد: حط نفس المفتاح بحقل "ربط" هون وبـ trackerKey بذكر العدّادة.
 const TRACKER_KEY_OPTIONS = [
   {id:'', label:'تلقائي (حسب نص الذكر)'},
   {id:'none', label:'بدون ربط بالمتابعة'},
@@ -1209,9 +1188,6 @@ const TRACKER_KEY_OPTIONS = [
   {id:'istighfar_a', label:'الاستغفار — أستغفر الله العظيم'},
   {id:'istighfar_b', label:'الاستغفار — سيد الاستغفار'}
 ];
-const COMPOUND_OF = {tawheed_a:'t1', tawheed_b:'t1', istighfar_a:'t2', istighfar_b:'t2'};
-const COMPOUND_PARTS = {t1:['tawheed_a','tawheed_b'], t2:['istighfar_a','istighfar_b']};
-
 // تخمين الربط من عنوان الذكر ونصّه (بعد إزالة التشكيل) — الحقل الصريح بالذكر بيتفوّق عليه.
 // الترتيب مهم: الأخص أولاً. النص الطويل (أكثر من ٢٠٠ حرف) بيتجاهل نصّه وبيعتمد على العنوان.
 const TRACKER_TEXT_RULES = [
@@ -1242,51 +1218,31 @@ function trackerKeyOf(item){
 function dhikrCheckItems(){
   return items.filter(i => i.categoryId === 'during_day' && !i.isQuran);
 }
+// مفتاح ربط الذكر بالحالة المشتركة: المفتاح المربوط، أو معرّف الكرت نفسه لو غير مربوط
+function itemLinkKey(item){
+  return trackerKeyOf(item) || item.id;
+}
 function isItemChecked(item, state){
-  const k = trackerKeyOf(item);
-  if(k) return !!state.azkarTimes[k];
-  return !!(state.azkarItems && state.azkarItems[item.id]);
+  return Tracker.isDoneIn(state, itemLinkKey(item));
 }
 function toggleItemChecked(item){
-  const {key, state} = readTrackerState();
-  const on = !isItemChecked(item, state);
-  const k = trackerKeyOf(item);
-  if(k){
-    state.azkarTimes[k] = on;
-    const comp = COMPOUND_OF[k];
-    if(comp) state.azkarTimes[comp] = COMPOUND_PARTS[comp].every(p => !!state.azkarTimes[p]);
-  }else{
-    state.azkarItems = state.azkarItems || {};
-    state.azkarItems[item.id] = on;
-  }
-  // لو انشال صح، الزر النهائي "أتممت الأدعية والأذكار" بيرجع غير مكتمل
-  if(!on) state.azkarCategories.during_day = false;
-  saveTrackerState(key, state);
+  const k = itemLinkKey(item);
+  Tracker.update(s => {
+    const on = !Tracker.isDoneIn(s, k);
+    Tracker.apply(s, k, on);
+    // لو انشال صح، الزر النهائي "أتممت الأدعية والأذكار" بيرجع غير مكتمل
+    if(!on) s.azkarCategories.during_day = false;
+  });
 }
 // زر "أتممت الأدعية والأذكار": بيعلّم كل أذكار "أثناء اليوم" (المربوطة وغير المربوطة)
 // مرة وحدة — لمين خلّصهم برّا التطبيق وبدو يسجّل إنجازه بدون ما يكبس كرت كرت.
 // لو كان مكتمل وانكبس تاني: بيشيل علامة الزر بس (الصحات بتضل).
 function toggleAllDhikr(){
-  const {key, state} = readTrackerState();
-  if(state.azkarCategories.during_day){
-    state.azkarCategories.during_day = false;
-    saveTrackerState(key, state);
-    return;
-  }
-  dhikrCheckItems().forEach(item => {
-    const k = trackerKeyOf(item);
-    if(k){
-      state.azkarTimes[k] = true;
-    }else{
-      state.azkarItems = state.azkarItems || {};
-      state.azkarItems[item.id] = true;
-    }
+  Tracker.update(s => {
+    if(s.azkarCategories.during_day){ s.azkarCategories.during_day = false; return; }
+    dhikrCheckItems().forEach(item => Tracker.apply(s, itemLinkKey(item), true));
+    s.azkarCategories.during_day = true;
   });
-  Object.entries(COMPOUND_PARTS).forEach(([comp, parts]) => {
-    if(parts.every(p => !!state.azkarTimes[p])) state.azkarTimes[comp] = true;
-  });
-  state.azkarCategories.during_day = true;
-  saveTrackerState(key, state);
 }
 
 let items = [];
@@ -1469,7 +1425,7 @@ function fetchPrayerTimings(){
   fetch(url).then(r => r.json()).then(d => {
     if(d.code === 200){
       prayerTimings = d.data.timings;
-      render(); // حدود اليوم (الفجر) تغيّرت، فاقرأ حالة اليوم الصحيح
+      renderPrayerStrip();
     }
   }).catch(() => {});
 }
@@ -1495,16 +1451,16 @@ function startPrayerStripTimer(){
   }, 30000);
 }
 
-// نجيب أوقات الصلاة دايماً (مو بس لما الشريط مفعّل) لأن حدّ اليوم بالمتابعة
-// هو الفجر — نفس اللي بتستخدمه صفحة المتابعة والعدّادة.
-fetchPrayerTimings();
 if(showPrayerTimes){
+  fetchPrayerTimings();
   startPrayerStripTimer();
 }
+// حدّ اليوم (الفجر) بيجي من المكان المشترك، بغض النظر عن شريط الأوقات
+Tracker.refreshBoundary(null);
+Tracker.onChange(() => render());
 
 // الدخول ونمط التعديل صاروا من صفحة الحساب (account.html) عبر auth.js.
 // هون بس منستمع لتغيّر الحالة ومنحدّث الواجهة.
-document.addEventListener('azkar-days-changed', () => render());
 document.addEventListener('azkar-auth-changed', () => {
   document.getElementById('importExportBtn').style.display = editMode ? 'inline-block' : 'none';
   const accountLabel = document.getElementById('accountBtnLabel');
@@ -2066,12 +2022,13 @@ function openEdit(id){
 
   document.getElementById('editError').classList.remove('show');
 
-  const tkSel = document.getElementById('editTrackerKey');
-  tkSel.innerHTML = '';
-  TRACKER_KEY_OPTIONS.forEach(o => {
+  const tkInput = document.getElementById('editTrackerKey');
+  const tkList = document.getElementById('trackerKeyList');
+  tkList.innerHTML = '';
+  TRACKER_KEY_OPTIONS.filter(o => o.id).forEach(o => {
     const opt = document.createElement('option');
-    opt.value = o.id; opt.textContent = o.label;
-    tkSel.appendChild(opt);
+    opt.value = o.id; opt.label = o.label;
+    tkList.appendChild(opt);
   });
   const syncTkVisibility = () => {
     document.getElementById('editTrackerKeyWrap').style.display = select.value === 'during_day' ? 'block' : 'none';
@@ -2089,7 +2046,7 @@ function openEdit(id){
     document.getElementById('editCount').value = item.count;
     document.getElementById('editIsQuran').checked = !!item.isQuran;
     document.getElementById('editImageUrls').value = (item.imageUrls || []).join('\n');
-    tkSel.value = item.trackerKey || '';
+    tkInput.value = item.trackerKey || '';
   }else{
     document.getElementById('editModalTitle').textContent = 'إضافة ذكر';
     document.getElementById('editTitle').value = '';
@@ -2098,7 +2055,7 @@ function openEdit(id){
     document.getElementById('editCount').value = 1;
     document.getElementById('editIsQuran').checked = false;
     document.getElementById('editImageUrls').value = '';
-    tkSel.value = '';
+    tkInput.value = '';
   }
   syncTkVisibility();
 
@@ -2111,7 +2068,9 @@ function saveEdit(){
   const categoryId = document.getElementById('editCategory').value;
   const count = parseInt(document.getElementById('editCount').value) || 1;
   const isQuran = document.getElementById('editIsQuran').checked;
-  const trackerKey = categoryId === 'during_day' ? document.getElementById('editTrackerKey').value : '';
+  const trackerKey = categoryId === 'during_day'
+    ? document.getElementById('editTrackerKey').value.trim().replace(/[\s./\\]+/g, '_')
+    : '';
   const imageUrls = document.getElementById('editImageUrls').value
     .split('\n')
     .map(s => s.trim())

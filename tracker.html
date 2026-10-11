@@ -488,6 +488,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 </script>
 <script src="auth.js"></script>
+<script src="tracker.js"></script>
 <script>
 function updateAccountLabel(){
   const el = document.getElementById('accountBtnLabel');
@@ -532,64 +533,10 @@ const AZKAR_TIMES = [
 // شغلتين قبل ما تفعّل t1 (التوحيد) أو t2 (الاستغفار) تلقائياً.
 const AZKAR_TIME_HIDDEN_IDS = ['tawheed_a','tawheed_b','istighfar_a','istighfar_b'];
 
-let fajrMinutesToday = null; // null until fetched — falls back to midnight boundary
-
-function dayKeyFor(d){
-  return 'tracker-' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
-}
-
-function trackerDate(){
-  const now = new Date();
-  const nowMin = now.getHours()*60 + now.getMinutes();
-  const boundary = (fajrMinutesToday != null) ? fajrMinutesToday : 180; // fallback: 3:00 AM if Fajr time isn't available yet
-  const d = new Date(now);
-  if(nowMin < boundary){
-    d.setDate(d.getDate() - 1); // before the boundary — still counts as yesterday's tracking day
-  }
-  return d;
-}
-
-function todayKey(){
-  return dayKeyFor(trackerDate());
-}
-
-function freshState(){
-  const fresh = {quran:{}, prayers:{}, azkarCategories:{}, azkarTimes:{}};
-  QURAN.forEach(q => fresh.quran[q.id] = false);
-  PRAYERS.forEach(p => fresh.prayers[p.id] = false);
-  AZKAR_CATEGORIES.forEach(a => fresh.azkarCategories[a.id] = false);
-  AZKAR_TIMES.forEach(a => fresh.azkarTimes[a.id] = false);
-  AZKAR_TIME_HIDDEN_IDS.forEach(id => fresh.azkarTimes[id] = false);
-  return fresh;
-}
-
-function isValidState(s){
-  if(!s || typeof s !== 'object') return false;
-  const hasAll = (obj, list) => obj && typeof obj === 'object' && list.every(i => i.id in obj);
-  const hasAllIds = (obj, ids) => obj && typeof obj === 'object' && ids.every(id => id in obj);
-  return hasAll(s.quran, QURAN) && hasAll(s.prayers, PRAYERS)
-    && hasAll(s.azkarCategories, AZKAR_CATEGORIES) && hasAll(s.azkarTimes, AZKAR_TIMES)
-    && hasAllIds(s.azkarTimes, AZKAR_TIME_HIDDEN_IDS);
-}
-
-function readState(key){
-  const raw = localStorage.getItem(key);
-  if(raw){
-    try{
-      const parsed = JSON.parse(raw);
-      if(isValidState(parsed)) return parsed;
-    }catch(e){}
-  }
-  return freshState();
-}
-
-
-function saveState(){
-  localStorage.setItem(currentKey, JSON.stringify(state));
-  if(typeof syncDayToCloud === 'function'){
-    syncDayToCloud(localTrackerKeyToDayId(currentKey), state);
-  }
-}
+// كل قراءة/كتابة لحالة اليوم وحد اليوم (الفجر) من tracker.js (المكان المشترك)
+function dayKeyFor(d){ return Tracker.dayKey(d); }
+function todayKey(){ return Tracker.todayKey(); }
+function readState(key){ return Tracker.read(key); }
 
 // تعديل يوم سابق من الكالندر: ?date=YYYY-MM-DD بالرابط. لو موجود وضمن
 // نافذة الـ٣ أيام المسموحة، منفتح هاد اليوم بدل اليوم الحالي ومنعطّل
@@ -631,8 +578,8 @@ if(editingPastDay){
     const dayId = localTrackerKeyToDayId(currentKey);
     db.collection('users').doc(currentUser.uid).collection('days').doc(dayId).get()
       .then(snap => {
-        if(snap.exists && isValidState(snap.data())){
-          state = snap.data();
+        if(snap.exists){
+          state = Tracker.normalize(snap.data());
           render();
         }
       }).catch(() => {});
@@ -640,46 +587,7 @@ if(editingPastDay){
 }
 
 function fetchFajrTime(onDone){
-  const method = Number(localStorage.getItem('pt_method')) || 13;
-  let tune = [0,0,0,0,0,0,0,0,0];
-  try{
-    const t = JSON.parse(localStorage.getItem('pt_tune') || '{}');
-    tune = [0, t.Fajr||0, t.Sunrise||0, t.Dhuhr||0, t.Asr||0, t.Maghrib||0, 0, t.Isha||0, 0];
-  }catch(e){}
-  const tuneStr = encodeURIComponent(tune.join(','));
-
-  function applyTimings(timings){
-    const clean = timings.Fajr.split(' ')[0];
-    const [h,m] = clean.split(':').map(Number);
-    fajrMinutesToday = h*60 + m;
-    onDone();
-  }
-
-  function doFetch(url){
-    fetch(url).then(r => r.json()).then(d => {
-      if(d.code === 200) applyTimings(d.data.timings);
-      else onDone();
-    }).catch(() => onDone());
-  }
-
-  const city = localStorage.getItem('pt_city');
-  const lat = localStorage.getItem('pt_lat');
-  const lon = localStorage.getItem('pt_lon');
-  const method_ = method;
-
-  if(city){
-    doFetch(`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=&method=${method_}&tune=${tuneStr}`);
-  } else if(lat && lon){
-    doFetch(`https://api.aladhan.com/v1/timings/${Math.floor(Date.now()/1000)}?latitude=${lat}&longitude=${lon}&method=${method_}&tune=${tuneStr}`);
-  } else if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(pos => {
-      localStorage.setItem('pt_lat', pos.coords.latitude);
-      localStorage.setItem('pt_lon', pos.coords.longitude);
-      doFetch(`https://api.aladhan.com/v1/timings/${Math.floor(Date.now()/1000)}?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&method=${method_}&tune=${tuneStr}`);
-    }, () => onDone(), {timeout:8000});
-  } else {
-    onDone();
-  }
+  Tracker.refreshBoundary(onDone, {geolocate: true});
 }
 
 function renderDate(){
@@ -776,8 +684,7 @@ function renderGrid(containerId, list, stateKey){
     if(isReadOnlyDay) box.classList.add('read-only');
     box.onclick = () => {
       if(isReadOnlyDay) return;
-      state[stateKey][item.id] = !state[stateKey][item.id];
-      saveState();
+      state = Tracker.toggle(stateKey, item.id, currentKey);
       render();
     };
     container.appendChild(box);
@@ -820,8 +727,8 @@ if(editingPastDay){
 }
 
 // وصل تحديث ليوم من جهاز تاني: أعد قراءة اليوم الحالي وحدّث الشاشة
-document.addEventListener('azkar-days-changed', () => {
-  if(editingPastDay) return;
+Tracker.onChange(() => {
+  if(!editingPastDay) currentKey = todayKey();
   state = readState(currentKey);
   render();
 });
@@ -853,12 +760,8 @@ resetBtn.onclick = () => {
   resetBtn.title = resetBtnOriginalTitle;
   const lbl = document.getElementById('resetBtnLabel');
   if(lbl) lbl.textContent = 'إعادة تصفير اليوم';
-  localStorage.removeItem(currentKey);
-  state = freshState();
+  state = Tracker.reset(currentKey);
   render();
-  if(typeof syncDayToCloud === 'function'){
-    syncDayToCloud(localTrackerKeyToDayId(currentKey), state);
-  }
 };
 
 document.getElementById('infoBtn').addEventListener('click', () => {

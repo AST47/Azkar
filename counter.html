@@ -251,7 +251,8 @@ body{
 }
 .preset-select:focus{ outline:1.5px solid var(--teal-soft); }
 .dhikr-text{ font-size:clamp(15px, 4vw, 19px); color:var(--ink-soft); margin:0; font-family:'Amiri', serif; }
-.tracked-note{ font-size:12px; color:var(--teal-soft); margin:0; min-height:15px; }
+.tracked-note{ margin:0; min-height:22px; display:flex; align-items:center; justify-content:center; }
+.tracked-note .tick{ width:22px; height:22px; border-radius:50%; background:var(--teal); color:#F5EDD9; display:inline-flex; align-items:center; justify-content:center; }
 
 .counter-main{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px; padding: 10px 0 26px; }
 
@@ -482,6 +483,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 </script>
 <script src="auth.js"></script>
+<script src="tracker.js"></script>
 <script>
 function updateAccountLabel(){
   const el = document.getElementById('accountBtnLabel');
@@ -505,6 +507,9 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
     preset: localStorage.getItem('dhikr_preset') || ''
   };
 
+  // trackerKey = مفتاح ربط الذكر بالمتابعة (المكان المشترك tracker.js).
+  // لذكر جديد مربوط: أضف trackerKey: 'اسم_فريد' هون، وحط نفس المفتاح بحقل "ربط"
+  // بذكر صفحة الأذكار — بيشتغل الربط تلقائياً بدون أي تعديل تاني.
   const PRESETS = {
     '': { text: '' },
     'salawat': { text: 'اللهم صلِّ وسلّم وبارك، على سيّدنا محمّد وصحبه وآله', target: 100, trackerKey: 't3' },
@@ -539,108 +544,18 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
 
   const CIRC = 326.7;
 
-  // ---------- Shared tracker bridge (same localStorage schema as tracker.html) ----------
-  const TRACKER_QURAN_IDS = ['yaseen','rahman','juz','waqiah','mulk'];
-  const TRACKER_PRAYER_IDS = ['fajr','dhuhr','asr','maghrib','isha'];
-  const TRACKER_AZKAR_CAT_IDS = ['waking','noon','during_day','evening','sleep'];
-  const TRACKER_AZKAR_TIME_IDS = ['subhanallah','t1','t2','t3','lahawla','tawheed_a','tawheed_b','istighfar_a','istighfar_b'];
+  // ---------- الربط مع المتابعة عبر المكان المشترك (tracker.js) ----------
+  const CHECK_SVG = '<span class="tick"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>';
 
-  function freshTrackerState(){
-    const mk = ids => Object.fromEntries(ids.map(id => [id, false]));
-    return {
-      quran: mk(TRACKER_QURAN_IDS),
-      prayers: mk(TRACKER_PRAYER_IDS),
-      azkarCategories: mk(TRACKER_AZKAR_CAT_IDS),
-      azkarTimes: mk(TRACKER_AZKAR_TIME_IDS)
-    };
-  }
-  function isCompleteTrackerState(s){
-    if(!s || typeof s !== 'object') return false;
-    const has = (obj, ids) => obj && typeof obj === 'object' && ids.every(id => id in obj);
-    return has(s.quran, TRACKER_QURAN_IDS) && has(s.prayers, TRACKER_PRAYER_IDS)
-      && has(s.azkarCategories, TRACKER_AZKAR_CAT_IDS) && has(s.azkarTimes, TRACKER_AZKAR_TIME_IDS);
-  }
-
-  let fajrMinutesToday = null;
-  function trackerDayKey(){
-    const now = new Date();
-    const nowMin = now.getHours()*60 + now.getMinutes();
-    const boundary = fajrMinutesToday != null ? fajrMinutesToday : 180;
-    const d = new Date(now);
-    if(nowMin < boundary) d.setDate(d.getDate() - 1);
-    return 'tracker-' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
-  }
-  function fetchFajrTime(onDone){
-    if(fajrMinutesToday != null){ onDone(); return; }
-    const method = Number(localStorage.getItem('pt_method')) || 13;
-    let tune = [0,0,0,0,0,0,0,0,0];
-    try{
-      const t = JSON.parse(localStorage.getItem('pt_tune') || '{}');
-      tune = [0, t.Fajr||0, t.Sunrise||0, t.Dhuhr||0, t.Asr||0, t.Maghrib||0, 0, t.Isha||0, 0];
-    }catch(e){}
-    const tuneStr = encodeURIComponent(tune.join(','));
-    function applyTimings(timings){
-      const clean = timings.Fajr.split(' ')[0];
-      const [h,m] = clean.split(':').map(Number);
-      fajrMinutesToday = h*60 + m;
-      onDone();
-    }
-    function doFetch(url){
-      fetch(url).then(r => r.json()).then(d => {
-        if(d.code === 200) applyTimings(d.data.timings);
-        else onDone();
-      }).catch(() => onDone());
-    }
-    const city = localStorage.getItem('pt_city');
-    const lat = localStorage.getItem('pt_lat');
-    const lon = localStorage.getItem('pt_lon');
-    if(city){
-      doFetch(`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(city)}&country=&method=${method}&tune=${tuneStr}`);
-    } else if(lat && lon){
-      doFetch(`https://api.aladhan.com/v1/timings/${Math.floor(Date.now()/1000)}?latitude=${lat}&longitude=${lon}&method=${method}&tune=${tuneStr}`);
-    } else {
-      onDone();
-    }
-  }
-
-  // بعض الأذكار (التوحيد والاستغفار) لازم ينكمل شغلتين لحتى يتحقق الزر
-  // المركّب بالتراكر (t1/t2) — كل واحد من الشغلتين إله مفتاح فرعي خاص،
-  // وما بيتحقق الزر المركّب إلا لما الشغلتين يصيروا تم بنفس اليوم.
-  const COMPOUND_PAIR = {
-    tawheed_a: {partner: 'tawheed_b', compound: 't1'},
-    tawheed_b: {partner: 'tawheed_a', compound: 't1'},
-    istighfar_a: {partner: 'istighfar_b', compound: 't2'},
-    istighfar_b: {partner: 'istighfar_a', compound: 't2'}
-  };
-
+  // لما يكتمل العدّ: علّم الذكر بالمكان المشترك (وأي صفحة تانية بتشوفه من هناك)
   function markTrackerDone(trackerKey){
-    fetchFajrTime(() => {
-      const key = trackerDayKey();
-      let st = null;
-      try{
-        const raw = localStorage.getItem(key);
-        if(raw) st = JSON.parse(raw);
-      }catch(e){}
-      st = normalizeDayState(st); // يكمّل أي مفتاح ناقص بدل ما يمسح اليوم
-      st.azkarTimes[trackerKey] = true;
+    Tracker.refreshBoundary(() => Tracker.setDone(trackerKey, true), {geolocate: true});
+  }
 
-      const pair = COMPOUND_PAIR[trackerKey];
-      let compoundDone = false;
-      if(pair && st.azkarTimes[pair.partner]){
-        st.azkarTimes[pair.compound] = true;
-        compoundDone = true;
-      }
-
-      localStorage.setItem(key, JSON.stringify(st));
-      if(typeof syncDayToCloud === 'function'){
-        syncDayToCloud(localTrackerKeyToDayId(key), st);
-      }
-      if(trackedNoteEl){
-        trackedNoteEl.textContent = pair
-          ? (compoundDone ? 'اكتمل الزر بصفحة المتابعة اليومية ✓' : 'سجّلنا هاي، وبيكتمل الزر بصفحة المتابعة اليومية لما تكمّل الذكر التاني المرتبط بيه')
-          : 'انحطّت صح بالمتابعة اليومية ✓';
-      }
-    });
+  // صح جنب الذكر المربوط لما يكون مكتمل اليوم (من أي صفحة)
+  function renderTrackedCheck(){
+    const k = activePreset().trackerKey;
+    trackedNoteEl.innerHTML = (k && Tracker.isDone(k)) ? CHECK_SVG : '';
   }
 
   function cycleColor(n){
@@ -685,6 +600,7 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
     dhikrTextEl.textContent = activePreset().text;
     dhikrTextEl.style.display = activePreset().text ? '' : 'none';
     presetSelectEl.value = state.preset;
+    renderTrackedCheck();
   }
 
   function save(){
@@ -725,7 +641,6 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
     const preset = activePreset();
     if(preset.target){ state.target = preset.target; }
     state.count = 0;
-    trackedNoteEl.textContent = '';
     render();
     save();
   });
@@ -744,6 +659,8 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
   });
 
   render();
+  Tracker.refreshBoundary(null);
+  Tracker.onChange(renderTrackedCheck);
   if(activePreset().trackerKey && state.count >= state.target){
     markTrackerDone(activePreset().trackerKey);
   }
