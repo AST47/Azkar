@@ -329,6 +329,11 @@ mark.search-hit{
   margin-bottom:18px;
   position:relative;
 }
+.timeline-bottom{
+  margin:26px 0 14px;
+  padding-top:18px;
+  border-top:1px solid var(--gold-line);
+}
 .timeline-node{
   display:flex;
   flex-direction:column;
@@ -928,6 +933,8 @@ mark.search-hit{
   <nav class="tabs bottom-tabs" id="bottomTabs"></nav>
 
   <main class="grid" id="grid"></main>
+
+  <nav class="timeline timeline-bottom" id="timelineBottom"></nav>
 
     <nav class="bottom-bar">
     <a href="prayer-times.html" class="header-btn" title="أوقات الصلاة">
@@ -1604,7 +1611,13 @@ function renderAllButton(){
 }
 
 function renderTimeline(){
-  const wrap = document.getElementById('timeline');
+  fillTimeline(document.getElementById('timeline'), false);
+  fillTimeline(document.getElementById('timelineBottom'), true); // نسخة تانية آخر الصفحة
+}
+
+// scrollToTop: النسخة السفلية بترجّع لأول الصفحة بعد ما تغيّر التصنيف
+function fillTimeline(wrap, scrollToTop){
+  if(!wrap) return;
   wrap.innerHTML = '';
   TIMELINE_CATEGORIES.forEach((catId, idx) => {
     const cat = CATEGORIES.find(c => c.id === catId);
@@ -1618,7 +1631,11 @@ function renderTimeline(){
     const quranItems = QURAN_ITEMS_BY_CATEGORY[catId] || [];
     const quranDot = (quranItems.length && quranItems.every(q => isQuranItemDone(q.id))) ? '<span class="timeline-done-dot dot-quran"></span>' : '';
     node.innerHTML = `<span class="timeline-icon">${TIMELINE_ICONS[catId]}${prayerDot}${azkarDot}${quranDot}</span><span class="timeline-label">${cat.label}</span>`;
-    node.onclick = () => { activeCategory = catId; render(); };
+    node.onclick = () => {
+      activeCategory = catId;
+      render();
+      if(scrollToTop) window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
     wrap.appendChild(node);
 
     if(idx < TIMELINE_CATEGORIES.length - 1){
