@@ -1189,33 +1189,61 @@ const TRACKER_KEY_OPTIONS = [
 ];
 function trackerKeyOf(item){ return Tracker.linkKeyOf(item); }
 
-function dhikrCheckItems(){
-  return items.filter(i => i.categoryId === 'during_day' && !i.isQuran);
+// ---------- صح تذكيري على كل ذكر (بكل التصنيفات، بدون السور القرآنية) ----------
+// بيتخزن بحالة اليوم وبيتصفّر على الفجر مع باقي المتابعة. الكرت بـ"أثناء اليوم" بس
+// ممكن يكون مربوط بمربع من المتابعة (tracker.js)؛ باقي الأذكار مفتاحها معرّف الكرت.
+
+// مجموعة الذكر: "morning" مدموجة مع "waking" بنفس عقدة التايم لاين
+function groupOf(item){ return item.categoryId === 'morning' ? 'waking' : item.categoryId; }
+
+function categoryDhikrItems(catId){
+  return items.filter(i => !i.isQuran && groupOf(i) === catId);
 }
-// مفتاح ربط الذكر بالحالة المشتركة: المفتاح المربوط، أو معرّف الكرت نفسه لو غير مربوط
 function itemLinkKey(item){
-  return Tracker.itemKey(item);
+  return item.categoryId === 'during_day' ? Tracker.itemKey(item) : item.id;
 }
 function isItemChecked(item, state){
   return Tracker.isDoneIn(state, itemLinkKey(item));
 }
+// كل أذكار التصنيف مكتملة؟ (لازم ذكر واحد على الأقل)
+function allCategoryDone(catId, state){
+  const list = categoryDhikrItems(catId);
+  return list.length > 0 && list.every(i => isItemChecked(i, state));
+}
 function toggleItemChecked(item){
   const k = itemLinkKey(item);
+  const group = groupOf(item);
+  const tid = CATEGORY_TO_TRACKER_ID[group];
   Tracker.update(s => {
     const on = !Tracker.isDoneIn(s, k);
     Tracker.apply(s, k, on);
-    // لو انشال صح، الزر النهائي "أتممت الأدعية والأذكار" بيرجع غير مكتمل
-    if(!on) s.azkarCategories.during_day = false;
+    // آخر صح: زر إتمام التصنيف بيكتمل تلقائياً. وإذا انشال صح، بيرجع غير مكتمل.
+    if(tid){
+      if(!on) s.azkarCategories[tid] = false;
+      else if(allCategoryDone(group, s)) s.azkarCategories[tid] = true;
+    }
   });
 }
-// زر "أتممت الأدعية والأذكار": بيعلّم كل أذكار "أثناء اليوم" (المربوطة وغير المربوطة)
-// مرة وحدة — لمين خلّصهم برّا التطبيق وبدو يسجّل إنجازه بدون ما يكبس كرت كرت.
-// لو كان مكتمل وانكبس تاني: بيشيل علامة الزر بس (الصحات بتضل).
-function toggleAllDhikr(){
+// لو اكتملت كل أذكار تصنيف من مكان تاني (العدّادة، جهاز تاني) وزره لسا غير مكتمل: كمّله.
+// بنرقّي فقط (false ← true) ولا بنخفّض أبداً، حتى ما نلغي تعليم يدوي من صفحة المتابعة.
+function reconcileCategories(){
+  const {state} = readTrackerState();
+  const due = TIMELINE_CATEGORIES.filter(g => {
+    const tid = CATEGORY_TO_TRACKER_ID[g];
+    return tid && !state.azkarCategories[tid] && allCategoryDone(g, state);
+  });
+  if(!due.length) return;
+  Tracker.update(s => due.forEach(g => { s.azkarCategories[CATEGORY_TO_TRACKER_ID[g]] = true; }));
+}
+// زر إتمام التصنيف ("أتممت الأذكار"...): بيعلّم كل أذكار التصنيف مرة وحدة — لمين
+// خلّصهم برّا التطبيق. لو كان مكتمل وانكبس تاني: بيرجّع الكل غير مكتمل (تراجع).
+function toggleAllInCategory(catId){
+  const tid = CATEGORY_TO_TRACKER_ID[catId];
+  if(!tid) return;
   Tracker.update(s => {
-    if(s.azkarCategories.during_day){ s.azkarCategories.during_day = false; return; }
-    dhikrCheckItems().forEach(item => Tracker.apply(s, itemLinkKey(item), true));
-    s.azkarCategories.during_day = true;
+    const wasDone = !!s.azkarCategories[tid];
+    categoryDhikrItems(catId).forEach(item => Tracker.apply(s, itemLinkKey(item), !wasDone));
+    s.azkarCategories[tid] = !wasDone;
   });
 }
 
@@ -1680,6 +1708,7 @@ function getFilteredItems(){
 }
 
 function render(){
+  reconcileCategories();
   renderAllButton();
   renderTimeline();
   renderBottomTabs();
@@ -1797,7 +1826,7 @@ function render(){
       }
     }
 
-    if(editMode && activeCategory === 'during_day' && !item.isQuran){
+    if(editMode && item.categoryId === 'during_day' && !item.isQuran){
       const tk = trackerKeyOf(item);
       const opt = TRACKER_KEY_OPTIONS.find(o => o.id === tk);
       const linkBadge = document.createElement('span');
@@ -1806,7 +1835,7 @@ function render(){
       badgeGroup.appendChild(linkBadge);
     }
 
-    if(activeCategory === 'during_day' && !item.isQuran){
+    if(!item.isQuran){
       const done = isItemChecked(item, dayState);
       const chk = document.createElement('button');
       chk.className = 'item-check' + (done ? ' done' : '');
@@ -1889,7 +1918,7 @@ function renderCompleteToggle(){
   if(azkarLabel){
     const catDone = isCategoryDone(activeCategory);
     rows.push({done: catDone, label: azkarLabel, doneLabel: azkarLabel,
-      onToggle: () => activeCategory === 'during_day' ? toggleAllDhikr() : toggleCategoryDone(activeCategory)});
+      onToggle: () => toggleAllInCategory(activeCategory)});
   }
   (QURAN_ITEMS_BY_CATEGORY[activeCategory] || []).forEach(q => {
     rows.push({done: isQuranItemDone(q.id), label: `قرأت ${q.label}`, doneLabel: `قرأت ${q.label}`, onToggle: () => toggleQuranItemDone(q.id)});
