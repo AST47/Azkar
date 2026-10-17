@@ -564,19 +564,41 @@ if(EDIT_DATE_PARAM && /^\d{4}-\d{2}-\d{2}$/.test(EDIT_DATE_PARAM)){
 let currentKey = editingPastDay ? dayKeyFor(editingDateObj) : todayKey();
 let state = readState(currentKey);
 
-// لو بيوم سابق وعندنا حساب، نجيب نسخة السحابة (ممكن تكون أحدث من
-// النسخة المحلية لو الإنجاز صار من جهاز تاني) ونعرضها بدل المحلية.
+// حالة التعديل لليوم السابق: ready = بتقدر تعدّل | loading = عم نجيب نسخة السحابة |
+// blocked = ما قدرنا نجيبها (وما في نسخة محلية)، فما منسمح بالتعديل
+let pastDayState = 'ready';
+
+// لو بيوم سابق وعندنا حساب: لازم نجيب نسخة السحابة ونحفظها محلياً *قبل* أي تعديل.
+// مزامنة auth.js بتنزّل بس آخر ٤ أيام، فاليوم القديم ممكن ما يكون موجود محلياً
+// على هاد الجهاز، ولو عدّلنا على نسخة فاضية كنا رح نكتب فوق إنجازات السحابة.
 if(editingPastDay){
   AZKAR_AUTH_READY.then(() => {
-    if(!currentUser) return;
-    const dayId = localTrackerKeyToDayId(currentKey);
+    if(!currentUser) return;          // ضيف: محلي فقط
+    pastDayState = 'loading';
+    render();
+    const key = currentKey;
+    const dayId = localTrackerKeyToDayId(key);
     db.collection('users').doc(currentUser.uid).collection('days').doc(dayId).get()
       .then(snap => {
         if(snap.exists){
-          state = Tracker.normalize(snap.data());
-          render();
+          const cloud = snap.data();
+          let local = null;
+          try{ local = JSON.parse(localStorage.getItem(key) || 'null'); }catch(e){}
+          // نفس قاعدة auth.js: نسخة السحابة بتفوز لو ما في محلية أو هي الأحدث
+          if(!local || (cloud._updatedAt || 0) > (local._updatedAt || 0)){
+            localStorage.setItem(key, JSON.stringify(Tracker.normalize(cloud)));
+          }
         }
-      }).catch(() => {});
+        pastDayState = 'ready';
+        state = readState(key);
+        render();
+      }).catch(() => {
+        // أوفلاين وما وصلنا للسحابة: لو عندنا نسخة محلية منكمّل عليها، غير هيك منمنع التعديل
+        let hasLocal = false;
+        try{ hasLocal = !!localStorage.getItem(key); }catch(e){}
+        pastDayState = hasLocal ? 'ready' : 'blocked';
+        render();
+      });
   });
 }
 
@@ -646,6 +668,7 @@ function renderAzkarCatGrid(){
       <span class="box-label">${item.label}</span>
     `;
     box.onclick = () => {
+      if(pastDayState !== 'ready') return;
       state = Tracker.toggle('azkarCategories', item.id, currentKey);
       render();
     };
@@ -666,6 +689,7 @@ function renderGrid(containerId, list, stateKey){
       <span class="box-label">${item.label}</span>
     `;
     box.onclick = () => {
+      if(pastDayState !== 'ready') return;
       state = Tracker.toggle(stateKey, item.id, currentKey);
       render();
     };
@@ -674,6 +698,8 @@ function renderGrid(containerId, list, stateKey){
 }
 
 function render(){
+  const note = document.getElementById('pastDayNote');
+  if(note) note.style.display = (pastDayState === 'blocked') ? 'block' : 'none';
   renderProgress();
   renderGrid('quranGrid', QURAN, 'quran');
   renderGrid('prayersGrid', PRAYERS, 'prayers');
@@ -686,10 +712,10 @@ render();
 
 if(editingPastDay){
   const banner = document.createElement('div');
-  banner.style.cssText = 'max-width:480px; margin:0 auto 14px; padding:10px 14px; background:var(--bg-card); border:1px solid var(--gold-line); border-radius:10px; font-size:13px; color:var(--ink-soft); display:flex; align-items:center; justify-content:space-between; gap:10px;';
+  banner.style.cssText = 'max-width:480px; margin:0 auto 14px; padding:10px 14px; background:var(--bg-card); border:1px solid var(--gold-line); border-radius:10px; font-size:13px; color:var(--ink-soft); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;';
   const formatted = new Intl.DateTimeFormat('ar', {weekday:'long', day:'numeric', month:'long'}).format(editingDateObj);
   const label = 'بتعدّل سجل';
-  banner.innerHTML = `<span>${label}: <strong style="color:var(--teal-dark);">${formatted}</strong></span><a href="tracker.html" style="color:var(--teal); text-decoration:none; font-weight:600;">رجوع لليوم الحالي ←</a>`;
+  banner.innerHTML = `<span>${label}: <strong style="color:var(--teal-dark);">${formatted}</strong></span><a href="tracker.html" style="color:var(--teal); text-decoration:none; font-weight:600;">رجوع لليوم الحالي ←</a><span id="pastDayNote" style="display:none; flex-basis:100%; color:#9C2F2F;">تعذّر تحميل سجل هاد اليوم من حسابك. تأكد من الاتصال وحدّث الصفحة لتقدر تعدّل.</span>`;
   document.querySelector('.ornament').insertAdjacentElement('afterend', banner);
 } else {
   fetchFajrTime(() => {
@@ -738,6 +764,7 @@ resetBtn.onclick = () => {
   resetBtn.title = resetBtnOriginalTitle;
   const lbl = document.getElementById('resetBtnLabel');
   if(lbl) lbl.textContent = 'إعادة تصفير اليوم';
+  if(pastDayState !== 'ready') return;
   state = Tracker.reset(currentKey);
   render();
 };
