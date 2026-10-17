@@ -3,12 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">
+<meta name="description" content="أوقات الصلاة حسب موقعك أو أي مدينة وأي تاريخ، مع العدّ التنازلي للصلاة القادمة وطرق حساب متعددة.">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>أوقات الصلاة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://www.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://apis.google.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet"></noscript>
 <style>
   :root{
     --parchment: #F2E8D5;
@@ -20,6 +24,7 @@
     --teal-deep: #123B31;
     --teal-soft: #4d8b83;
     --gold: #AD8A3E;
+    --gold-text: #7A5C18; /* للنصوص فقط — تباين 4.5:1 فما فوق */
     --gold-soft: #DCC08A;
     --line: rgba(173,138,62,0.35);
     --bg-card: #FBF5E8;
@@ -302,7 +307,31 @@
     direction: ltr;
   }
 
-  .time-row.active .rtime{ color: var(--gold); }
+  .time-row.active .rtime{ color: var(--gold-text); }
+
+  /* ---------- Date picker ---------- */
+  .date-picker{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    margin:12px 0 4px;
+  }
+  .date-picker input[type=date]{
+    font-family:'Tajawal', sans-serif; font-size:14px; color:var(--ink);
+    background:var(--bg-card); border:1px solid var(--gold-line);
+    border-radius:10px; padding:6px 10px; min-height:36px; direction:ltr;
+  }
+  .dp-btn{
+    width:34px; height:34px; padding:0; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--bg-card); border:1px solid var(--gold-line);
+    color:var(--ink-soft); cursor:pointer; transition:background .15s;
+  }
+  .dp-btn:hover{background:rgba(173,138,62,0.1);}
+  .dp-today{
+    font-family:'Tajawal', sans-serif; font-size:13px; color:var(--teal);
+    background:none; border:1px solid var(--teal); border-radius:10px;
+    padding:6px 12px; min-height:36px; cursor:pointer;
+  }
+  .dp-today[hidden]{display:none;}
 
   /* ---------- Settings ---------- */
   .settings{
@@ -535,11 +564,11 @@
     <div class="brand">
       <svg width="30" height="30" viewBox="0 0 34 34">
         <circle cx="17" cy="17" r="15.5" fill="none" stroke="#AD8A3E" stroke-width="1.3"/>
-        <a href="index.html"><circle cx="17" cy="6" r="6" fill="transparent"/><circle cx="17" cy="6" r="1.9" fill="#AD8A3E"/></a>
-        <a href="tracker.html"><circle cx="27.5" cy="13.6" r="6" fill="transparent"/><circle cx="27.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
-        <a href="prayer-times.html"><circle cx="23.5" cy="25.9" r="6" fill="transparent"/><circle cx="23.5" cy="25.9" r="2.4" fill="#1F5C4E"/></a>
-        <a href="counter.html"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
-        <a href="qibla.html"><circle cx="10.5" cy="25.9" r="6" fill="transparent"/><circle cx="10.5" cy="25.9" r="1.9" fill="#AD8A3E"/></a>
+        <a href="index.html" aria-label="الأذكار"><circle cx="17" cy="6" r="6" fill="transparent"/><circle cx="17" cy="6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="tracker.html" aria-label="المتابعة اليومية"><circle cx="27.5" cy="13.6" r="6" fill="transparent"/><circle cx="27.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="prayer-times.html" aria-label="أوقات الصلاة"><circle cx="23.5" cy="25.9" r="6" fill="transparent"/><circle cx="23.5" cy="25.9" r="2.4" fill="#1F5C4E"/></a>
+        <a href="counter.html" aria-label="عدّادة الذكر"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="qibla.html" aria-label="اتجاه القبلة"><circle cx="10.5" cy="25.9" r="6" fill="transparent"/><circle cx="10.5" cy="25.9" r="1.9" fill="#AD8A3E"/></a>
       </svg>
       <h1>أوقات الصلاة</h1>
     </div>
@@ -598,6 +627,17 @@
       <span id="placeName">جارٍ تحديد الموقع…</span>
     </div>
     <div class="dates" id="dateBox"></div>
+  </div>
+
+  <div class="date-picker" id="datePicker">
+    <button type="button" class="dp-btn" id="dpPrev" aria-label="اليوم السابق" title="اليوم السابق">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+    </button>
+    <input type="date" id="dateInput" aria-label="اختيار التاريخ">
+    <button type="button" class="dp-btn" id="dpNext" aria-label="اليوم التالي" title="اليوم التالي">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"/></svg>
+    </button>
+    <button type="button" class="dp-today" id="dpToday" hidden>اليوم</button>
   </div>
 
   <div id="content">
@@ -736,6 +776,8 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
     hijri: null,
     gregorian: null,
     timer: null,
+    date: null,   // null = اليوم، غير هيك تاريخ مختار (عرض فقط)
+    reqId: 0,     // لتجاهل ردود قديمة لما المستخدم يغيّر التاريخ بسرعة
   };
 
   function tuneParam(){
@@ -864,19 +906,24 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
   function loadTimings(){
     let url;
     const tune = encodeURIComponent(tuneParam());
+    const viewingToday = isViewingToday();
     if(state.cityLabel){
-      url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(state.cityLabel)}&country=&method=${state.method}&tune=${tune}`;
+      const datePart = viewingToday ? '' : '/' + toApiDate(state.date);
+      url = `https://api.aladhan.com/v1/timingsByCity${datePart}?city=${encodeURIComponent(state.cityLabel)}&country=&method=${state.method}&tune=${tune}`;
     } else if(state.lat != null){
-      url = `https://api.aladhan.com/v1/timings/${Math.floor(Date.now()/1000)}?latitude=${state.lat}&longitude=${state.lon}&method=${state.method}&tune=${tune}`;
+      const when = viewingToday ? Math.floor(Date.now()/1000) : toApiDate(state.date);
+      url = `https://api.aladhan.com/v1/timings/${when}?latitude=${state.lat}&longitude=${state.lon}&method=${state.method}&tune=${tune}`;
     } else {
       return;
     }
 
+    const myReq = ++state.reqId;
     setStatus('جارٍ حساب أوقات الصلاة…');
 
     fetch(url)
       .then(r => r.json())
       .then(d => {
+        if(myReq !== state.reqId) return; // طلب أقدم، تغيّر التاريخ بعده
         if(d.code !== 200) throw new Error('bad response');
         state.timings = d.data.timings;
         state.hijri = d.data.date.hijri;
@@ -884,6 +931,7 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
         renderAll();
       })
       .catch(() => {
+        if(myReq !== state.reqId) return;
         setStatus('تعذّر جلب أوقات الصلاة. تحقق من الاتصال أو حاول لاحقاً.');
       });
   }
@@ -910,9 +958,17 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
 
   function renderAll(){
     renderDate();
-    renderHero();
-    renderList();
-    startCountdownTimer();
+    if(isViewingToday()){
+      renderHero();
+      renderList();
+      startCountdownTimer();
+    } else {
+      // تاريخ مختار: عرض الأوقات فقط (بدون عدّ تنازلي ولا صلاة قادمة)
+      if(state.timer){ clearInterval(state.timer); state.timer = null; }
+      contentEl.innerHTML = '';
+      renderList();
+    }
+    updateDatePickerUI();
   }
 
   function renderDate(){
@@ -947,7 +1003,8 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
   }
 
   function renderList(){
-    const { list, activeIdx } = currentAndNext();
+    const { list, activeIdx: todayActiveIdx } = currentAndNext();
+    const activeIdx = isViewingToday() ? todayActiveIdx : -1;
     const wrap = document.createElement('div');
     wrap.className = 'times';
     list.forEach((p, i) => {
@@ -1052,6 +1109,48 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
     state.timer = setInterval(tick, 1000);
   }
 
+  // ---------- اختيار تاريخ ----------
+  function pad2(n){ return String(n).padStart(2, '0'); }
+  function toInputValue(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+  function toApiDate(d){ return `${pad2(d.getDate())}-${pad2(d.getMonth()+1)}-${d.getFullYear()}`; }
+  function isViewingToday(){ return !state.date; }
+
+  const dateInputEl = document.getElementById('dateInput');
+  const dpTodayEl = document.getElementById('dpToday');
+
+  function updateDatePickerUI(){
+    dateInputEl.value = toInputValue(state.date || new Date());
+    dpTodayEl.hidden = isViewingToday();
+  }
+
+  function setViewDate(d){
+    const today = new Date(); today.setHours(0,0,0,0);
+    if(!d || isNaN(d.getTime()) || d.getTime() === today.getTime()){
+      state.date = null;
+    } else {
+      state.date = d;
+    }
+    updateDatePickerUI();
+    loadTimings();
+  }
+
+  function shiftDay(delta){
+    const base = state.date ? new Date(state.date) : new Date();
+    base.setHours(0,0,0,0);
+    base.setDate(base.getDate() + delta);
+    setViewDate(base);
+  }
+
+  dateInputEl.addEventListener('change', () => {
+    const v = dateInputEl.value;
+    if(!v){ setViewDate(null); return; }
+    const [y, m, d] = v.split('-').map(Number);
+    setViewDate(new Date(y, m - 1, d));
+  });
+  document.getElementById('dpPrev').addEventListener('click', () => shiftDay(-1));
+  document.getElementById('dpNext').addEventListener('click', () => shiftDay(1));
+  dpTodayEl.addEventListener('click', () => setViewDate(null));
+
   document.getElementById('locateBtn').addEventListener('click', locate);
 
   document.getElementById('infoBtn').addEventListener('click', () => {
@@ -1096,6 +1195,7 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
   });
 
   buildMethodPanel();
+  updateDatePickerUI();
 
   const cachedCity = localStorage.getItem('pt_city');
   const cachedLat = localStorage.getItem('pt_lat');

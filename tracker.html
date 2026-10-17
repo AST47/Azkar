@@ -3,12 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">
+<meta name="description" content="متابعة يومية للصلوات وقراءة القرآن والأذكار، مع تسجيل الإنجاز وعرض الأيام السابقة وتعديلها.">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://apis.google.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap"></noscript>
 <title>المتابعة اليومية</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap');
-
 :root{
   --bg:#F2E8D5;
   --bg-card:#FBF5E8;
@@ -17,6 +22,7 @@
   --teal:#1F5C4E;
   --teal-dark:#123B31;
   --gold:#AD8A3E;
+  --gold-text:#7A5C18; /* للنصوص فقط — تباين 4.5:1 فما فوق */
   --gold-soft:#DCC08A;
   --gold-line: rgba(173,138,62,0.35);
 }
@@ -231,7 +237,7 @@ body{
 .progress{
   text-align:center;
   font-size:13px;
-  color:var(--gold);
+  color:var(--gold-text);
   margin:14px 0 22px;
 }
 
@@ -272,8 +278,6 @@ section{margin-bottom:26px;}
 .box:active{transform:scale(0.96);}
 .box.done{background:var(--teal); border-color:var(--teal);}
 .box.done .box-label{color:#F5EDD9;}
-.box.read-only{cursor:default;}
-.box.read-only:active{transform:none;}
 .check-circle{
   width:26px;
   height:26px;
@@ -344,11 +348,11 @@ section{margin-bottom:26px;}
     <div class="brand">
       <svg width="30" height="30" viewBox="0 0 34 34">
         <circle cx="17" cy="17" r="15.5" fill="none" stroke="#AD8A3E" stroke-width="1.3"/>
-        <a href="index.html"><circle cx="17" cy="6" r="6" fill="transparent"/><circle cx="17" cy="6" r="1.9" fill="#AD8A3E"/></a>
-        <a href="tracker.html"><circle cx="27.5" cy="13.6" r="6" fill="transparent"/><circle cx="27.5" cy="13.6" r="2.4" fill="#1F5C4E"/></a>
-        <a href="prayer-times.html"><circle cx="23.5" cy="25.9" r="6" fill="transparent"/><circle cx="23.5" cy="25.9" r="1.9" fill="#AD8A3E"/></a>
-        <a href="counter.html"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
-        <a href="qibla.html"><circle cx="10.5" cy="25.9" r="6" fill="transparent"/><circle cx="10.5" cy="25.9" r="1.9" fill="#AD8A3E"/></a>
+        <a href="index.html" aria-label="الأذكار"><circle cx="17" cy="6" r="6" fill="transparent"/><circle cx="17" cy="6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="tracker.html" aria-label="المتابعة اليومية"><circle cx="27.5" cy="13.6" r="6" fill="transparent"/><circle cx="27.5" cy="13.6" r="2.4" fill="#1F5C4E"/></a>
+        <a href="prayer-times.html" aria-label="أوقات الصلاة"><circle cx="23.5" cy="25.9" r="6" fill="transparent"/><circle cx="23.5" cy="25.9" r="1.9" fill="#AD8A3E"/></a>
+        <a href="counter.html" aria-label="عدّادة الذكر"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="1.9" fill="#AD8A3E"/></a>
+        <a href="qibla.html" aria-label="اتجاه القبلة"><circle cx="10.5" cy="25.9" r="6" fill="transparent"/><circle cx="10.5" cy="25.9" r="1.9" fill="#AD8A3E"/></a>
       </svg>
       <h1>المتابعة اليومية</h1>
     </div>
@@ -538,21 +542,12 @@ function dayKeyFor(d){ return Tracker.dayKey(d); }
 function todayKey(){ return Tracker.todayKey(); }
 function readState(key){ return Tracker.read(key); }
 
-// تعديل يوم سابق من الكالندر: ?date=YYYY-MM-DD بالرابط. لو موجود وضمن
-// نافذة الـ٣ أيام المسموحة، منفتح هاد اليوم بدل اليوم الحالي ومنعطّل
-// تصحيح الفجر التلقائي (لأنه هون منحدد يوم ثابت بالقصد).
+// تعديل يوم سابق من الكالندر: ?date=YYYY-MM-DD بالرابط. لو موجود وبكون
+// اليوم أو قبله، منفتح هاد اليوم بدل اليوم الحالي ومنعطّل تصحيح الفجر
+// التلقائي (لأنه هون منحدد يوم ثابت بالقصد). ما في حد لكم يوم بتقدر ترجع لورا.
 const EDIT_DATE_PARAM = new URLSearchParams(location.search).get('date');
-let editingPastDay = false; // بنشوف يوم مش "اليوم الحالي" (تعديل أو عرض فقط)
-let isReadOnlyDay = false;  // أقدم من نافذة الـ٣ أيام — عرض بس، بدون تعديل
+let editingPastDay = false; // بنعدّل يوم مش "اليوم الحالي"
 let editingDateObj = null;
-
-function isDateWithinEditWindow(d){
-  const startOfToday = new Date();
-  startOfToday.setHours(0,0,0,0);
-  const threeDaysAgo = new Date(startOfToday);
-  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-  return d >= threeDaysAgo && d <= startOfToday;
-}
 
 if(EDIT_DATE_PARAM && /^\d{4}-\d{2}-\d{2}$/.test(EDIT_DATE_PARAM)){
   const [y, m, d] = EDIT_DATE_PARAM.split('-').map(Number);
@@ -561,7 +556,6 @@ if(EDIT_DATE_PARAM && /^\d{4}-\d{2}-\d{2}$/.test(EDIT_DATE_PARAM)){
   if(parsedDate <= startOfToday){ // ما منسمح نشوف يوم لسا ما صار
     editingPastDay = true;
     editingDateObj = parsedDate;
-    isReadOnlyDay = !isDateWithinEditWindow(parsedDate);
   }
 }
 
@@ -598,12 +592,10 @@ function renderDate(){
 }
 
 // أسهم التنقل يوم لورا / يوم لقدام، بنفس مفهوم أسهم الشهر بالكالندر.
-// ما بتتعدى نافذة الـ٣ أيام لورا، ولا بتروح لأبعد من اليوم الحقيقي لقدام.
+// بتقدر ترجع لورا بدون حد، بس ما بتروح لأبعد من اليوم الحقيقي لقدام.
 function renderDayNav(displayedDate){
   const startOfToday = new Date();
   startOfToday.setHours(0,0,0,0);
-  const threeDaysAgo = new Date(startOfToday);
-  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
   function dateToParam(d){
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -619,13 +611,8 @@ function renderDayNav(displayedDate){
   const prevBtn = document.getElementById('dayNavPrev');
   const nextBtn = document.getElementById('dayNavNext');
 
-  if(prevDate >= threeDaysAgo){
-    prevBtn.href = linkFor(prevDate);
-    prevBtn.classList.remove('disabled');
-  }else{
-    prevBtn.removeAttribute('href');
-    prevBtn.classList.add('disabled');
-  }
+  prevBtn.href = linkFor(prevDate);
+  prevBtn.classList.remove('disabled');
 
   if(nextDate <= startOfToday){
     nextBtn.href = linkFor(nextDate);
@@ -658,9 +645,7 @@ function renderAzkarCatGrid(){
       </span>
       <span class="box-label">${item.label}</span>
     `;
-    if(isReadOnlyDay) box.classList.add('read-only');
     box.onclick = () => {
-      if(isReadOnlyDay) return;
       state = Tracker.toggle('azkarCategories', item.id, currentKey);
       render();
     };
@@ -680,9 +665,7 @@ function renderGrid(containerId, list, stateKey){
       </span>
       <span class="box-label">${item.label}</span>
     `;
-    if(isReadOnlyDay) box.classList.add('read-only');
     box.onclick = () => {
-      if(isReadOnlyDay) return;
       state = Tracker.toggle(stateKey, item.id, currentKey);
       render();
     };
@@ -705,13 +688,9 @@ if(editingPastDay){
   const banner = document.createElement('div');
   banner.style.cssText = 'max-width:480px; margin:0 auto 14px; padding:10px 14px; background:var(--bg-card); border:1px solid var(--gold-line); border-radius:10px; font-size:13px; color:var(--ink-soft); display:flex; align-items:center; justify-content:space-between; gap:10px;';
   const formatted = new Intl.DateTimeFormat('ar', {weekday:'long', day:'numeric', month:'long'}).format(editingDateObj);
-  const label = isReadOnlyDay ? 'عرض سجل (بدون تعديل)' : 'بتعدّل سجل';
+  const label = 'بتعدّل سجل';
   banner.innerHTML = `<span>${label}: <strong style="color:var(--teal-dark);">${formatted}</strong></span><a href="tracker.html" style="color:var(--teal); text-decoration:none; font-weight:600;">رجوع لليوم الحالي ←</a>`;
   document.querySelector('.ornament').insertAdjacentElement('afterend', banner);
-  if(isReadOnlyDay){
-    const resetBtnEl = document.getElementById('resetBtn');
-    if(resetBtnEl) resetBtnEl.style.display = 'none';
-  }
 } else {
   fetchFajrTime(() => {
     const correctedKey = todayKey();

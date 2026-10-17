@@ -380,15 +380,12 @@ async function renderCalendar(){
   }
 
   const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const threeDaysAgo = new Date(startOfToday);
-  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
   const cellsByDay = {};
   for (let day = 1; day <= daysInMonth; day++) {
     const dayId = `${calViewYear}-${String(calViewMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
     const dayDate = new Date(calViewYear, calViewMonth, day);
-    const isPastOrToday = dayDate <= startOfToday; // أي يوم صار ممكن نشوف تفاصيله
-    const editable = dayDate >= threeDaysAgo && dayDate <= startOfToday;
+    const isPastOrToday = dayDate <= startOfToday; // أي يوم صار ممكن نفتحه ونعدّله
 
     const cell = document.createElement(isPastOrToday ? 'a' : 'div');
     cell.className = 'cal-cell';
@@ -396,7 +393,7 @@ async function renderCalendar(){
     cell.textContent = toArabicDigits(day);
     if (isPastOrToday) {
       cell.href = `tracker.html?date=${dayId}`;
-      cell.title = editable ? 'عدّل سجل هاد اليوم' : 'شوف تفاصيل هاد اليوم (عرض فقط)';
+      cell.title = 'عدّل سجل هاد اليوم';
     }
     if (day === today.getDate() && calViewMonth === today.getMonth() && calViewYear === today.getFullYear()) {
       cell.classList.add('today');
