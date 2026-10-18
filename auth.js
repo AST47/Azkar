@@ -348,3 +348,23 @@ async function deleteAccountPermanently(){
     .filter(k => k.startsWith('tracker-') || k.startsWith('pt_') || k === 'editMode' || k === 'show_prayer_times')
     .forEach(k => localStorage.removeItem(k));
 }
+
+// ============================================================
+// حماية التخزين المحلي (للعمل أوفلاين):
+// • persist(): بنطلب من المتصفح ما يمسح بيانات التطبيق (كاش الصفحات + بيانات
+//   فايرستور) لما تضيق المساحة أو ما نستخدم التطبيق فترة. بكروم بيوافق تلقائياً
+//   على التطبيقات المثبّتة. ما بيطلع أي سؤال للمستخدم، والرفض مو مشكلة.
+// • ENSURE_CACHE: بنخلي الـService Worker يرجّع أي ملف أساسي انمسح من الكاش.
+// ============================================================
+(function protectOfflineStorage(){
+  try{
+    if(navigator.storage && navigator.storage.persist){
+      navigator.storage.persisted().then(p => p || navigator.storage.persist()).catch(() => {});
+    }
+    if('serviceWorker' in navigator && navigator.onLine){
+      navigator.serviceWorker.ready.then(reg => {
+        if(reg.active) reg.active.postMessage({ type: 'ENSURE_CACHE' });
+      }).catch(() => {});
+    }
+  }catch(e){}
+})();

@@ -1739,6 +1739,7 @@ function getFilteredItems(){
 
 function render(){
   document.querySelector('.app').classList.add('ready');
+  ensureImagesPrecached();
   reconcileCategories();
   renderAllButton();
   renderTimeline();
@@ -2176,6 +2177,15 @@ function precacheImages(){
   if(!navigator.serviceWorker.controller || !items.length) return;
   const urls = [...new Set(items.flatMap(i => i.imageUrls || []))];
   if(urls.length) navigator.serviceWorker.controller.postMessage({type:'CACHE_IMAGES', urls});
+}
+
+// نطلب تخزين الصور مع كل زيارة (مو بس أول تثبيت): لو الجهاز مسح الصور، بترجع تنحمّل.
+// الـSW بيتخطى المخزّن أصلاً، فالتكلفة قليلة.
+var imagesPrecacheRequested = false;
+function ensureImagesPrecached(){
+  if(imagesPrecacheRequested || !items.length || !navigator.onLine || !('serviceWorker' in navigator)) return;
+  imagesPrecacheRequested = true;
+  navigator.serviceWorker.ready.then(precacheImages).catch(() => {});
 }
 
 loadData();

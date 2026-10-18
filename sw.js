@@ -1,4 +1,7 @@
-const CACHE_NAME = 'azkar-cache-v11';
+const CACHE_NAME = 'azkar-cache-v12';
+// صور السور بكاش لحاله (خارج رقم النسخة): تحديث النسخة ما بيمسحها وما بنضطر نحمّلها من جديد
+const IMAGE_CACHE = 'azkar-images-v1';
+const IMAGE_HOSTS = ['raw.githubusercontent.com'];
 
 // ============================================================
 // ملفات التطبيق نفسه (نفس الدومين). لازم تتخزن كلها وقت التثبيت، وبنجيبها
@@ -45,7 +48,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.filter(k => k !== CACHE_NAME && k !== IMAGE_CACHE).map(k => caches.delete(k)))
     )
   );
   self.clients.claim();
@@ -116,20 +119,81 @@ function cacheFirst(event){
   }));
 }
 
+// ---------- صور السور ----------
+// المخزّن أولاً. لو الصورة مو مخزّنة ومن مصدر معروف، منجيبها ومنخزّنها.
+function imageHandler(event){
+  const request = event.request;
+  const url = new URL(request.url);
+  return caches.open(IMAGE_CACHE).then(cache =>
+    cache.match(request.url).then(cached => {
+      if(cached) return cached;
+      if(!IMAGE_HOSTS.includes(url.hostname)) return fetch(request);
+      return fetch(new Request(request.url, { mode: 'cors', credentials: 'omit' })).then(res => {
+        if(res && res.ok) cache.put(request.url, res.clone());
+        return res;
+      }).catch(() => fetch(request));
+    })
+  );
+}
+
+// الصفحة بتبعت قائمة روابط: CACHE_IMAGES بتخزّن الناقص بس، REFRESH_IMAGES بتعيد تحميل الكل
+async function cacheImages(urls, force){
+  const cache = await caches.open(IMAGE_CACHE);
+  const queue = urls.filter(u => /^https?:\/\//.test(u));
+  async function worker(){
+    while(queue.length){
+      const u = queue.shift();
+      try{
+        if(!force && await cache.match(u)) continue;
+        const res = await fetch(new Request(u, { mode: 'cors', credentials: 'omit', cache: force ? 'reload' : 'default' }));
+        if(res && res.ok) await cache.put(u, res);
+      }catch(e){}
+    }
+  }
+  await Promise.all([worker(), worker(), worker(), worker()]);
+}
+
+// لو المتصفح مسح جزء من الكاش (ضيق مساحة / ما استخدمنا التطبيق فترة)، منرجّع الملفات الأساسية الناقصة
+async function ensureCoreCache(){
+  const cache = await caches.open(CACHE_NAME);
+  const have = new Set((await cache.keys()).map(r => r.url));
+  await Promise.all(CORE_ASSETS.map(url => {
+    const abs = new URL(url, self.location.href).href;
+    if(have.has(abs)) return null;
+    return cache.add(new Request(url, { cache: 'reload' })).catch(() => {});
+  }));
+}
+
+self.addEventListener('message', event => {
+  const data = event.data || {};
+  if(data.type === 'CACHE_IMAGES' && Array.isArray(data.urls)){
+    event.waitUntil(cacheImages(data.urls, false));
+  }else if(data.type === 'REFRESH_IMAGES' && Array.isArray(data.urls)){
+    event.waitUntil(cacheImages(data.urls, true));
+  }else if(data.type === 'ENSURE_CACHE'){
+    event.waitUntil(ensureCoreCache());
+  }
+});
+
 self.addEventListener('fetch', event => {
   const request = event.request;
   if(request.method !== 'GET') return;
 
   const url = new URL(request.url);
+  const isIcon = /\/icon[^/]*\.png$/.test(url.pathname);
+
+  if(request.destination === 'image' && !isIcon){
+    event.respondWith(imageHandler(event));
+    return;
+  }
 
   if(url.origin === self.location.origin){
-    const isIcon = /\/icon[^/]*\.png$/.test(url.pathname);
     const isApp = request.mode === 'navigate' ||
       ['script', 'style', 'manifest'].includes(request.destination) || isIcon;
     if(isApp){
       event.respondWith(networkFirst(event, 3000));
     }
-    return; // باقي الملفات (صور الصفحات...) المتصفح بيتعامل معها لحاله
+    return; // باقي الملفات المتصفح بيتعامل معها لحاله
   }
 
   if(url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com'){
