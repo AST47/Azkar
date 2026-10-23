@@ -2,64 +2,200 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>سياسة الخصوصية | أذكار وأدعية</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="سياسة الخصوصية لتطبيق أذكار وأدعية: ما البيانات التي نجمعها، وكيف نستخدمها، وكيف تحذف حسابك.">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1F5C4E">
+<title>سياسة الخصوصية | أذكار وأدعية</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap"></noscript>
 <style>
-  :root { --paper:#F2E8D5; --ink:#2B2A26; --green:#1F5C4E; --line:#d9ccb0; }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--paper); color:var(--ink); font-family:'Amiri',serif; font-size:1.2rem; line-height:2; }
-  header { background:var(--green); color:var(--paper); padding:2rem 1.25rem; text-align:center; }
-  header h1 { margin:0; font-size:1.9rem; }
-  header p { margin:.4rem 0 0; opacity:.85; font-size:1rem; }
-  main { max-width:44rem; margin:0 auto; padding:1.5rem 1.25rem 3rem; }
-  h2 { color:var(--green); font-size:1.4rem; margin:2rem 0 .25rem; padding-bottom:.25rem; border-bottom:1px solid var(--line); }
-  ul { padding-inline-start:1.4rem; margin:.5rem 0; }
-  a { color:var(--green); }
-  footer { text-align:center; padding:1rem; font-size:.95rem; opacity:.7; }
+:root{
+  --bg:#F2E8D5;
+  --bg-card:#FBF5E8;
+  --ink:#2B2118;
+  --ink-soft:#6B5A45;
+  --teal:#1F5C4E;
+  --teal-dark:#123B31;
+  --gold:#AD8A3E;
+  --gold-soft:#DCC08A;
+  --gold-line: rgba(173,138,62,0.35);
+  --danger:#8C3B2E;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  background-image:radial-gradient(circle at 1px 1px, rgba(173,138,62,0.07) 1px, transparent 0);
+  background-size: 18px 18px;
+  color:var(--ink);
+  font-family:'Tajawal', sans-serif;
+  min-height:100vh;
+  padding:28px 20px 80px;
+  -webkit-tap-highlight-color: transparent;
+}
+.app{max-width:1120px; margin:0 auto;}
+.app-header{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:nowrap; max-width:480px; margin:0 auto 14px;}
+.brand{display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto; overflow:hidden;}
+.brand h1{font-family:'Reem Kufi', sans-serif; font-weight:700; font-size:clamp(11px, 5.5vw, 26px); margin:0; color:var(--teal-dark); letter-spacing:0.5px; white-space:nowrap; overflow:hidden; min-width:0;}
+.header-actions{display:flex; align-items:center; gap:8px; flex:0 0 auto;}
+.pages-menu{position:relative;}
+.pages-dropdown{position:absolute; top:calc(100% + 8px); left:0; background:var(--bg-card); border:1px solid var(--gold-line); border-radius:12px; padding:6px; min-width:190px; box-shadow:0 10px 26px rgba(43,33,24,0.18); display:none; flex-direction:column; gap:2px; z-index:70;}
+.pages-dropdown.open{display:flex;}
+.pages-divider{height:1px; background:var(--gold-line); margin:4px 6px;}
+.pages-item{width:100%; border:none; background:none; cursor:pointer; text-align:right; display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px; font-family:'Tajawal', sans-serif; font-size:13.5px; color:var(--ink); text-decoration:none; transition:background .15s;}
+.pages-item:hover{background:rgba(173,138,62,0.1);}
+.pages-item svg{flex-shrink:0; color:var(--ink-soft);}
+.pages-item.current{color:var(--teal); font-weight:600;}
+.pages-item.current svg{color:var(--teal);}
+.menu-trigger{width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:none; border:none; padding:0; color:var(--gold); cursor:pointer; transition:opacity .15s;}
+.menu-trigger:hover{opacity:.75;}
+.header-btn{width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--bg-card); border:1px solid var(--gold-line); color:var(--ink-soft); cursor:pointer; text-decoration:none; transition:background .15s;}
+.header-btn.active{background:var(--teal); border-color:var(--teal); color:#F5EDD9;}
+.ornament{height:14px; max-width:480px; margin:6px auto 22px; background-image: repeating-linear-gradient(45deg, var(--gold-soft) 0 3px, transparent 3px 9px); opacity:0.55; mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);}
+.bottom-bar{display:flex; align-items:center; justify-content:center; gap:14px; max-width:480px; margin:36px auto 0; padding-top:16px; border-top:1px solid var(--gold-line);}
+.app-footer{max-width:480px; margin:16px auto 0; display:flex; align-items:center; justify-content:center; gap:10px; font-size:12.5px; color:var(--ink-soft);}
+.footer-name{font-family:'Tajawal', sans-serif; color:var(--ink-soft); text-decoration:none; border-bottom:1px solid var(--gold-line); padding-bottom:1px;}
+.footer-name:hover{color:var(--teal-dark); border-color:var(--teal);}
+
+.card{background:var(--bg-card); border:1px solid var(--gold-line); border-radius:12px; padding:24px; max-width:440px; margin:0 auto;}
+.card h2{font-family:'Reem Kufi', sans-serif; margin:0 0 10px; color:var(--teal-dark); font-size:19px;}
+.card{max-width:480px;}
+.policy .updated{font-size:12.5px; color:var(--ink-soft); margin:0 0 14px;}
+.policy h2{margin:24px 0 8px; font-size:17px;}
+.policy h2:first-of-type{margin-top:0;}
+.policy p, .policy li{font-size:14px; line-height:1.9; color:var(--ink-soft);}
+.policy p{margin:0 0 10px;}
+.policy ul{margin:6px 0 10px; padding-inline-start:20px;}
+.policy a{color:var(--teal-dark);}
 </style>
 </head>
 <body>
-<header>
-  <h1>سياسة الخصوصية</h1>
-  <p>تطبيق أذكار وأدعية · آخر تحديث: 14 أكتوبر 2026</p>
-</header>
-<main>
+<div class="app">
+  <header class="app-header">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 34 34">
+        <circle cx="17" cy="17" r="15.5" fill="none" stroke="#AD8A3E" stroke-width="1.3"/>
+        <a href="index.html" aria-label="الأذكار"><circle cx="17" cy="6" r="6" fill="transparent"/><circle cx="17" cy="6" r="2.4" fill="#1F5C4E"/></a>
+        <a href="tracker.html" aria-label="المتابعة اليومية"><circle cx="27.5" cy="13.6" r="6" fill="transparent"/><circle cx="27.5" cy="13.6" r="1.9" fill="#1F5C4E"/></a>
+        <a href="prayer-times.html" aria-label="أوقات الصلاة"><circle cx="23.5" cy="25.9" r="6" fill="transparent"/><circle cx="23.5" cy="25.9" r="1.9" fill="#1F5C4E"/></a>
+        <a href="counter.html" aria-label="عدّادة الذكر"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="1.9" fill="#1F5C4E"/></a>
+        <a href="qibla.html" aria-label="اتجاه القبلة"><circle cx="10.5" cy="25.9" r="6" fill="transparent"/><circle cx="10.5" cy="25.9" r="1.9" fill="#1F5C4E"/></a>
+      </svg>
+      <h1>سياسة الخصوصية</h1>
+    </div>
+    <div class="header-actions">
+      <div class="pages-menu">
+        <button id="pagesBtn" class="menu-trigger" title="القائمة">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div class="pages-dropdown" id="pagesDropdown">
+          <a href="prayer-times.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4.2"/><path d="M12 3v2.2M12 18.8V21M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M3 12h2.2M18.8 12H21M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" stroke-linecap="round"/></svg>
+            أوقات الصلاة
+          </a>
+          <a href="tracker.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/><path d="M8.5 14.5l2 2 4-4"/></svg>
+            المتابعة اليومية
+          </a>
+          <a href="index.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5c-1.6-1.3-3.6-2-6-2v12c2.4 0 4.4.7 6 2 1.6-1.3 3.6-2 6-2v-12c-2.4 0-4.4.7-6 2z"/><path d="M12 6.5v12"/></svg>
+            الأذكار
+          </a>
+          <a href="counter.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            عدّادة الذكر
+          </a>
+          <a href="qibla.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="15.5,8.5 12.5,12.5 8.5,15.5 11.5,11.5" fill="currentColor" stroke="none"/></svg>
+            اتجاه القبلة
+          </a>
+          <div class="pages-divider"></div>
+          <a href="account.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+            الحساب
+          </a>
+          <a href="support.html" class="pages-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+            ادعم المطوّر
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
 
-<p>نحترم خصوصيتك. هذه الصفحة توضح ما الذي يجمعه التطبيق وكيف يُستخدم.</p>
+  <div class="ornament"></div>
 
-<h2>ما الذي نجمعه</h2>
-<ul>
-  <li><b>الحساب (اختياري):</b> عند تسجيل الدخول بحساب Google أو بالبريد الإلكتروني، نحفظ بريدك واسمك ومعرّف حسابك عبر Firebase Authentication.</li>
-  <li><b>بيانات المتابعة اليومية:</b> الصلوات وقراءة القرآن والأذكار المنجزة. تُحفظ على جهازك، وإذا سجّلت الدخول تُزامَن مع حسابك عبر Firebase Firestore.</li>
-  <li><b>الموقع (اختياري):</b> يُستخدم فقط لحساب مواقيت الصلاة. يُحفظ على جهازك، ويُرسل إحداثياته إلى خدمتي Aladhan وOpenStreetMap Nominatim للحصول على المواقيت واسم المدينة.</li>
-  <li><b>حساسات الجهاز:</b> تُستخدم لاتجاه القبلة، وتُعالج على جهازك ولا تُرسل إلى أي جهة.</li>
-</ul>
+  <div class="card policy">
+    <p class="updated">آخر تحديث: ٢٠ أكتوبر ٢٠٢٦</p>
+    <p>تطبيق «أذكار وأدعية» (azkar.ahmadsalehtuffaha.com) يضم أذكاراً وأدعية، ومواقيت الصلاة، وعدّادة ذكر، واتجاه القبلة، ومتابعة يومية للعبادات. توضّح هذه الصفحة ما الذي نجمعه، ولماذا، وكيف تتحكم ببياناتك.</p>
 
-<h2>ما الذي لا نفعله</h2>
-<ul>
-  <li>لا نبيع بياناتك ولا نشاركها لأغراض إعلانية.</li>
-  <li>لا يوجد إعلانات في التطبيق.</li>
-  <li>لا نجمع بيانات الدفع. إن دعمت المطوّر عبر صفحة الدعم، تتم العملية عبر جهة دفع خارجية.</li>
-</ul>
+    <h2>١. استخدام التطبيق بدون حساب</h2>
+    <p>تسجيل الدخول اختياري. بدون حساب تبقى كل بياناتك (سجل المتابعة اليومية والإعدادات وآخر موقع) محفوظة على جهازك فقط، ولا تُرسل إلى خوادمنا.</p>
 
-<h2>الجهات الخارجية</h2>
-<ul>
-  <li>Google Firebase (تسجيل الدخول وقاعدة البيانات)</li>
-  <li>Aladhan API (مواقيت الصلاة)</li>
-  <li>OpenStreetMap Nominatim (اسم المدينة)</li>
-</ul>
+    <h2>٢. عند تسجيل الدخول</h2>
+    <p>عند تسجيل الدخول بحساب Google أو بالبريد الإلكتروني نحفظ:</p>
+    <ul>
+      <li>بريدك الإلكتروني واسمك، عبر خدمة Firebase Authentication من Google.</li>
+      <li>سجل المتابعة اليومية (الصلوات، قراءة القرآن، الأذكار) لكل يوم.</li>
+      <li>إعداداتك: المدينة، وطريقة حساب المواقيت وتعديلاتها، وخيار إظهار الأوقات.</li>
+    </ul>
+    <p>نستخدم هذه البيانات فقط لحفظ تقدّمك ومزامنته بين أجهزتك.</p>
 
-<h2>حذف بياناتك</h2>
-<p>يمكنك استخدام التطبيق دون حساب. لحذف حسابك وكل بياناته المتزامنة، راسلنا على البريد أدناه وسنحذفها خلال 30 يوماً. ولحذف البيانات المحلية احذف بيانات الموقع أو التطبيق من إعدادات جهازك.</p>
+    <h2>٣. الموقع الجغرافي</h2>
+    <p>يطلب التطبيق إذنك للوصول إلى الموقع لحساب مواقيت الصلاة، ويستخدم حساسات الجهاز لتحديد اتجاه القبلة.</p>
+    <ul>
+      <li>الإحداثيات تبقى على جهازك، ولا نحفظها على خوادمنا ولا نربطها بحسابك.</li>
+      <li>عند حساب المواقيت تُرسل الإحداثيات لحظياً إلى خدمة Aladhan لجلب الأوقات، وإلى خدمة Nominatim (OpenStreetMap) لمعرفة اسم المدينة.</li>
+      <li>يمكنك اختيار مدينة يدوياً بدل استخدام الموقع، أو سحب الإذن في أي وقت من إعدادات جهازك.</li>
+    </ul>
 
-<h2>التواصل</h2>
-<p><a href="mailto:YOUR_EMAIL@example.com">YOUR_EMAIL@example.com</a></p>
+    <h2>٤. الخدمات الخارجية</h2>
+    <ul>
+      <li>Google Firebase: تسجيل الدخول وتخزين بيانات الحساب.</li>
+      <li>Aladhan API: حساب مواقيت الصلاة.</li>
+      <li>OpenStreetMap Nominatim: تحويل الموقع إلى اسم مدينة.</li>
+      <li>Google Fonts: تحميل الخطوط، وقد تستلم Google عنوان IP جهازك عند ذلك.</li>
+      <li>GitHub: استضافة الموقع وصور صفحات السور.</li>
+    </ul>
+    <p>لكل جهة من هذه الجهات سياسة خصوصية خاصة بها.</p>
 
-</main>
-<footer>أذكار وأدعية</footer>
+    <h2>٥. الإعلانات والدعم</h2>
+    <p>قد يعرض التطبيق إعلانات من Google AdSense. قد تستخدم Google معرّفات وملفات تعريف ارتباط لعرض إعلانات مناسبة، ويمكنك إدارة ذلك من إعدادات الإعلانات في حسابك على Google. لا نشارك بيانات حسابك أو سجل متابعتك مع المعلنين.</p>
+    <p>صفحة «ادعم المطوّر» تفتح مواقع خارجية (مثل Buy Me a Coffee) تتولى بنفسها عمليات الدفع، ونحن لا نستلم بيانات بطاقتك.</p>
+
+    <h2>٦. من يصل إلى بياناتك</h2>
+    <p>بيانات حسابك محمية بقواعد أمان في Firebase بحيث لا يصل إليها إلا حسابك أنت. بصفتنا مشرفي المشروع نملك صلاحية تقنية على قاعدة البيانات ولا نستخدمها إلا للصيانة. لا نبيع بياناتك ولا نشاركها مع أي طرف لأغراض تسويقية.</p>
+
+    <h2>٧. حذف بياناتك</h2>
+    <p>يمكنك حذف حسابك وكل بياناته في أي وقت من داخل التطبيق: القائمة ← الحساب ← «حذف الحساب نهائياً». يؤدي ذلك إلى حذف سجل المتابعة والإعدادات وحساب الدخول نفسه فوراً، ولا يمكن التراجع عنه. وإن واجهتك مشكلة، راسلنا على البريد الإلكتروني أدناه وسنحذف حسابك يدوياً.</p>
+    <p>أما البيانات المحلية على جهازك فتُحذف بمسح بيانات التطبيق من إعدادات الجهاز.</p>
+
+    <h2>٨. خصوصية الأطفال</h2>
+    <p>التطبيق غير موجّه للأطفال دون ١٣ سنة، ولا نجمع عمداً أي بيانات شخصية منهم. إن علمت أن طفلاً أنشأ حساباً، راسلنا لنحذفه.</p>
+
+    <h2>٩. التغييرات على هذه السياسة</h2>
+    <p>قد نحدّث هذه الصفحة من وقت لآخر، ويظهر تاريخ آخر تحديث في أعلاها.</p>
+
+    <h2>١٠. التواصل</h2>
+    <p>لأي سؤال أو طلب يخص بياناتك: <a href="mailto:ahmadsalehtuffaha@gmail.com">ahmadsalehtuffaha@gmail.com</a></p>
+  </div>
+
+  <footer class="app-footer">
+    <a class="footer-name" href="http://ahmadsalehtuffaha.com/" target="_blank" rel="noopener">Ahmad Saleh Tuffaha</a>
+  </footer>
+</div>
+
+<script>
+document.getElementById('pagesBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('pagesDropdown').classList.toggle('open');
+});
+document.addEventListener('click', () => document.getElementById('pagesDropdown').classList.remove('open'));
+</script>
 </body>
 </html>
