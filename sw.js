@@ -1,10 +1,10 @@
-const CACHE_NAME = 'azkar-cache-v12';
+const CACHE_NAME = 'azkar-cache-v13';
 // صور السور بكاش لحاله (خارج رقم النسخة): تحديث النسخة ما بيمسحها وما بنضطر نحمّلها من جديد
 const IMAGE_CACHE = 'azkar-images-v1';
 const IMAGE_HOSTS = ['raw.githubusercontent.com'];
 
 // ============================================================
-// ملفات التطبيق نفسه (نفس الدومين). لازم تتخزن كلها وقت التثبيت، وبنجيبها
+// ملفات التطبيق نفسه (نفس الدومين). بنحاول نخزّنها كلها وقت التثبيت، وبنجيبها
 // cache:'reload' عشان نتجاوز كاش المتصفح (GitHub Pages بيخلّي الملف ١٠ دقايق
 // بالكاش، وهيك كنا ممكن نخزّن نسخة قديمة وكأنها الجديدة).
 // ============================================================
@@ -36,11 +36,18 @@ const OPTIONAL_ASSETS = [
   'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js'
 ];
 
+// بس هدول لازم ينجحوا. لو واحد منهم فشل، التثبيت بيفشل والنسخة القديمة بتضل شغّالة.
+// أي ملف تاني ناقص (أيقونة، صفحة...) ما بيوقف التثبيت — بيرجع ENSURE_CACHE يحمّله لاحقاً.
+const REQUIRED_ASSETS = ['./index.html', './auth.js'];
+
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE_NAME);
-    await Promise.all(CORE_ASSETS.map(url => cache.add(new Request(url, { cache: 'reload' }))));
-    await Promise.all(OPTIONAL_ASSETS.map(url => cache.add(url).catch(() => {})));
+    await Promise.all(REQUIRED_ASSETS.map(url => cache.add(new Request(url, { cache: 'reload' }))));
+    await Promise.all([
+      ...CORE_ASSETS.filter(url => !REQUIRED_ASSETS.includes(url)).map(url => cache.add(new Request(url, { cache: 'reload' }))),
+      ...OPTIONAL_ASSETS.map(url => cache.add(url))
+    ].map(p => p.catch(() => {})));
   })());
   self.skipWaiting();
 });
