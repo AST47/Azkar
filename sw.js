@@ -1,4 +1,4 @@
-const CACHE_NAME = 'azkar-cache-v13';
+const CACHE_NAME = 'azkar-cache-v14';
 // صور السور بكاش لحاله (خارج رقم النسخة): تحديث النسخة ما بيمسحها وما بنضطر نحمّلها من جديد
 const IMAGE_CACHE = 'azkar-images-v1';
 const IMAGE_HOSTS = ['raw.githubusercontent.com'];
@@ -95,7 +95,7 @@ function networkFirst(event, timeoutMs){
       const home = await caches.match('./index.html');
       if(home) return home;
     }
-    return networkPromise; // ما في نسخة محفوظة: نستنى الشبكة لآخرها
+    return networkPromise.catch(() => Response.error()); // ما في نسخة محفوظة: نستنى الشبكة لآخرها
   });
 }
 
@@ -107,7 +107,7 @@ function staleWhileRevalidate(event){
       const net = fetch(corsReq).then(res => {
         if(res && res.ok) cache.put(corsReq, res.clone());
         return res;
-      }).catch(() => cached);
+      }).catch(() => cached || Response.error());
       event.waitUntil(net.catch(() => {}));
       return cached || net;
     })
@@ -123,7 +123,7 @@ function cacheFirst(event){
       caches.open(CACHE_NAME).then(cache => cache.put(corsReq, copy));
     }
     return res;
-  }));
+  }).catch(() => Response.error()));
 }
 
 // ---------- صور السور ----------
@@ -134,11 +134,11 @@ function imageHandler(event){
   return caches.open(IMAGE_CACHE).then(cache =>
     cache.match(request.url).then(cached => {
       if(cached) return cached;
-      if(!IMAGE_HOSTS.includes(url.hostname)) return fetch(request);
+      if(!IMAGE_HOSTS.includes(url.hostname)) return fetch(request).catch(() => Response.error());
       return fetch(new Request(request.url, { mode: 'cors', credentials: 'omit' })).then(res => {
         if(res && res.ok) cache.put(request.url, res.clone());
         return res;
-      }).catch(() => fetch(request));
+      }).catch(() => fetch(request)).catch(() => Response.error());
     })
   );
 }
@@ -189,7 +189,8 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
   const isIcon = /\/icon[^/]*\.png$/.test(url.pathname);
 
-  if(request.destination === 'image' && !isIcon){
+  if(request.destination === 'image' && !isIcon &&
+     (url.origin === self.location.origin || IMAGE_HOSTS.includes(url.hostname))){
     event.respondWith(imageHandler(event));
     return;
   }
