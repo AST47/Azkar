@@ -1,8 +1,13 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.ahmadsalehtuffaha.azkar",
-        "sha256_cert_fingerprints": ["D0:0B:EF:A8:A6:18:AC:EB:9B:8A:65:4A:18:7C:2E:2B:DE:92:8C:7A:22:74:8F:5A:07:DA:5B:5A:E3:78:B6:57"]
-      }
-    }]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.ahmadsalehtuffaha.azkar",
+      "sha256_cert_fingerprints": [
+        "F3:CC:0D:64:23:50:B3:C8:44:58:68:FE:F5:BB:8D:6B:18:2B:E8:5C:71:B2:1F:75:8A:17:DE:CD:05:5F:7E:0B",
+        "D0:0B:EF:A8:A6:18:AC:EB:9B:8A:65:4A:18:7C:2E:2B:DE:92:8C:7A:22:74:8F:5A:07:DA:5B:5A:E3:78:B6:57"
+      ]
+    }
+  }
+]
