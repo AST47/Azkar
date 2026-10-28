@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.ahmadsalehtuffaha.azkar",
+        "sha256_cert_fingerprints": ["D0:0B:EF:A8:A6:18:AC:EB:9B:8A:65:4A:18:7C:2E:2B:DE:92:8C:7A:22:74:8F:5A:07:DA:5B:5A:E3:78:B6:57"]
+      }
+    }]
