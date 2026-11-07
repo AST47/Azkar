@@ -1,4 +1,4 @@
-const CACHE_NAME = 'azkar-cache-v14';
+const CACHE_NAME = 'azkar-cache-v15';
 // صور السور بكاش لحاله (خارج رقم النسخة): تحديث النسخة ما بيمسحها وما بنضطر نحمّلها من جديد
 const IMAGE_CACHE = 'azkar-images-v1';
 const IMAGE_HOSTS = ['raw.githubusercontent.com'];
@@ -70,11 +70,20 @@ function cacheKey(request){
 }
 
 // ملفات التطبيق (صفحات + سكربتات + ستايل + أيقونات): الشبكة أولاً (دايماً نسخة طازة،
-// وبنتجاوز كاش المتصفح)، لكن لو الشبكة وقعت أو تأخرت أكتر من ٣ ثواني منرجع للمخزّن.
+// وبنتجاوز كاش المتصفح)، لكن لو الشبكة وقعت أو تأخرت أكتر من ١.٥ ثانية منرجع للمخزّن.
 // الصفحة والسكربتات بيجوا دايماً من نفس المصدر، فما بيصير تعارض نسخ بينهم.
 function networkFirst(event, timeoutMs){
   const request = event.request;
   const key = cacheKey(request);
+
+  // الجهاز أوفلاين أصلاً: ما في داعي ننتظر الشبكة، منرجع المخزّن فوراً
+  if(self.navigator && self.navigator.onLine === false){
+    return caches.match(key).then(cached => {
+      if(cached) return cached;
+      if(request.mode === 'navigate') return caches.match('./index.html').then(h => h || Response.error());
+      return Response.error();
+    });
+  }
 
   const networkPromise = fetch(request, { cache: 'no-cache' }).then(res => {
     if(res && res.ok){
@@ -199,7 +208,7 @@ self.addEventListener('fetch', event => {
     const isApp = request.mode === 'navigate' ||
       ['script', 'style', 'manifest'].includes(request.destination) || isIcon;
     if(isApp){
-      event.respondWith(networkFirst(event, 3000));
+      event.respondWith(networkFirst(event, 1500));
     }
     return; // باقي الملفات المتصفح بيتعامل معها لحاله
   }

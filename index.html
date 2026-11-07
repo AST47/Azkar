@@ -1265,47 +1265,75 @@ let activeCategory = 'during_day';
 let editingId = null;
 let searchQuery = '';
 
+// نسخة خاصة من الأذكار على الجهاز (بالإضافة لكاش فايرستور): بتنكتب بعد كل
+// تحديث ناجح من السيرفر، وبتنقرأ فوراً عند فتح التطبيق بدون أي انتظار للشبكة.
+const LOCAL_ITEMS_KEY = 'azkar_items_v1';
+function readLocalItems(){
+  try{
+    const arr = JSON.parse(localStorage.getItem(LOCAL_ITEMS_KEY) || 'null');
+    return Array.isArray(arr) && arr.length ? arr : null;
+  }catch(e){ return null; }
+}
+function writeLocalItems(arr){
+  try{
+    if(Array.isArray(arr) && arr.length) localStorage.setItem(LOCAL_ITEMS_KEY, JSON.stringify(arr));
+  }catch(e){}
+}
+
 async function loadData(){
-  // كل المحتوى صار مخزّن على Firestore بالكامل. أي إضافة/تعديل
-  // من هلق ولّح لازم يصير من وضع التعديل بالموقع مباشرة.
-  let doneOnce = false;
+  // كل المحتوى مخزّن على Firestore. أي إضافة/تعديل لازم يصير من وضع التعديل.
+  let hasData = false;      // وصلتنا بيانات من أي مصدر
+  let serverAnswered = false;
 
-  // قراءة فورية من التخزين المحلي (IndexedDB) بس، بدون أي انتظار
-  // للشبكة إطلاقاً — هاي أسرع طريقة نعرض فيها البيانات المحفوظة
-  // عند اتصال ضعيف، بدل ما نستنى onSnapshot يقرر هو الاتصال شغال ولا لأ.
-  itemsRef.get({source: 'cache'}).then(snap => {
-    if(!doneOnce && snap.exists){
-      items = snap.data().items || [];
-      normalizeOrders();
-      render();
-      precacheImages();
-    }
-  }).catch(() => {}); // ما في نسخة محلية محفوظة بعد — onSnapshot تحت رح يتكفل
-
-  itemsRef.onSnapshot(snap => {
-    doneOnce = true;
-    items = (snap.exists && snap.data().items) ? snap.data().items : [];
+  function show(arr){
+    items = arr;
+    hasData = true;
     normalizeOrders();
     render();
     precacheImages();
+  }
+
+  // 1) نسخة الجهاز الخاصة: فوراً وبدون شبكة
+  const local = readLocalItems();
+  if(local) show(local);
+
+  // 2) كاش فايرستور (لو ما في نسخة خاصة بعد)
+  itemsRef.get({source: 'cache'}).then(snap => {
+    if(!serverAnswered && !hasData && snap.exists){
+      const arr = snap.data().items || [];
+      if(arr.length) show(arr);
+    }
+  }).catch(() => {});
+
+  // 3) الشبكة: بتحدّث المعروض وبتحدّث النسخة الخاصة
+  itemsRef.onSnapshot(snap => {
+    const fromCache = snap.metadata.fromCache;
+    if(!fromCache) serverAnswered = true;
+    const arr = (snap.exists && snap.data().items) ? snap.data().items : [];
+    if(arr.length){
+      show(arr);
+      if(!fromCache) writeLocalItems(arr);
+    }else if(!fromCache){
+      // السيرفر جاوب فعلاً إنه ما في أذكار
+      items = [];
+      hasData = true;
+      render();
+    }
+    // لو الجواب من الكاش وفاضي: ما بنمسح اللي معروض
   }, err => {
     console.error('فشل الاتصال بقاعدة البيانات', err);
-    doneOnce = true;
-    items = [];
+    // ما بنمسح الأذكار المعروضة لو الاتصال فشل
     render();
   });
 
-  // ما بنخلي المستخدم ينتظر أكتر من 4 ثواني بلا أي رد بالواجهة — بس
-  // ما منفترض إنه القسم فاضي فعلياً، لأنه ممكن البيانات توصل متأخرة
-  // (اتصال ضعيف) والمستمع (onSnapshot) لسا شغال وبيحدّث لما توصل.
-  setTimeout(() => {
-    if(!doneOnce) render();
-  }, 4000);
+  // لو بعد 4 ثواني ما وصل شي، منعرض رسالة واضحة بدل قسم فاضي
+  setTimeout(() => { if(!hasData) render(); }, 4000);
 }
 
 async function saveData(){
   try{
     await itemsRef.set({items: items});
+    writeLocalItems(items);
   }catch(e){
     console.error('فشل الحفظ', e);
     alert('في مشكلة بالحفظ، تأكد من اتصال الإنترنت وحاول مرة تانية.');
@@ -1318,6 +1346,7 @@ async function manualRefresh(){
   try{
     const snap = await itemsRef.get({source: 'server'});
     items = (snap.exists && snap.data().items) ? snap.data().items : [];
+    writeLocalItems(items);
     normalizeOrders();
     render();
     forceRefreshImages();
@@ -1750,9 +1779,13 @@ function render(){
   const list = getFilteredItems();
 
   if(list.length === 0 && !editMode){
-    const emptyMsg = (activeCategory === 'all' && searchQuery.trim())
-      ? 'ما في نتائج مطابقة لبحثك'
-      : 'لا يوجد أذكار في هذا القسم بعد';
+    const emptyMsg = items.length === 0
+      ? (navigator.onLine
+          ? 'جاري تحميل الأذكار... إذا طوّلت تأكد من الاتصال'
+          : 'ما في نسخة محفوظة على الجهاز بعد. افتح التطبيق مرة واحدة بوجود إنترنت لتحميل الأذكار.')
+      : (activeCategory === 'all' && searchQuery.trim())
+        ? 'ما في نتائج مطابقة لبحثك'
+        : 'لا يوجد أذكار في هذا القسم بعد';
     grid.innerHTML = '<div class="empty">' + emptyMsg + '</div>';
     renderCompleteToggle();
     return;
