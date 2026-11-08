@@ -671,7 +671,7 @@ function renderAzkarCatGrid(){
     `;
     box.onclick = () => {
       if(pastDayState !== 'ready') return;
-      state = Tracker.toggle('azkarCategories', item.id, currentKey);
+      state = Tracker.toggleCategory(item.id, currentKey);
       render();
     };
     container.appendChild(box);

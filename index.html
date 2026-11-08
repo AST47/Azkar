@@ -1259,8 +1259,16 @@ function reconcileCategories(){
     const tid = CATEGORY_TO_TRACKER_ID[g];
     return tid && !state.azkarCategories[tid] && allCategoryDone(g, state);
   });
-  if(!due.length) return;
-  Tracker.update(s => due.forEach(g => { s.azkarCategories[CATEGORY_TO_TRACKER_ID[g]] = true; }));
+  // العكس: التصنيف معلّم مكتمل (مثلاً من صفحة المتابعة) وأذكاره لسا ما انعلّمت: علّمها
+  const fill = TIMELINE_CATEGORIES.filter(g => {
+    const tid = CATEGORY_TO_TRACKER_ID[g];
+    return tid && state.azkarCategories[tid] && categoryDhikrItems(g).length && !allCategoryDone(g, state);
+  });
+  if(!due.length && !fill.length) return;
+  Tracker.update(s => {
+    due.forEach(g => { s.azkarCategories[CATEGORY_TO_TRACKER_ID[g]] = true; });
+    fill.forEach(g => categoryDhikrItems(g).forEach(i => Tracker.apply(s, itemLinkKey(i), true)));
+  });
 }
 // زر إتمام التصنيف ("أتممت الأذكار"...): بيعلّم كل أذكار التصنيف مرة وحدة — لمين
 // خلّصهم برّا التطبيق. لو كان مكتمل وانكبس تاني: بيرجّع الكل غير مكتمل (تراجع).
@@ -1410,7 +1418,7 @@ document.addEventListener('click', () => {
 function parsePrayerClock(t){
   const clean = t.split(' ')[0];
   const [h,m] = clean.split(':').map(Number);
-  const period = h < 12 ? 'ص' : 'م';
+  const period = AZKAR_DIGITS.period(h);
   let h12 = h % 12; if(h12 === 0) h12 = 12;
   return toArabicDigits(`${h12}:${String(m).padStart(2,'0')}`) + ' ' + period;
 }

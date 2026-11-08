@@ -17,6 +17,8 @@ const AZKAR_DIGITS = {
     if(typeof syncSettingsToCloud === 'function') syncSettingsToCloud();
   },
   toggle(){ this.set(this.mode() === 'en' ? 'ar' : 'en'); },
+  // ص/م مع الأرقام العربية، AM/PM مع اللاتينية. h = الساعة بنظام 24.
+  period(h){ return this.mode() === 'en' ? (h < 12 ? 'AM' : 'PM') : (h < 12 ? 'ص' : 'م'); },
   convert(n){
     const s = String(n);
     if(this.mode() === 'en') return s;

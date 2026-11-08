@@ -250,6 +250,31 @@ const Tracker = (() => {
     return write(key, normalize({}));
   }
 
+  // ---------- إتمام تصنيف أذكار كامل (من أي صفحة) ----------
+  // بيعلّم/بيشيل علامة التصنيف + كل أذكاره الفردية، حتى ما يصير تناقض بين صفحة
+  // المتابعة وصفحة الأذكار. لائحة الأذكار من النسخة المحلية اللي بتحفظها الصفحة
+  // الرئيسية (azkar_items_v1)؛ لو ما في نسخة بعد، بنعدّل العلامة فقط.
+  const CATEGORY_TRACKER_ID = { waking:'waking', morning:'waking', noon:'noon', during_day:'during_day', evening:'evening', before_sleep:'sleep' };
+  function categoryItems(tid){
+    let list = [];
+    try{ list = JSON.parse(localStorage.getItem('azkar_items_v1') || '[]') || []; }catch(e){}
+    return list.filter(i => !i.isQuran && CATEGORY_TRACKER_ID[i.categoryId] === tid);
+  }
+  function itemStateKey(item){
+    return item.categoryId === 'during_day' ? itemKey(item) : item.id;
+  }
+  function setCategoryDone(tid, value, key){
+    value = !!value;
+    return update(s => {
+      categoryItems(tid).forEach(i => apply(s, itemStateKey(i), value));
+      s.azkarCategories[tid] = value;
+    }, key);
+  }
+  function toggleCategory(tid, key){
+    const cur = !!read(key).azkarCategories[tid];
+    return setCategoryDone(tid, !cur, key);
+  }
+
   function onChange(fn){ document.addEventListener(EVENT, fn); }
 
   // ---------- مصادر التغيير الخارجية ----------
@@ -265,7 +290,7 @@ const Tracker = (() => {
   return {
     dayKey, todayKey, todayDate, boundaryMinutes, refreshBoundary,
     read, write, update, reset, normalize,
-    isDone, isDoneIn, setDone, toggle, apply, onChange,
+    isDone, isDoneIn, setDone, toggle, apply, onChange, setCategoryDone, toggleCategory,
     COMPOUND_PARTS, COMPOUND_OF, KEY_OPTIONS, linkKeyOf, itemKey, normalizeArabic
   };
 })();
