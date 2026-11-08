@@ -7,6 +7,24 @@
 
 const ADMIN_EMAIL = "salehzuh@gmail.com";
 
+// ---------- نمط الأرقام (عربية ١٢٣ / لاتينية 123) — مشترك بين كل الصفحات ----------
+// الافتراضي: عربية. التخزين المحلي 'digit_mode' = 'ar' | 'en'، وبيتزامن مع الحساب.
+const AZKAR_DIGITS = {
+  mode(){ return localStorage.getItem('digit_mode') === 'en' ? 'en' : 'ar'; },
+  set(m){
+    localStorage.setItem('digit_mode', m === 'en' ? 'en' : 'ar');
+    document.dispatchEvent(new CustomEvent('azkar-digits-changed'));
+    if(typeof syncSettingsToCloud === 'function') syncSettingsToCloud();
+  },
+  toggle(){ this.set(this.mode() === 'en' ? 'ar' : 'en'); },
+  convert(n){
+    const s = String(n);
+    if(this.mode() === 'en') return s;
+    const d = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+    return s.replace(/[0-9]/g, x => d[x]);
+  }
+};
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -229,7 +247,8 @@ function readLocalSettings(){
     city: localStorage.getItem('pt_city') || null,
     method: localStorage.getItem('pt_method') || null,
     tune: localStorage.getItem('pt_tune') || null,
-    showPrayerTimes: localStorage.getItem('show_prayer_times') === '1'
+    showPrayerTimes: localStorage.getItem('show_prayer_times') === '1',
+    digits: AZKAR_DIGITS.mode()
   };
 }
 
@@ -254,6 +273,10 @@ function applyCloudSettings(s){
   if(s.tune != null) localStorage.setItem('pt_tune', s.tune);
   else localStorage.removeItem('pt_tune');
   localStorage.setItem('show_prayer_times', s.showPrayerTimes ? '1' : '0');
+  if(s.digits === 'ar' || s.digits === 'en'){
+    if(localStorage.getItem('digit_mode') !== s.digits) document.dispatchEvent(new CustomEvent('azkar-digits-changed'));
+    localStorage.setItem('digit_mode', s.digits);
+  }
 
   const after = JSON.stringify(readLocalSettings());
   _lastSettingsJSON = after;

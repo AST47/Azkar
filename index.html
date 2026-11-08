@@ -422,6 +422,7 @@ mark.search-hit{
 .complete-toggle:hover{background:rgba(173,138,62,0.1);}
 .complete-toggle:disabled{opacity:.45; cursor:default;}
 .complete-toggle:disabled:hover{background:var(--bg-card);}
+.card.tappable{cursor:pointer; -webkit-tap-highlight-color:transparent;}
 .item-check{
   width:26px; height:26px; border-radius:50%;
   border:1.5px solid var(--gold-line); background:var(--bg-card);
@@ -916,6 +917,10 @@ mark.search-hit{
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="currentColor" stroke="none"/></svg>
             حول
           </button>
+          <button id="digitsBtn" class="pages-item" title="تبديل شكل الأرقام">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><text x="12" y="16" text-anchor="middle" font-size="11" font-weight="700" font-family="sans-serif">123</text></svg>
+            <span id="digitsBtnLabel">الأرقام: لاتينية</span>
+          </button>
           <button id="refreshBtn" class="pages-item" title="تحديث الأذكار من قاعدة البيانات">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
             تحديث الأذكار
@@ -1368,6 +1373,19 @@ function forceRefreshImages(){
 
 document.getElementById('refreshBtn').addEventListener('click', manualRefresh);
 
+function updateDigitsBtn(){
+  const el = document.getElementById('digitsBtnLabel');
+  if(el) el.textContent = AZKAR_DIGITS.mode() === 'en' ? 'الأرقام: عربية ١٢٣' : 'الأرقام: لاتينية 123';
+}
+document.getElementById('digitsBtn').addEventListener('click', () => {
+  AZKAR_DIGITS.toggle();
+  updateDigitsBtn();
+  render();
+});
+// تغيّر الخيار من جهاز تاني (مزامنة الحساب)
+document.addEventListener('azkar-digits-changed', () => { updateDigitsBtn(); render(); });
+updateDigitsBtn();
+
 document.getElementById('infoBtn').addEventListener('click', () => {
   document.getElementById('infoModal').classList.add('open');
 });
@@ -1536,9 +1554,9 @@ function closeModal(id){
 let lightboxImages = [];
 let lightboxIndex = 0;
 
+// الاسم قديم، بس هلأ بيحترم اختيار المستخدم (عربية/لاتينية) من AZKAR_DIGITS بـ auth.js
 function toArabicDigits(n){
-  const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-  return String(n).replace(/[0-9]/g, d => arabicDigits[d]);
+  return AZKAR_DIGITS.convert(n);
 }
 
 // -------- بحث نصي يتجاهل التشكيل --------
@@ -1908,6 +1926,16 @@ function render(){
       chk.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
       chk.onclick = () => { toggleItemChecked(item); render(); };
       badgeGroup.insertBefore(chk, badgeGroup.firstChild);
+
+      // الضغط على أي مكان بالكرت بيعمل نفس الصح (إلا الأزرار/الروابط، أو لو المستخدم عم يحدّد نص، أو بوضع التعديل)
+      card.classList.add('tappable');
+      card.onclick = e => {
+        if(editMode) return;
+        if(e.target.closest('button, a, input, textarea, select')) return;
+        if(String(window.getSelection && window.getSelection()).length) return;
+        toggleItemChecked(item);
+        render();
+      };
     }
 
     footer.appendChild(badgeGroup);

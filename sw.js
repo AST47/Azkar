@@ -1,4 +1,4 @@
-const CACHE_NAME = 'azkar-cache-v15';
+const CACHE_NAME = 'azkar-cache-v16';
 // صور السور بكاش لحاله (خارج رقم النسخة): تحديث النسخة ما بيمسحها وما بنضطر نحمّلها من جديد
 const IMAGE_CACHE = 'azkar-images-v1';
 const IMAGE_HOSTS = ['raw.githubusercontent.com'];
