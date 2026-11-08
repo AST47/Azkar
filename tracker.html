@@ -520,18 +520,18 @@ const PRAYERS = [
 ];
 
 const AZKAR_CATEGORIES = [
-  {id:'waking', label:'الاستيقاظ والصبح'},
+  {id:'waking', label:'الاستيقاظ والصباح'},
   {id:'noon', label:'الظهيرة'},
   {id:'during_day', label:'أثناء اليوم'},
-  {id:'evening', label:'المساء'},
-  {id:'sleep', label:'قبل النوم'}
+  {id:'evening', label:'الغروب'},
+  {id:'sleep', label:'المساء وقبل النوم'}
 ];
 const AZKAR_TIMES = [
-  {id:'subhanallah', label:'×١٠٠ تسبيح'},
-  {id:'t1', label:'×٢٠ التهليل'},
-  {id:'t3', label:'×١٠٠ صلاة على النبي'},
-  {id:'t2', label:'×٢٠ الاستغفار'},
-  {id:'lahawla', label:'×١٠٠ حوقلة'}
+  {id:'subhanallah', label:'×100 تسبيح'},
+  {id:'t1', label:'×20 التهليل'},
+  {id:'t3', label:'×100 صلاة على النبي'},
+  {id:'t2', label:'×20 الاستغفار'},
+  {id:'lahawla', label:'×100 حوقلة'}
 ];
 // مفاتيح فرعية داخلية (مش أزرار ظاهرة) — عدّادة الذكر بتستخدمها لتجميع
 // شغلتين قبل ما تفعّل t1 (التوحيد) أو t2 (الاستغفار) تلقائياً.
@@ -606,9 +606,11 @@ function fetchFajrTime(onDone){
   Tracker.refreshBoundary(onDone, {geolocate: true});
 }
 
+function dateLocale(){ return AZKAR_DIGITS.mode() === 'en' ? 'ar-u-nu-latn' : 'ar-u-nu-arab'; }
+
 function renderDate(){
   const d = editingPastDay ? editingDateObj : new Date();
-  const formatted = new Intl.DateTimeFormat('ar', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).format(d);
+  const formatted = new Intl.DateTimeFormat(dateLocale(), {weekday:'long', day:'numeric', month:'long', year:'numeric'}).format(d);
   document.getElementById('todayDate').textContent = formatted;
   renderDayNav(d);
 }
@@ -651,7 +653,7 @@ function renderProgress(){
   done += PRAYERS.filter(p => state.prayers[p.id]).length;
   done += AZKAR_CATEGORIES.filter(a => state.azkarCategories[a.id]).length;
   done += AZKAR_TIMES.filter(a => state.azkarTimes[a.id]).length;
-  document.getElementById('progressText').textContent = done + ' من ' + total + ' مكتملة اليوم';
+  document.getElementById('progressText').textContent = AZKAR_DIGITS.convert(done) + ' من ' + AZKAR_DIGITS.convert(total) + ' مكتملة اليوم';
 }
 
 function renderAzkarCatGrid(){
@@ -665,7 +667,7 @@ function renderAzkarCatGrid(){
       <span class="check-circle">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
       </span>
-      <span class="box-label">${item.label}</span>
+      <span class="box-label">${AZKAR_DIGITS.convert(item.label)}</span>
     `;
     box.onclick = () => {
       if(pastDayState !== 'ready') return;
@@ -686,7 +688,7 @@ function renderGrid(containerId, list, stateKey){
       <span class="check-circle">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
       </span>
-      <span class="box-label">${item.label}</span>
+      <span class="box-label">${AZKAR_DIGITS.convert(item.label)}</span>
     `;
     box.onclick = () => {
       if(pastDayState !== 'ready') return;
@@ -709,11 +711,12 @@ function render(){
 
 renderDate();
 render();
+document.addEventListener('azkar-digits-changed', () => { renderDate(); render(); });
 
 if(editingPastDay){
   const banner = document.createElement('div');
   banner.style.cssText = 'max-width:480px; margin:0 auto 14px; padding:10px 14px; background:var(--bg-card); border:1px solid var(--gold-line); border-radius:10px; font-size:13px; color:var(--ink-soft); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;';
-  const formatted = new Intl.DateTimeFormat('ar', {weekday:'long', day:'numeric', month:'long'}).format(editingDateObj);
+  const formatted = new Intl.DateTimeFormat(dateLocale(), {weekday:'long', day:'numeric', month:'long'}).format(editingDateObj);
   const label = 'بتعدّل سجل';
   banner.innerHTML = `<span>${label}: <strong style="color:var(--teal-dark);">${formatted}</strong></span><a href="tracker.html" style="color:var(--teal); text-decoration:none; font-weight:600;">رجوع لليوم الحالي ←</a><span id="pastDayNote" style="display:none; flex-basis:100%; color:#9C2F2F;">تعذّر تحميل سجل هاد اليوم من حسابك. تأكد من الاتصال وحدّث الصفحة لتقدر تعدّل.</span>`;
   document.querySelector('.ornament').insertAdjacentElement('afterend', banner);

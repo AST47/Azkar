@@ -455,6 +455,8 @@ mark.search-hit{
   font-family:'Tajawal', sans-serif;
   color:var(--ink-soft);
   white-space:nowrap;
+  text-align:center;
+  line-height:1.3;
 }
 .timeline-node.active .timeline-label{
   color:var(--teal-dark);
@@ -1081,8 +1083,8 @@ const CATEGORIES = [
   {id:'yearly', label:'مرّة بالسنة'},
   {id:'waking', label:'الاستيقاظ والصباح'},
   {id:'noon', label:'الظهيرة'},
-  {id:'evening', label:'المساء'},
-  {id:'before_sleep', label:'قبل النوم'},
+  {id:'evening', label:'الغروب'},
+  {id:'before_sleep', label:'المساء وقبل النوم'},
   {id:'means', label:'الأخذ بالأسباب'}
 ];
 // "الصباح" (morning) صار مدموج بصرياً مع "الاستيقاظ" (waking) تحت اسم
@@ -1091,7 +1093,14 @@ const CATEGORIES = [
 // (morning هون مشان العناصر القديمة يلي لسا متعلّمة فيه بقاعدة البيانات)
 const CATEGORY_BADGE_LABELS = {
   waking:'الصباح', morning:'الصباح',
+  evening:'الغروب', before_sleep:'قبل النوم',
   during_day:'يوم', weekend:'أسبوع', monthly:'شهر', yearly:'سنة', means:'أسباب'
+};
+
+// أسماء التايم لاين: بعض العقد بسطرين (الاسم الكامل بيضل بـ CATEGORIES للقوائم والتعديل)
+const TIMELINE_LABEL_HTML = {
+  waking: 'الاستيقاظ<br>والصباح',
+  before_sleep: 'المساء<br>وقبل النوم'
 };
 // "الاستيقاظ والصباح" — أي عنصر قديم متعلّم بـ categoryId:'morning' لسا
 // موجود بقاعدة البيانات وبيظهر تلقائياً هون (شوف getFilteredItems).
@@ -1735,7 +1744,7 @@ function fillTimeline(wrap, scrollToTop){
     const azkarDot = azkarDone ? '<span class="timeline-done-dot dot-azkar"></span>' : '';
     const quranItems = QURAN_ITEMS_BY_CATEGORY[catId] || [];
     const quranDot = (quranItems.length && quranItems.every(q => isQuranItemDone(q.id))) ? '<span class="timeline-done-dot dot-quran"></span>' : '';
-    node.innerHTML = `<span class="timeline-icon">${TIMELINE_ICONS[catId]}${prayerDot}${azkarDot}${quranDot}</span><span class="timeline-label">${cat.label}</span>`;
+    node.innerHTML = `<span class="timeline-icon">${TIMELINE_ICONS[catId]}${prayerDot}${azkarDot}${quranDot}</span><span class="timeline-label">${TIMELINE_LABEL_HTML[catId] || cat.label}</span>`;
     node.onclick = () => {
       activeCategory = catId;
       render();
