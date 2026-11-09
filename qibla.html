@@ -462,10 +462,12 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
   const KAABA_LAT = 21.4225;
   const KAABA_LON = 39.8262;
 
-  const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-  function toArabicNumber(n){
-    return String(n).split('').map(ch => /[0-9]/.test(ch) ? arabicDigits[ch] : ch).join('');
-  }
+  // شكل الأرقام (عربية/لاتينية) من اختيار المستخدم، مشترك عبر auth.js
+  function toArabicNumber(n){ return AZKAR_DIGITS.convert(n); }
+  let lastLoc = null;
+  document.addEventListener('azkar-digits-changed', () => {
+    if(lastLoc) useLocation(lastLoc.lat, lastLoc.lon, lastLoc.source);
+  });
 
   const statusText = document.getElementById('statusText');
   const bearingNum = document.getElementById('bearingNum');
@@ -508,10 +510,11 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
   }
 
   function useLocation(lat, lon, source){
+    lastLoc = {lat, lon, source};
     qiblaBearing = calcBearing(lat, lon);
     const dist = calcDistance(lat, lon);
     bearingNum.textContent = toArabicNumber(Math.round(qiblaBearing)) + '°';
-    distanceNum.textContent = toArabicNumber(Math.round(dist).toLocaleString('ar'));
+    distanceNum.textContent = toArabicNumber(Math.round(dist).toLocaleString('en-US'));
     statusText.textContent = source === 'live' ? 'تم تحديد موقعك' : 'موقع محفوظ مسبقاً';
     updateArrow();
     startCompassIfPossible();

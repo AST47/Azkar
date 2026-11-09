@@ -528,10 +528,9 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
 
 <script>
 (function(){
-  const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-  function toArabicNumber(n){
-    return String(n).split('').map(ch => /[0-9]/.test(ch) ? arabicDigits[ch] : ch).join('');
-  }
+  // شكل الأرقام (عربية/لاتينية) من اختيار المستخدم، مشترك عبر auth.js
+  function toArabicNumber(n){ return AZKAR_DIGITS.convert(n); }
+  document.addEventListener('azkar-digits-changed', () => render());
 
   const state = {
     count: parseInt(localStorage.getItem('dhikr_count') || '0', 10),
@@ -653,6 +652,7 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
 
     [...targetsEl.querySelectorAll('button')].forEach(btn=>{
       btn.classList.toggle('active', parseInt(btn.dataset.target,10) === state.target);
+      btn.textContent = toArabicNumber(btn.dataset.target);
     });
 
     vibToggle.classList.toggle('on', state.vibrate);
@@ -842,7 +842,7 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
     const link = document.getElementById('plLink').value;
     const err = document.getElementById('plFormError');
     if(!title || !text){ err.textContent = 'العنوان والنص مطلوبين'; return; }
-    if(!(target >= 1)){ err.textContent = 'التكرار لازم يكون ١ أو أكتر'; return; }
+    if(!(target >= 1)){ err.textContent = 'التكرار لازم يكون ' + AZKAR_DIGITS.convert(1) + ' أو أكتر'; return; }
     const item = editingIdx >= 0 ? working[editingIdx] : { id: 'p_' + Date.now() };
     item.title = title; item.text = text; item.target = target;
     if(link) item.trackerKey = link; else delete item.trackerKey;

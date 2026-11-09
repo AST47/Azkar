@@ -729,10 +729,8 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
 <script>
 (function(){
 
-  const AR_DIGITS = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-  function toArabicDigits(input){
-    return String(input).replace(/[0-9]/g, d => AR_DIGITS[d]);
-  }
+  // شكل الأرقام (عربية/لاتينية) من اختيار المستخدم، مشترك عبر auth.js
+  function toArabicDigits(input){ return AZKAR_DIGITS.convert(input); }
 
   const PRAYER_LABELS = [
     { key:'Fajr',    ar:'الفجر',   en:'Fajr' },
@@ -950,11 +948,16 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
 
   function formatClock(t){
     const {h,m} = parseTime(t);
-    const period = h < 12 ? 'ص' : 'م';
+    const period = AZKAR_DIGITS.period(h);
     let h12 = h % 12; if(h12 === 0) h12 = 12;
     const mm = String(m).padStart(2,'0');
     return toArabicDigits(`${h12}:${mm}`) + ' ' + period;
   }
+
+  // تغيّر شكل الأرقام (من صفحة الأذكار أو جهاز تاني): أعد الرسم إذا الأوقات جاهزة
+  document.addEventListener('azkar-digits-changed', () => {
+    if(state.timings && state.hijri && state.gregorian) renderAll();
+  });
 
   function renderAll(){
     renderDate();
