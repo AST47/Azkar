@@ -49,6 +49,12 @@ const AZKAR_FONT = {
   }
 };
 AZKAR_FONT.apply();
+// منع التمرير الأفقي: الصفحة ما بتصير أعرض من الشاشة مع التكبير
+(function(){
+  const st = document.createElement('style');
+  st.textContent = 'html{overflow-x:hidden;}';
+  document.head.appendChild(st);
+})();
 
 const auth = firebase.auth();
 const db = firebase.firestore();

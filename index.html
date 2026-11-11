@@ -348,9 +348,16 @@ mark.search-hit{
   background:none;
   border:none;
   cursor:pointer;
-  flex-shrink:0;
+  flex-shrink:1;
   width:76px;
+  min-width:60px;
 }
+/* لما ما يتسع الصف (تكبير الخط): 3 دوائر فوق و2 تحتهم بالنص */
+.timeline.stacked{ display:grid; grid-template-columns:repeat(6, 1fr); row-gap:14px; justify-items:center; }
+.timeline.stacked .timeline-line{ display:none; }
+.timeline.stacked .timeline-node{ grid-column:span 2; width:auto; min-width:0; max-width:100%; }
+.timeline.stacked .timeline-node:nth-child(7){ grid-column:2 / span 2; grid-row:2; }
+.timeline.stacked .timeline-node:nth-child(9){ grid-column:4 / span 2; grid-row:2; }
 .timeline-line{
   flex:1 1 30px;
   max-width:60px;
@@ -1750,7 +1757,26 @@ function fillTimeline(wrap, scrollToTop){
       wrap.appendChild(line);
     }
   });
+  fitTimeline(wrap);
 }
+
+// إذا ما اتسع الصف الواحد (مثلاً مع تكبير الخط) منعرضه 3 فوق و2 تحت
+function fitTimeline(wrap){
+  wrap.classList.remove('stacked');
+  if(!wrap.clientWidth) return;
+  if(wrap.scrollWidth > wrap.clientWidth + 1) wrap.classList.add('stacked');
+}
+function fitAllTimelines(){
+  requestAnimationFrame(() => {
+    ['timeline', 'timelineBottom'].forEach(id => {
+      const w = document.getElementById(id);
+      if(w) fitTimeline(w);
+    });
+  });
+}
+window.addEventListener('resize', fitAllTimelines);
+window.addEventListener('load', fitAllTimelines);
+document.addEventListener('azkar-font-changed', fitAllTimelines);
 
 function renderBottomTabs(){
   const wrap = document.getElementById('bottomTabs');
