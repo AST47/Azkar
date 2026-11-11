@@ -38,7 +38,10 @@ const AZKAR_FONT = {
     return (n >= 0 && n <= 3) ? n : 0;
   },
   apply(){
-    document.documentElement.style.zoom = this.scales[this.level()] === 1 ? '' : this.scales[this.level()];
+    const z = this.scales[this.level()];
+    document.documentElement.style.zoom = z === 1 ? '' : z;
+    // للعناصر اللي ما لازم تكبر (الدائرة، البوصلة): zoom:var(--az-unzoom) بيرجّعها لحجمها الأصلي
+    document.documentElement.style.setProperty('--az-unzoom', String(1 / z));
   },
   set(n){
     n = Math.max(0, Math.min(3, parseInt(n, 10) || 0));

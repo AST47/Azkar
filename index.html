@@ -511,7 +511,7 @@ mark.search-hit{
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns:repeat(auto-fill, minmax(min(230px, 100%), 1fr));
   gap:16px;
 }
 
@@ -1761,10 +1761,10 @@ function fillTimeline(wrap, scrollToTop){
 }
 
 // إذا ما اتسع الصف الواحد (مثلاً مع تكبير الخط) منعرضه 3 فوق و2 تحت
+// بدون ما نشيل الكلاس ونقيس (هيك كان الارتفاع يتغيّر لحظياً والصفحة تنط لفوق): عرض الحاوية كافي لـ5 دوائر؟
 function fitTimeline(wrap){
-  wrap.classList.remove('stacked');
   if(!wrap.clientWidth) return;
-  if(wrap.scrollWidth > wrap.clientWidth + 1) wrap.classList.add('stacked');
+  wrap.classList.toggle('stacked', wrap.clientWidth < 310);
 }
 function fitAllTimelines(){
   requestAnimationFrame(() => {

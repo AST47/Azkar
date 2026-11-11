@@ -255,6 +255,11 @@ section{margin-bottom:26px;}
   grid-template-columns:repeat(5, 1fr);
   gap:8px;
 }
+/* لما ما يتسع الصف (تكبير الخط): 3 فوق و2 تحتهم بالنص */
+.grid5.stacked{ grid-template-columns:repeat(6, minmax(0, 1fr)); row-gap:10px; }
+.grid5.stacked > .box{ grid-column:span 2; }
+.grid5.stacked > .box:nth-child(4){ grid-column:2 / span 2; }
+.grid5.stacked > .box:nth-child(5){ grid-column:4 / span 2; }
 .grid3{
   display:grid;
   grid-template-columns:repeat(3, 1fr);
@@ -383,9 +388,9 @@ section{margin-bottom:26px;}
             اتجاه القبلة
           </a>
           <div class="pages-divider"></div>
-          <a href="account.html" id="accountBtn" class="pages-item" title="تسجيل دخول">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
-            <span id="accountBtnLabel">تسجيل دخول</span>
+          <a href="account.html" id="accountBtn" class="pages-item" title="الإعدادات">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+            <span id="accountBtnLabel">الإعدادات</span>
           </a>
           <a href="support.html" class="pages-item">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
@@ -494,12 +499,23 @@ firebase.initializeApp(firebaseConfig);
 <script src="auth.js"></script>
 <script src="tracker.js"></script>
 <script>
-function updateAccountLabel(){
-  const el = document.getElementById('accountBtnLabel');
-  if(el) el.textContent = currentUser ? 'إعدادات الحساب' : 'تسجيل دخول';
+// إذا عرض كل مربع من الخمسة صار أقل من ٥٥px (مثلاً مع تكبير الخط): ٣ فوق و٢ تحتهم
+function fitGrid(g){
+  const cols = 5, gap = 6;
+  const w = (g.clientWidth - gap * (cols - 1)) / cols;
+  g.classList.toggle('stacked', g.clientWidth > 0 && w < 55);
 }
-AZKAR_AUTH_READY.then(updateAccountLabel);
-document.addEventListener('azkar-auth-changed', updateAccountLabel);
+(function(){
+  const grids = document.querySelectorAll('.grid5');
+  if(typeof ResizeObserver === 'function'){
+    const ro = new ResizeObserver(entries => entries.forEach(e => fitGrid(e.target)));
+    grids.forEach(g => ro.observe(g));
+  }
+  const all = () => grids.forEach(fitGrid);
+  window.addEventListener('resize', all);
+  window.addEventListener('load', all);
+  document.addEventListener('azkar-font-changed', all);
+})();
 </script>
 
 <script>
