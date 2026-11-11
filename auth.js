@@ -27,6 +27,29 @@ const AZKAR_DIGITS = {
   }
 };
 
+// ---------- حجم الخط (4 مستويات) — مشترك بين كل الصفحات ----------
+// التخزين المحلي 'font_level' = '0'..'3' (عادي، كبير، أكبر، ضخم)، وبيتزامن مع الحساب.
+// الصفحات كلها بـ px، فنستخدم zoom على <html> بدل rem.
+const AZKAR_FONT = {
+  scales: [1, 1.15, 1.3, 1.5],
+  labels: ['عادي', 'كبير', 'أكبر', 'ضخم'],
+  level(){
+    const n = parseInt(localStorage.getItem('font_level'), 10);
+    return (n >= 0 && n <= 3) ? n : 0;
+  },
+  apply(){
+    document.documentElement.style.zoom = this.scales[this.level()] === 1 ? '' : this.scales[this.level()];
+  },
+  set(n){
+    n = Math.max(0, Math.min(3, parseInt(n, 10) || 0));
+    localStorage.setItem('font_level', String(n));
+    this.apply();
+    document.dispatchEvent(new CustomEvent('azkar-font-changed'));
+    if(typeof syncSettingsToCloud === 'function') syncSettingsToCloud();
+  }
+};
+AZKAR_FONT.apply();
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
@@ -250,7 +273,8 @@ function readLocalSettings(){
     method: localStorage.getItem('pt_method') || null,
     tune: localStorage.getItem('pt_tune') || null,
     showPrayerTimes: localStorage.getItem('show_prayer_times') === '1',
-    digits: AZKAR_DIGITS.mode()
+    digits: AZKAR_DIGITS.mode(),
+    fontLevel: AZKAR_FONT.level()
   };
 }
 
@@ -278,6 +302,11 @@ function applyCloudSettings(s){
   if(s.digits === 'ar' || s.digits === 'en'){
     if(localStorage.getItem('digit_mode') !== s.digits) document.dispatchEvent(new CustomEvent('azkar-digits-changed'));
     localStorage.setItem('digit_mode', s.digits);
+  }
+  if(Number.isInteger(s.fontLevel) && s.fontLevel >= 0 && s.fontLevel <= 3){
+    localStorage.setItem('font_level', String(s.fontLevel));
+    AZKAR_FONT.apply();
+    document.dispatchEvent(new CustomEvent('azkar-font-changed'));
   }
 
   const after = JSON.stringify(readLocalSettings());
