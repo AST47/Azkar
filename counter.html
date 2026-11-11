@@ -368,9 +368,9 @@ body{
             اتجاه القبلة
           </a>
           <div class="pages-divider"></div>
-          <a href="account.html" id="accountBtn" class="pages-item" title="تسجيل دخول">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
-            <span id="accountBtnLabel">تسجيل دخول</span>
+          <a href="account.html" id="accountBtn" class="pages-item" title="الإعدادات">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+            <span id="accountBtnLabel">الإعدادات</span>
           </a>
           <a href="support.html" class="pages-item">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
@@ -424,6 +424,7 @@ body{
         <span>الاهتزاز</span>
         <span class="switch"></span>
       </label>
+      <button class="textbtn" id="resetBtnQuick" title="تصفير العداد">↺ تصفير</button>
     </div>
   </div>
 
@@ -517,15 +518,6 @@ firebase.initializeApp(firebaseConfig);
 </script>
 <script src="auth.js"></script>
 <script src="tracker.js"></script>
-<script>
-function updateAccountLabel(){
-  const el = document.getElementById('accountBtnLabel');
-  if(el) el.textContent = currentUser ? 'إعدادات الحساب' : 'تسجيل دخول';
-}
-AZKAR_AUTH_READY.then(updateAccountLabel);
-document.addEventListener('azkar-auth-changed', updateAccountLabel);
-</script>
-
 <script>
 (function(){
   // شكل الأرقام (عربية/لاتينية) من اختيار المستخدم، مشترك عبر auth.js
@@ -705,11 +697,13 @@ document.addEventListener('azkar-auth-changed', updateAccountLabel);
     save();
   });
 
-  resetBtn.addEventListener('click', ()=>{
+  function resetCount(){
     state.count = 0;
     render();
     save();
-  });
+  }
+  resetBtn.addEventListener('click', resetCount);
+  document.getElementById('resetBtnQuick').addEventListener('click', resetCount);
 
   vibToggle.addEventListener('click', ()=>{
     state.vibrate = !state.vibrate;
