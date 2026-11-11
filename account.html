@@ -7,7 +7,7 @@
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1F5C4E">
-<title>الحساب | أذكار وأدعية</title>
+<title>الإعدادات | أذكار وأدعية</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Reem+Kufi:wght@400;500;700&family=Tajawal:wght@300;400;500;700&display=swap');
 
@@ -82,6 +82,13 @@ input[type=email], input[type=password]{width:100%; font-family:'Tajawal', sans-
 .switch input:checked + .switch-track{background:var(--teal);}
 .switch input:checked + .switch-track::before{transform:translateX(20px);}
 
+.card + .card{margin-top:16px;}
+.seg{display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;}
+.seg button{font-family:'Tajawal', sans-serif; font-size:13px; padding:7px 12px; border-radius:8px; border:1px solid var(--gold-line); background:transparent; color:var(--ink-soft); cursor:pointer;}
+.seg button.on{background:var(--teal); border-color:var(--teal); color:#F5EDD9;}
+.set-label{font-size:14px; color:var(--ink);}
+.set-col{display:block; padding:10px 0; border-bottom:1px solid var(--gold-line);}
+.set-col .seg{margin-top:8px; justify-content:flex-start;}
 .calendar-card{margin-top:16px;}
 .cal-nav{display:flex; align-items:center; justify-content:space-between; margin-top:4px;}
 .cal-nav-btn{width:30px; height:30px; border-radius:50%; border:1px solid var(--gold-line); background:var(--bg-card); color:var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center;}
@@ -113,7 +120,7 @@ a.cal-cell:hover{transform:scale(1.08);}
         <a href="counter.html"><circle cx="6.5" cy="13.6" r="6" fill="transparent"/><circle cx="6.5" cy="13.6" r="1.9" fill="#1F5C4E"/></a>
         <a href="qibla.html"><circle cx="10.5" cy="25.9" r="6" fill="transparent"/><circle cx="10.5" cy="25.9" r="1.9" fill="#1F5C4E"/></a>
       </svg>
-      <h1>الحساب</h1>
+      <h1>الإعدادات</h1>
     </div>
     <div class="header-actions">
       <div class="pages-menu">
@@ -143,8 +150,8 @@ a.cal-cell:hover{transform:scale(1.08);}
           </a>
           <div class="pages-divider"></div>
           <a href="account.html" class="pages-item current">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
-            الحساب
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+            الإعدادات
           </a>
           <a href="support.html" class="pages-item">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
@@ -157,10 +164,37 @@ a.cal-cell:hover{transform:scale(1.08);}
 
   <div class="ornament"></div>
 
+  <!-- ---------- الإعدادات (للجميع) ---------- -->
+  <div class="card" id="settingsCard">
+    <h2>الإعدادات</h2>
+    <div class="set-col">
+      <span class="set-label">حجم الخط</span>
+      <div class="seg" id="fontSeg"></div>
+    </div>
+    <div class="set-col">
+      <span class="set-label">شكل الأرقام</span>
+      <div class="seg" id="digitSeg"></div>
+    </div>
+    <div class="account-row">
+      <span>عرض أوقات الصلاة في الأذكار</span>
+      <label class="switch">
+        <input type="checkbox" id="showPrayerToggle" onchange="toggleShowPrayer(this.checked)">
+        <span class="switch-track"></span>
+      </label>
+    </div>
+    <div class="account-row" id="editModeRow" style="display:none;">
+      <span>نمط التعديل</span>
+      <label class="switch">
+        <input type="checkbox" id="editModeToggle" onchange="toggleEditMode(this.checked)">
+        <span class="switch-track"></span>
+      </label>
+    </div>
+  </div>
+
   <!-- ---------- حالة: ضيف (غير مسجل) ---------- -->
   <div class="card" id="guestCard" style="display:none;">
-    <h2>مزامنة بياناتك</h2>
-    <p class="lead">سجّل دخولك مشان تحتفظ بسجل المتابعة اليومي وبإعداداتك وتوصلهم من أي جهاز.</p>
+    <h2>حفظ الإعدادات والمزامنة</h2>
+    <p class="lead">سجّل دخولك مشان تنحفظ إعداداتك (حجم الخط، الأرقام، المدينة...) وسجل المتابعة اليومي وتوصلهم من أي جهاز.</p>
     <div class="opt-list" id="syncOptions">
       <button class="btn btn-primary" onclick="handleGoogle()">الدخول بحساب جوجل</button>
       <button class="btn" onclick="showEmailForm('new')">إنشاء حساب بإيميل جديد</button>
@@ -179,24 +213,10 @@ a.cal-cell:hover{transform:scale(1.08);}
 
   <!-- ---------- حالة: مسجل دخول ---------- -->
   <div class="card" id="accountCard" style="display:none;">
-    <h2>إعدادات الحساب</h2>
+    <h2>الحساب</h2>
     <div class="account-row">
       <span class="account-email" id="acctEmailDisplay"></span>
       <span class="badge-admin" id="adminBadge" style="display:none;">مشرف</span>
-    </div>
-    <div class="account-row">
-      <span>عرض أوقات الصلاة في الأذكار</span>
-      <label class="switch">
-        <input type="checkbox" id="showPrayerToggle" onchange="toggleShowPrayer(this.checked)">
-        <span class="switch-track"></span>
-      </label>
-    </div>
-    <div class="account-row" id="editModeRow" style="display:none;">
-      <span>نمط التعديل</span>
-      <label class="switch">
-        <input type="checkbox" id="editModeToggle" onchange="toggleEditMode(this.checked)">
-        <span class="switch-track"></span>
-      </label>
     </div>
     <button class="btn" style="margin-top:18px;" onclick="signOutAndClear().then(() => location.reload())">تسجيل الخروج</button>
   </div>
@@ -291,7 +311,32 @@ function toggleShowPrayer(on){
   syncSettingsToCloud();
 }
 
+function renderSettingsUI(){
+  const fs = document.getElementById('fontSeg');
+  fs.innerHTML = '';
+  AZKAR_FONT.labels.forEach((lbl, i) => {
+    const b = document.createElement('button');
+    b.textContent = lbl;
+    if(i === AZKAR_FONT.level()) b.className = 'on';
+    b.onclick = () => AZKAR_FONT.set(i);
+    fs.appendChild(b);
+  });
+  const ds = document.getElementById('digitSeg');
+  ds.innerHTML = '';
+  [['ar','١٢٣'],['en','123']].forEach(([m, lbl]) => {
+    const b = document.createElement('button');
+    b.textContent = lbl;
+    if(AZKAR_DIGITS.mode() === m) b.className = 'on';
+    b.onclick = () => AZKAR_DIGITS.set(m);
+    ds.appendChild(b);
+  });
+  document.getElementById('showPrayerToggle').checked = localStorage.getItem('show_prayer_times') === '1';
+  document.getElementById('editModeRow').style.display = isAdmin ? 'flex' : 'none';
+  document.getElementById('editModeToggle').checked = editMode;
+}
+
 function renderAccountUI(){
+  renderSettingsUI();
   const guestCard = document.getElementById('guestCard');
   const accountCard = document.getElementById('accountCard');
   const calendarCard = document.getElementById('calendarCard');
@@ -301,9 +346,6 @@ function renderAccountUI(){
     accountCard.style.display = 'block';
     document.getElementById('acctEmailDisplay').textContent = currentUser.email;
     document.getElementById('adminBadge').style.display = isAdmin ? 'inline-block' : 'none';
-    document.getElementById('editModeRow').style.display = isAdmin ? 'flex' : 'none';
-    document.getElementById('editModeToggle').checked = editMode;
-    document.getElementById('showPrayerToggle').checked = localStorage.getItem('show_prayer_times') === '1';
     calendarCard.style.display = 'block';
     deleteAccountCard.style.display = 'block';
     renderCalendar();
@@ -465,10 +507,9 @@ function handleDeleteAccountClick(){
 
 AZKAR_AUTH_READY.then(renderAccountUI);
 document.addEventListener('azkar-auth-changed', renderAccountUI);
-document.addEventListener('azkar-settings-changed', () => {
-  const t = document.getElementById('showPrayerToggle');
-  if (t) t.checked = localStorage.getItem('show_prayer_times') === '1';
-});
+document.addEventListener('azkar-settings-changed', renderSettingsUI);
+document.addEventListener('azkar-font-changed', renderSettingsUI);
+document.addEventListener('azkar-digits-changed', renderSettingsUI);
 </script>
 </body>
 </html>
