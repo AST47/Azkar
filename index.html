@@ -474,6 +474,11 @@ mark.search-hit{
   justify-content:center;
   margin-bottom:26px;
 }
+/* التنقّل (الخط الزمني + أزرار آخر الصفحة) ما بيتكبّر مع حجم الخط */
+#timeline, #timelineBottom, #bottomTabs{ zoom:var(--az-unzoom, 1); }
+/* أزرار آخر الصفحة: سطر واحد دايماً، 4 أزرار بعرض متساوي والنص بيلف جواتها لو لزم */
+#bottomTabs{ flex-wrap:nowrap; gap:6px; max-width:480px; margin-left:auto; margin-right:auto; }
+#bottomTabs .tab{ flex:1 1 0; min-width:0; justify-content:center; text-align:center; white-space:normal; line-height:1.25; padding:9px 4px; font-size:13.5px; }
 
 .tabs{
   display:flex;
@@ -1763,8 +1768,9 @@ function fillTimeline(wrap, scrollToTop){
 // إذا ما اتسع الصف الواحد (مثلاً مع تكبير الخط) منعرضه 3 فوق و2 تحت
 // بدون ما نشيل الكلاس ونقيس (هيك كان الارتفاع يتغيّر لحظياً والصفحة تنط لفوق): عرض الحاوية كافي لـ5 دوائر؟
 function fitTimeline(wrap){
-  if(!wrap.clientWidth) return;
-  wrap.classList.toggle('stacked', wrap.clientWidth < 310);
+  const w = wrap.getBoundingClientRect().width; // الخط الزمني مو متكبّر، فهاد بالبكسل الفعلي
+  if(!w) return;
+  wrap.classList.toggle('stacked', w < 304);
 }
 function fitAllTimelines(){
   requestAnimationFrame(() => {
