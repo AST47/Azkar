@@ -235,81 +235,51 @@ body{
 }
 
 .all-btn-wrap{
-  position:relative;
   display:flex;
   justify-content:center;
-  margin:0 auto 26px;
-  max-width:620px;
+  margin:0 0 22px;
 }
-.all-btn{
-  font-family:'Reem Kufi', sans-serif;
-  font-size:16px;
-  font-weight:500;
-  background:var(--gold);
-  color:#2B2118;
-  border:none;
-  padding:12px 24px;
-  border-radius:30px;
-  cursor:pointer;
-  box-shadow:0 3px 10px rgba(173,138,62,0.25);
-  box-sizing:border-box;
-  max-width:400px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  transition:transform .4s cubic-bezier(.22,1,.36,1), max-width .4s cubic-bezier(.22,1,.36,1), box-shadow .15s;
-  white-space:nowrap;
-}
-.all-btn:hover{transform:translateY(-1px); box-shadow:0 5px 14px rgba(173,138,62,0.32);}
-.all-btn.active{
-  background:var(--teal);
-  color:#F5EDD9;
-  box-shadow:0 3px 10px rgba(31,92,78,0.3);
-}
-.all-btn-wrap.btn-shifted .all-btn{
-  transform:translateX(92px);
-  max-width:min(270px, 46%);
-}
-.all-btn-wrap.btn-shifted .all-btn:hover{
-  transform:translateX(92px) translateY(-1px);
-}
+/* الزر نفسه هو مربع البحث: بلون فاتح، والجملة جواته ثابتة، وبالضغط بيصير حقل كتابة بمكانه */
 .search-box{
-  position:absolute;
-  top:50%;
-  left:0;
-  width:min(270px, 46%);
-  height:46px;
-  box-sizing:border-box;
   display:flex;
   align-items:center;
-  gap:8px;
+  gap:10px;
+  width:100%;
+  max-width:400px;
+  height:46px;
+  padding:0 18px;
+  box-sizing:border-box;
   background:var(--bg-card);
   border:1.5px solid var(--gold-line);
   border-radius:30px;
-  padding:0 16px;
   color:var(--ink-soft);
-  opacity:0;
-  transform:translateY(-50%) scale(.9);
-  pointer-events:none;
-  transition:opacity .22s ease, transform .22s ease;
+  cursor:text;
+  transition:border-color .2s ease, box-shadow .2s ease;
 }
-.all-btn-wrap.search-visible .search-box{
-  opacity:1;
-  transform:translateY(-50%) scale(1);
-  pointer-events:auto;
-  transition:opacity .28s ease, transform .28s ease;
+.search-box:hover{ border-color:var(--gold); }
+.all-btn-wrap.is-active .search-box{
+  border-color:var(--teal);
+  box-shadow:0 0 0 3px rgba(31,92,77,0.12);
 }
+.search-box svg{ flex-shrink:0; }
 .search-box input{
   border:none;
   background:none;
   outline:none;
   font-family:'Tajawal', sans-serif;
-  font-size:14px;
+  font-size:15px;
   width:100%;
   min-width:0;
   height:100%;
   color:var(--ink);
 }
-.search-box input::placeholder{color:var(--ink-soft); opacity:0.7;}
+.search-box input:placeholder-shown{ text-align:center; }
+.search-box input::placeholder{
+  font-family:'Reem Kufi', sans-serif;
+  font-size:16px;
+  color:var(--teal-dark);
+  opacity:1;
+}
 .search-clear{
   border:none;
   background:none;
@@ -943,10 +913,9 @@ mark.search-hit{
   <div class="ornament"></div>
 
   <div class="all-btn-wrap" id="allBtnWrap">
-    <button class="all-btn" id="allBtn">كافّة الأدعية والأذكار</button>
     <div class="search-box" id="searchBox">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="searchInput" placeholder="دوّر بالأدعية والأذكار..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="dhikr-search">
+      <input type="text" id="searchInput" placeholder="كافّة الأدعية والأذكار" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="dhikr-search">
       <button class="search-clear" id="searchClear" title="مسح" style="display:none;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
@@ -1687,31 +1656,26 @@ async function importItems(){
 
 function renderAllButton(){
   const wrap = document.getElementById('allBtnWrap');
-  const btn = document.getElementById('allBtn');
   const input = document.getElementById('searchInput');
   const clearBtn = document.getElementById('searchClear');
 
   const wantSearch = activeCategory === 'all';
-  const isShifted = wrap.classList.contains('btn-shifted');
+  wrap.classList.toggle('is-active', wantSearch);
 
-  if(wantSearch && !isShifted){
-    // فتح: نزيح الزر فوراً، وبعد ما يوصل مكانه نظهر صندوق البحث
-    wrap.classList.add('btn-shifted');
-    clearTimeout(wrap._searchTimer);
-    wrap._searchTimer = setTimeout(() => wrap.classList.add('search-visible'), 180);
-  }else if(!wantSearch && isShifted){
-    // إغلاق: نخفي صندوق البحث فوراً، وبعد ما يختفي تقريباً نرجّع الزر
-    wrap.classList.remove('search-visible');
-    clearTimeout(wrap._searchTimer);
-    wrap._searchTimer = setTimeout(() => wrap.classList.remove('btn-shifted'), 200);
+  // لما نطلع من "الكل" بنفرّغ البحث، فيرجع المربع بجملته الثابتة
+  if(!wantSearch && searchQuery){
+    searchQuery = '';
+    input.value = '';
   }
 
-  btn.classList.toggle('active', activeCategory === 'all');
-  btn.onclick = () => {
-    activeCategory = 'all';
-    render();
-    input.focus();
+  // الضغط على المربع = فتح "الكل" مع كتابة مباشرة (الفوكس بيضل بمكانه لأن الحقل ما بيتعاد بناؤه)
+  input.onfocus = () => {
+    if(activeCategory !== 'all'){
+      activeCategory = 'all';
+      render();
+    }
   };
+  document.getElementById('searchBox').onclick = () => input.focus();
 
   if(input.value !== searchQuery) input.value = searchQuery;
   clearBtn.style.display = searchQuery ? 'flex' : 'none';
