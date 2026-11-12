@@ -15,6 +15,8 @@ const INFO_ABOUT_HTML = `
 
 // [رقم الإصدار, الوصف] — الأحدث أولاً
 const CHANGELOG = [
+  ["١.١٠.٠", "صفحة \"الإعدادات\" (بدل الحساب): خيار لتكبير الخط بأربع مستويات للمساعدة بالقراءة، وشكل الأرقام، وتسجيل الدخول لحفظ الإعدادات ومزامنتها. وزر تصفير سريع بصفحة العدّادة، وتحسين عرض الصفحات والخط الزمني مع الخط الكبير"],
+  ["١.٩.٥", "عمل التطبيق بدون إنترنت بشكل أفضل مع نسخة احتياطية مرفقة، والضغط على الكرت كله لتأشير إتمام الدعاء، وخيار الأرقام العربية أو اللاتينية، وإضافة \"الغروب\" للخط الزمني وإعادة ترتيب أقسام اليوم، وتوحيد تأشير تصنيف الأذكار مع صفحة المتابعة"],
   ["١.٩.٤", "صح بجانب كل ذكر ضمن \"أثناء اليوم\" مع زر واحد \"أتممت الأدعية والأذكار\"، وربط موحّد بين صفحات الأذكار والعدّادة والمتابعة، وإعدادات الصلاة صارت تتزامن بين الأجهزة، وزر كالندر بصفحة المتابعة"],
   ["١.٩.٣", "إمكانية حذف الحساب نهائياً من صفحة الحساب، وإضافة صفحة سياسة الخصوصية"],
   ["١.٩.٢", "كالندر صفحة الحساب صار يلوّن كل يوم حسب عدد فعلي من ٢٠ (مو نسبة): ٢٠=أخضر، ١٥-١٩=ذهبي، ١٠-١٤=ذهبي فاتح، أقل من ١٠=أفتح لون"],
@@ -50,6 +52,25 @@ const CHANGELOG = [
   ["١.١.١", "بادج تصنيف مميز لكل ذكر بصفحة \"كل الأذكار\""],
   ["١.١.٠", "إطلاق الموقع: كل الأذكار عبر سبع فئات، مع نظام ترتيب ثابت ووضع تعديل للمشرفين"]
 ];
+
+// ---------- نافذة "حول": تناسب الشاشة مع الخط الكبير + سهولة الإغلاق ----------
+(function infoModalFixes(){
+  const st = document.createElement('style');
+  st.textContent = `
+    .modal.info-modal{ max-height:calc(85vh * var(--az-unzoom, 1)); overflow-y:auto; overscroll-behavior:contain; }
+    .info-modal .modal-actions{ position:sticky; bottom:-24px; margin:16px -24px -24px; padding:12px 24px 24px; background:var(--bg-card); border-top:1px solid var(--gold-line); }
+  `;
+  document.head.appendChild(st);
+
+  const ov = document.getElementById('infoModal');
+  if (!ov) return;
+  // الضغط خارج الكرت بيسكّره
+  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+  // زر الإلغاء (Esc)
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && ov.classList.contains('open')) ov.classList.remove('open');
+  });
+})();
 
 (function renderSharedInfo(){
   const aboutEl = document.getElementById('infoAbout');
