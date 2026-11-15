@@ -435,7 +435,6 @@ section{margin-bottom:26px;}
   <section>
     <div class="section-label">ورد الأذكار اليومي</div>
     <div class="grid5" id="azkarCatGrid"></div>
-    <div class="grid5" id="azkarTimesGrid" style="margin-top:10px;"></div>
   </section>
 
   <div class="reset-note">البوكسات بترجع فاضية تلقائياً مع أذان الفجر</div>
@@ -664,11 +663,10 @@ function renderDayNav(displayedDate){
 }
 
 function renderProgress(){
-  const total = QURAN.length + PRAYERS.length + AZKAR_CATEGORIES.length + AZKAR_TIMES.length;
+  const total = QURAN.length + PRAYERS.length + AZKAR_CATEGORIES.length;
   let done = QURAN.filter(q => state.quran[q.id]).length;
   done += PRAYERS.filter(p => state.prayers[p.id]).length;
   done += AZKAR_CATEGORIES.filter(a => state.azkarCategories[a.id]).length;
-  done += AZKAR_TIMES.filter(a => state.azkarTimes[a.id]).length;
   document.getElementById('progressText').textContent = AZKAR_DIGITS.convert(done) + ' من ' + AZKAR_DIGITS.convert(total) + ' مكتملة اليوم';
 }
 
@@ -722,7 +720,6 @@ function render(){
   renderGrid('quranGrid', QURAN, 'quran');
   renderGrid('prayersGrid', PRAYERS, 'prayers');
   renderAzkarCatGrid();
-  renderGrid('azkarTimesGrid', AZKAR_TIMES, 'azkarTimes');
 }
 
 renderDate();

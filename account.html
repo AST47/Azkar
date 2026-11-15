@@ -377,29 +377,21 @@ function calShiftMonth(delta){
   renderCalendar();
 }
 
-// بيحسب شدة اللون (٠ لغاية ٣) حسب نسبة الإنجاز بكل أقسام اليوم
-// (قرآن، صلوات، تصنيفات أذكار، أذكار أوقات).
-// المفاتيح المخفية (tawheed_a/b، istighfar_a/b) بس مكوّنات فرعية للتهليل/
-// الاستغفار المركّب (t1/t2) — ما لازم تنعدّ لحالها، وإلا نفس الإنجاز
-// بيتكرر بالحساب وبتنخفض النسبة صناعياً.
-const HIDDEN_AZKAR_TIME_IDS = ['tawheed_a','tawheed_b','istighfar_a','istighfar_b'];
-
-// مقياس ثابت من ٢٠ وحدة (٥ صلوات + ٥ قرآن + ٥ تصنيفات أذكار + ٥ أذكار
-// أوقات) — مو نسبة، عدد فعلي: ٢٠=أخضر (مكتمل)، ١٥-١٩=ذهبي، ١٠-١٤=ذهبي
-// فاتح، أقل من ١٠=أفتح لون.
+// بيحسب شدة اللون (٠ لغاية ٣) حسب عدد الإنجاز الفعلي بـ ١٥ وحدة:
+// ٥ صلوات + ٥ ورد قرآن + ٥ تصنيفات أذكار. مربعات التسبيح/التهليل... انشالت
+// من صفحة المتابعة فما بتنعدّ (حتى بالأيام القديمة: بنقرأ نفس البيانات المخزّنة
+// ونتجاهل هالمفاتيح، فما في أي تحويل للبيانات).
+// ١٥=أخضر (مكتمل)، ١١-١٤=ذهبي، ٨-١٠=ذهبي فاتح، أقل من ٨=أفتح لون.
 function dayCompletionLevel(dayState){
   let done = 0;
-  ['quran','prayers','azkarCategories','azkarTimes'].forEach(section => {
+  ['quran','prayers','azkarCategories'].forEach(section => {
     const obj = dayState && dayState[section];
     if(!obj) return;
-    Object.entries(obj).forEach(([key, v]) => {
-      if(section === 'azkarTimes' && HIDDEN_AZKAR_TIME_IDS.includes(key)) return;
-      if(v) done++;
-    });
+    DAY_SCHEMA[section].forEach(id => { if(obj[id]) done++; });
   });
-  if(done >= 20) return 3;
-  if(done >= 15) return 2;
-  if(done >= 10) return 1;
+  if(done >= 15) return 3;
+  if(done >= 11) return 2;
+  if(done >= 8) return 1;
   return 0;
 }
 

@@ -530,6 +530,8 @@ mark.search-hit{
 }
 .quran-image-btn:hover{background:rgba(173,138,62,0.18);}
 
+/* عارض الصور: بدون تكبير الخط، حتى تضل الصورة وأزرارها ضمن الشاشة */
+#lightboxModal{ zoom:var(--az-unzoom, 1); }
 .lightbox-nav{
   position:fixed;
   bottom:20px;
@@ -609,7 +611,8 @@ mark.search-hit{
   font-family:'Amiri Quran', serif;
   font-size:21px;
   line-height:2.1;
-  text-align:right;
+  text-align:justify;
+  text-align-last:start;
   color:var(--teal-dark);
   max-width:820px;
   margin:0 auto;
@@ -622,6 +625,10 @@ mark.search-hit{
   color:var(--ink);
   flex:1;
   margin:0 0 14px;
+  /* ضبط خفيف للسطور: آخر سطر بيضل عادي، فالنص القصير ما بيتأثر */
+  text-align:justify;
+  text-align-last:start;
+  text-justify:inter-word;
 }
 
 .card-footer{
