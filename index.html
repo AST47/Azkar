@@ -1678,6 +1678,61 @@ async function importItems(){
   render();
 }
 
+// ---------- ملاءمة نص الكرت ----------
+// إذا آخر سطر بالكرت كلمة يتيمة (أقل من ٣٠٪ من العرض)، منصغّر الخط شوي (حتى ٨٪ بخطوة ٠.٥px)
+// لحتى الكلمة تطلع للسطر اللي قبلها. الكروت اللي ما فيها مشكلة بتضل بحجمها.
+function lineMetrics(el){
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  const rects = Array.from(range.getClientRects())
+    .filter(r => r.width > 0 && r.height > 0)
+    .sort((a, b) => a.top - b.top);
+  if(!rects.length) return null;
+  const lines = [];
+  rects.forEach(r => {
+    const last = lines[lines.length - 1];
+    if(last && r.top < last.top + last.h * 0.5){
+      last.l = Math.min(last.l, r.left);
+      last.r = Math.max(last.r, r.right);
+    }else{
+      lines.push({ top:r.top, h:r.height, l:r.left, r:r.right });
+    }
+  });
+  const box = el.getBoundingClientRect();
+  const last = lines[lines.length - 1];
+  return { count: lines.length, lastRatio: box.width ? (last.r - last.l) / box.width : 1 };
+}
+
+function fitCardTexts(){
+  const els = Array.from(document.querySelectorAll('.card-text'));
+  els.forEach(el => { el.style.fontSize = ''; });
+  const base = els.map(lineMetrics); // قراءات بس، فتخطيط وحد للكل
+  els.forEach((el, i) => {
+    const m = base[i];
+    if(!m || m.count < 2 || m.lastRatio >= 0.3) return;
+    const px = parseFloat(getComputedStyle(el).fontSize);
+    for(let d = 0.5; d <= px * 0.08; d += 0.5){
+      el.style.fontSize = (px - d) + 'px';
+      const n = lineMetrics(el);
+      if(n && (n.count < m.count || n.lastRatio >= 0.3)) return;
+    }
+    el.style.fontSize = '';
+  });
+}
+
+let fitTextTimer;
+function scheduleFitCardTexts(){
+  clearTimeout(fitTextTimer);
+  fitTextTimer = setTimeout(() => {
+    const ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+    ready.then(fitCardTexts);
+  }, 60);
+}
+new MutationObserver(scheduleFitCardTexts).observe(document.getElementById('grid'), { childList:true });
+window.addEventListener('resize', scheduleFitCardTexts);
+window.addEventListener('load', scheduleFitCardTexts);
+document.addEventListener('azkar-font-changed', scheduleFitCardTexts);
+
 // ---------- مشاركة ذكر/دعاء ----------
 const SHARE_URL = 'https://azkar.ahmadsalehtuffaha.com';
 
