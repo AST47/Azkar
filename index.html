@@ -1703,20 +1703,44 @@ function lineMetrics(el){
   return { count: lines.length, lastRatio: box.width ? (last.r - last.l) / box.width : 1 };
 }
 
+// الحجم المحسوب بينحفظ لكل (كرت + عرض + مستوى خط)، ولما الصفحة تنبني من جديد (مثلاً بعد تأشير صح)
+// الكرت بياخد حجمه فوراً بدون إعادة قياس، فما في رجفة. الدوال هون hoisted عشان تنادى من render بأي وقت.
+function getFitCache(){ return (window._fitCache = window._fitCache || new Map()); }
+function fitKey(base){
+  const g = document.getElementById('grid');
+  return base + '|' + (g ? g.clientWidth : 0) + '|' + AZKAR_FONT.level();
+}
+
 function fitCardTexts(){
-  const els = Array.from(document.querySelectorAll('.card-text'));
-  els.forEach(el => { el.style.fontSize = ''; });
-  const base = els.map(lineMetrics); // قراءات بس، فتخطيط وحد للكل
-  els.forEach((el, i) => {
-    const m = base[i];
-    if(!m || m.count < 2 || m.lastRatio >= 0.3) return;
-    const px = parseFloat(getComputedStyle(el).fontSize);
-    for(let d = 0.5; d <= px * 0.08; d += 0.5){
-      el.style.fontSize = (px - d) + 'px';
-      const n = lineMetrics(el);
-      if(n && (n.count < m.count || n.lastRatio >= 0.3)) return;
+  const cache = getFitCache();
+  // بس الكروت اللي ما إلها حجم محفوظ للعرض/المستوى الحالي
+  const todo = Array.from(document.querySelectorAll('.card-text')).filter(el => {
+    const key = fitKey(el.dataset.fitBase || '');
+    if(!el.dataset.fitBase) return false;
+    if(cache.has(key)){
+      const px = cache.get(key);
+      el.style.fontSize = px ? px + 'px' : '';
+      return false;
     }
-    el.style.fontSize = '';
+    return true;
+  });
+  if(!todo.length) return;
+  todo.forEach(el => { el.style.fontSize = ''; });
+  const base = todo.map(lineMetrics); // قراءات بس، فتخطيط وحد للكل
+  todo.forEach((el, i) => {
+    const key = fitKey(el.dataset.fitBase);
+    const m = base[i];
+    let result = 0;
+    if(m && m.count >= 2 && m.lastRatio < 0.3){
+      const px = parseFloat(getComputedStyle(el).fontSize);
+      for(let d = 0.5; d <= px * 0.08; d += 0.5){
+        el.style.fontSize = (px - d) + 'px';
+        const n = lineMetrics(el);
+        if(n && (n.count < m.count || n.lastRatio >= 0.3)){ result = px - d; break; }
+      }
+      if(!result) el.style.fontSize = '';
+    }
+    cache.set(key, result);
   });
 }
 
@@ -1986,6 +2010,9 @@ function render(){
     }else{
       text.textContent = item.text;
     }
+    text.dataset.fitBase = item.id + '|' + String(item.text || '').length;
+    const cachedPx = getFitCache().get(fitKey(text.dataset.fitBase));
+    if(cachedPx) text.style.fontSize = cachedPx + 'px';
     card.appendChild(text);
 
     const footer = document.createElement('div');
